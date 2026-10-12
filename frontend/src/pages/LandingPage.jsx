@@ -83,10 +83,10 @@ export default function LandingPage() {
 
       {/* HERO */}
       <section className="hero-glow pt-28 pb-24 lg:pt-32 lg:pb-32 relative overflow-hidden">
+        <motion.div style={{ y: orbY, scale: orbScale }} className="relative w-full h-[75vh]">
+          <HeroOrb fill />
+        </motion.div>
         <div className="mx-auto max-w-5xl px-6 lg:px-12 flex flex-col items-center text-center">
-          <motion.div style={{ y: orbY, scale: orbScale }} className="w-full max-w-[860px]">
-            <HeroOrb />
-          </motion.div>
           <motion.div className="w-full" variants={heroContainer} initial="hidden" animate="show">
             <motion.h1 variants={heroItem} className="font-display text-5xl sm:text-6xl lg:text-7xl font-light tracking-tight leading-[1.02]">
               Capital doesn't flow to everyone.<br/>
