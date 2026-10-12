@@ -1,0 +1,77 @@
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "../lib/auth";
+import { Button } from "./ui/button";
+
+export default function NavBar() {
+  const { user, logout } = useAuth();
+  const nav = useNavigate();
+
+  const linkCls = ({ isActive }) =>
+    `text-sm tracking-tight transition-colors ${isActive ? "text-white" : "text-white/60 hover:text-white"}`;
+
+  return (
+    <header
+      data-testid="site-header"
+      className="fixed top-0 inset-x-0 z-50 border-b border-white/10 backdrop-blur-xl bg-black/60"
+    >
+      <div className="mx-auto max-w-7xl px-6 lg:px-12 h-16 flex items-center justify-between">
+        <Link to="/" data-testid="brand-logo" className="flex items-center gap-2">
+          <span className="font-display text-xl tracking-tight">D.O.X</span>
+          <span className="label-kicker hidden sm:inline">Capital</span>
+        </Link>
+        <nav className="hidden lg:flex items-center gap-8">
+          <NavLink to="/" end className={linkCls} data-testid="nav-home">Home</NavLink>
+        </nav>
+        <div className="flex items-center gap-2">
+          <Link to="/book">
+            <Button data-testid="nav-book-call" variant="outline" className="rounded-none border-white/20 hover:bg-white hover:text-black">
+              Book Discovery Call
+            </Button>
+          </Link>
+          {user && user !== false ? (
+            <>
+              {(user.role === "admin" || (user.status === "approved" && user.account_type === "partner")) && (
+                <Link to="/workspace">
+                  <Button data-testid="nav-workspace" variant="outline" className="rounded-none border-[hsl(var(--gold))]/40 text-[hsl(var(--gold))] hover:bg-[hsl(var(--gold))] hover:text-black">
+                    Workspace
+                  </Button>
+                </Link>
+              )}
+              <Link to={user.role === "admin" ? "/admin" : "/dashboard"}>
+                <Button data-testid="nav-dashboard" className="rounded-none bg-white text-black hover:bg-white/90">
+                  {user.role === "admin" ? "Admin" : "Portal"}
+                </Button>
+              </Link>
+              <Button
+                data-testid="nav-logout"
+                variant="ghost"
+                className="rounded-none text-white/60 hover:text-white"
+                onClick={async () => { await logout(); nav("/"); }}
+              >
+                Sign out
+              </Button>
+            </>
+          ) : (
+            <>
+              <Link to="/auth?as=client">
+                <Button data-testid="nav-client-signin" className="rounded-none bg-white text-black hover:bg-white/90">
+                  Client Sign In / Sign Up
+                </Button>
+              </Link>
+              <Link to="/auth?as=partner">
+                <Button data-testid="nav-partner-signin" variant="outline" className="rounded-none border-[hsl(var(--gold))]/40 text-[hsl(var(--gold))] hover:bg-[hsl(var(--gold))] hover:text-black">
+                  Partner Sign In / Sign Up
+                </Button>
+              </Link>
+              <Link to="/auth?as=admin">
+                <Button data-testid="nav-admin-signin" variant="outline" className="rounded-none border-white/20 hover:bg-white hover:text-black">
+                  Admin
+                </Button>
+              </Link>
+            </>
+          )}
+        </div>
+      </div>
+    </header>
+  );
+}

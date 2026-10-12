@@ -1,0 +1,137 @@
+<analysis>**original_problem_statement**: 
+Rebuild Thedoxs.com (D.O.X Capital) with a modernized, Fortune 500 business site design. 
+PRODUCT REQUIREMENTS: 
+- Book a discovery call (Jitsi meetings).
+- Account sign-up flow requiring admin approval. Split sign-ups into distinct Partner and Client flows.
+- Email notifications sent to  for new signups and readiness updates.
+- Admin dashboard to manage users, roles, and site maintenance status.
+- Workspace sub-site for transaction coordination, CRM pipeline, and an AI assistant.
+- Sophisticated Loan Underwriting Pre-Screening Checklist (Pre-Revenue vs. Profitable tracks, automated red-flag gates, metrics collection, and bulk document upload).
+
+**User's preferred language**: English (INSTRUCT next agent to respond in English)
+
+**what currently exists?**: 
+A fully functional React + FastAPI + MongoDB MVP application. It includes JWT auth, Resend emails, Jitsi meetings, an admin dashboard, a deal-agnostic workspace CRM, and an SOP-aware AI assistant. Most recently, a Site Maintenance gate was added, authentication was split into distinct Client/Partner/Admin flows, and a comprehensive Loan Underwriting Pre-Screening Readiness engine was built directly from the user's provided PDF checklist, featuring automated metrics evaluation and email notifications.
+
+**Last working item**: 
+    - Last item agent was working: Building and testing the Loan Underwriting Pre-Screening Checklist feature (Client-facing , Admin-facing , and backend  engine). Also wired up the automated readiness email notification.
+    - Status: USER VERIFICATION PENDING
+    - Agent Testing Done: Y
+    - Which testing method agent to use? NA (Testing was successfully completed using  in Iteration 5)
+    - User Testing Done: N
+
+**All Pending/In progress Issue list**: 
+None currently blocking the build. 
+
+**In progress Task List**: 
+None currently in progress. The agent just successfully delivered the Pre-Screening Checklist and awaits user feedback.
+
+**Upcoming and Future Tasks**:
+- Task 1: Add actual Document Links to the Document Signing tab on the standard Dashboard (Note: Check with the user if the new Pre-Screening Checklist feature supersedes this older request, as the new feature now handles required client documentation). (P0)
+- Task 2: Implement Partner-issued Referral Codes for invites. (P1)
+- Task 3: Refactor highly complex components in the legacy site (, , ,  are over 170+ lines with high cyclomatic complexity). Extract sub-components. (P2)
+- Task 4: Add proper type coverage and error boundaries (TypeScript for frontend, Type Hints for Python backend) per code review feedback. (P2)
+
+**Completed work in this session**:
+- Created a Site Maintenance mode (lock screen) that gates public access, toggleable via the Admin dashboard (DONE).
+- Removed legacy content: Track Record, Services, and Compliance pages/links and corresponding metrics on the Landing Page (DONE).
+- Split the authentication UI into distinct Client Sign In/Sign Up, Partner Sign In/Sign Up, and Admin flows inside the NavBar (DONE).
+- Created  backend engine to handle 2 loan tracks (Pre-Revenue / Profitable), evaluate red-flag gates (DSCR, LTV, Equity), and calculate readiness percentage (DONE).
+- Built  (Client UI) and  (Admin UI) (DONE).
+- Configured automated Resend email to  when a client reaches 100% readiness without open red flags (DONE).
+
+**Earlier issues found/mentioned but not fixed**:
+   - Issue 1: High Component Complexity & Long Functions in legacy pages
+     - Debug checklist: Review , , , .
+     - Why to solve this issue and what will be achieved with this? Requested in earlier user Code Review. Makes code easier to maintain, test, and reduces bugs.
+     - Should Test frontend/backend/both after fix: Frontend
+     - Is recurring issue? N
+   - Issue 2: Zero Type Coverage in legacy code
+     - Debug checklist: Frontend React is using plain . Backend  lacks hints. 
+     - Why to solve this issue and what will be achieved with this? Improve IDE support, reduce runtime errors. Requested in Code Review.
+     - Should Test frontend/backend/both after fix: Both
+     - Is recurring issue? N
+
+**Known issue recurrence from previous fork**: 
+  - Issue recurrence in previous fork: None
+  - Recurrence count: 0
+  - Status: RESOLVED
+
+**Code Architecture**:
+
+
+**Key Technical Concepts**:
+Frontend: React, TailwindCSS, Shadcn UI.
+Backend: FastAPI, Motor (async MongoDB), JWT authentication.
+External Integrations: Resend (Emails), Jitsi (Meetings), OpenAI via Emergent LLM Key (Workspace AI Assistant).
+
+**key DB schema**:
+  - : {id, email, password_hash, role, workspace_role, status}
+  - : {id, user_id, storage_path, filename, created_at, uploader_role, kind}
+  - : {key, locked, updated_at, updated_by} (Used for Maintenance toggle)
+
+**changes in tech stack**: 
+  - Introduced  in the backend to separate complex business logic (underwriting gating rules) from  CRUD endpoints.
+
+**All files of reference**: 
+  -  & : Created to handle the new site maintenance lock requirement.
+  - : Contains the core logic for the Underwriting pre-screening engine parsed from the user's PDF.
+  -  & : React components to interface with the new pre-screening engine.
+  - : Heavily modified to split the audience into Partners and Clients based on URL parameters.
+
+**Areas that need refactoring**: 
+  - The legacy site pages (, , , ) still need component extraction based on earlier Code Review.
+
+**key api endpoints**:
+  -  (Fetch readiness status/metrics)
+  -  (Admin route to assign evaluation track)
+  -  (Client route to submit financial numbers)
+  -  (Admin dashboard overview of all readiness states)
+
+**Critical Info for New Agent**:
+  - **Site Maintenance Gate:** The app features a live maintenance lock. If  is set in the DB  collection, all public routes render a Coming Soon screen. Only users logging in via the AUTHORIZED ACCESS modal (using the Admin account) can bypass it.
+  - **Auth Audience Split:** The single Auth page now branches based on , , or . Ensure these states are respected if touching authentication. 
+  - **Readiness Logic:** The newly built Underwriting Pre-Screening checklist automatically generates an email to  when the client clears all red flags and reaches 100% document completion. Do not disrupt the metrics calculations in .
+
+**documents and test reports created in this job**:
+  - 
+  - 
+
+**Last 10 User Messages and any pending HUMAN messages**: 
+ - User: Uploaded , requested to use it as a source of truth for required client documentation. (Completed)
+ - User: remove the maitence screen for me to see (Completed)
+ - User: Stated they still aren't seeing the sign-in options on the header. (Agent informed them they need to sign out of the Admin account first to see the unauthenticated visitor view).
+ - User: Asked whats the admin sign in again? (Agent provided credentials).
+ - User: Asked to fix header boxes (Client, Partner, Admin sign-in) instead of tabs. (Completed)
+ - User: Clarified sign-in flows (split buttons, admin approvals, keep Workspace terminology internally). (Completed)
+ - User: Asked to remove specific text/sections (Track Record, Services, Compliance) from the homepage and requested separate sign-in options. (Completed)
+ - User: Provided instructions for the maintenance screen text changes. (Completed)
+ - User: Asked to put a coming soon loader over the main site so nothing can be accessed outside of admin. (Completed)
+ - *No Pending Human Messages.*
+
+**Project Health Check:**
+  - Broken: None
+  - Mocked: None
+
+**3rd Party Integrations**:
+  - Resend (Emails) — requires User API Key
+  - Jitsi (Meetings) — No key required
+  - OpenAI GPT (Workspace Assistant) — uses Emergent LLM Key
+
+**Testing status**:
+  - Testing agent used after significant changes: YES (Iteration 5)
+  - Troubleshoot agent used after agent stuck in loop: NO
+  - Test files created: 
+  - Known regressions: None
+
+**Credentials to test flow:**
+Admin account (Bypasses Maintenance Gate):
+Email: 
+Password: 
+(Other standard credentials located in )
+
+**What agent forgot to execute**:
+No explicit tasks were overlooked in this session. Legacy structural refactoring tasks (TypeScript additions, cyclomatic complexity breakdown) remain deferred to future tasks as previously agreed, pending functional completion.
+
+**Debugging checklist for current issue**
+N/A - Feature was just completed and fully tested. Await user verification on the Readiness Checklist.</analysis>

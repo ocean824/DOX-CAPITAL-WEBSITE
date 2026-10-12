@@ -1,0 +1,105 @@
+{
+  "theme": "Dark",
+  "archetype": "5 (Luxury)",
+  "brand": {
+    "name": "D.O.X Capital",
+    "tone": "Institutional gravitas, authoritative, premium, transparent, Fortune 500 confidence",
+    "contact_email": "deptofx@proton.me"
+  },
+  "typography": {
+    "heading_font": "Cabinet Grotesk",
+    "body_font": "IBM Plex Sans",
+    "strategy": "Swiss Brutalist meets Old Money Tech. Radical weight contrast. Tight tracking for headings, sterile precision for body.",
+    "hierarchy": {
+      "h1": "text-4xl sm:text-5xl lg:text-6xl tracking-tighter font-light",
+      "h2": "text-2xl sm:text-3xl lg:text-4xl tracking-tight font-medium",
+      "h3": "text-xl sm:text-2xl tracking-tight",
+      "body": "text-base leading-relaxed text-gray-300",
+      "labels": "text-xs tracking-[0.2em] uppercase text-gray-400"
+    }
+  },
+  "colors": {
+    "background": "#050505",
+    "surface": "#121212",
+    "surface_glass": "rgba(255,255,255,0.03)",
+    "border": "rgba(255,255,255,0.1)",
+    "primary_text": "#FFFFFF",
+    "secondary_text": "#A1A1AA",
+    "accent": "#FFFFFF",
+    "success_metrics": "#D4AF37",
+    "strategy": "Monochromatic silver/white on deep obsidian. 95% of the UI is monochrome. Accent used sparingly for success metrics ($1M+). Zero use of teal or purple."
+  },
+  "layout_spacing": {
+    "philosophy": "Generous Spacing Philosophy, 2-3x more spacing. Grid Borders (The Technical Look) for data and dashboards.",
+    "containers": "p-8 md:p-12 lg:p-24",
+    "grid_marketing": "Bento Grid Mode A (Tetris Grid) - asymmetrical, gaps of 8-12",
+    "grid_dashboard": "Bento Grid Mode B (Control Room) - dense, gaps of 4-6",
+    "corners": "rounded-none or rounded-sm (max 8px) for sharp, institutional edge",
+    "alignment": "Optical alignment. Left-align dense content. Grid items must be direct children."
+  },
+  "surfaces": {
+    "header": "Crystal Glass: bg-black/60 with backdrop-blur-xl and 1px border-white/10.",
+    "cards_marketing": "Tracing Beam (Linear look) or crisp 1px borders with subtle ambient shadows.",
+    "dashboard_widgets": "Flat solid background matching parent, 1px border-white/10, high contrast text."
+  },
+  "motion_3d": {
+    "hero": "React Three Fiber / Spline for Gemini-level abstract glass/metallic geometry. If unavailable, use parallax with the provided abstract glass images.",
+    "scroll": "Lenis smooth scrolling for premium momentum.",
+    "interactions": "Framer motion for subtle hover lifts and tracing beam borders on feature cards.",
+    "transitions": "opacity 0.2s ease, transform 0.2s ease. Respect prefers-reduced-motion."
+  },
+  "components": {
+    "marketing": "Raw HTML/Tailwind for asymmetrical layouts. Avoid default Shadcn cards for marketing.",
+    "dashboard": "Shadcn UI heavily customized. Flat solid surfaces, 1px subtle borders. No heavy shadows. Dense spacing.",
+    "forms": "Shadcn forms, inputs, selects. Minimalist styling with sharp 1px border on focus.",
+    "icons": "lucide-react with 1px stroke width for a sharp, technical Apple-like aesthetic.",
+    "testing": "All interactive and key informational elements MUST include data-testid attributes (kebab-case, role-based)."
+  },
+  "pages_and_routes": [
+    {
+      "name": "Landing Page",
+      "path": "/",
+      "features": ["3D Hero", "Services Overview (Debt advisory, entity restructuring)", "Track Record ($1M+ closed)", "Compliance/Trust Badges"]
+    },
+    {
+      "name": "Discovery Call",
+      "path": "/book",
+      "features": ["Date/Time Picker (Shadcn Calendar)", "Jitsi Meet link generation (free video meeting)", "Form for user details"]
+    },
+    {
+      "name": "Auth",
+      "path": "/auth",
+      "features": ["Login", "Register (Sends email request, sets status to pending)", "Forgot Password"]
+    },
+    {
+      "name": "User Dashboard",
+      "path": "/dashboard",
+      "features": ["Account Status", "Upload Documents Tab", "Sign Documents Tab (Button links to external/provided PDFs)"]
+    },
+    {
+      "name": "Admin Dashboard",
+      "path": "/admin",
+      "features": ["Approve/Reject Pending Users", "View Uploaded Documents"]
+    }
+  ],
+  "media": {
+    "image_urls": [
+      {
+        "url": "https://images.unsplash.com/photo-1638864616275-9f0b291a2eb6?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxNzV8MHwxfHNlYXJjaHwzfHxhYnN0cmFjdCUyMGdsYXNzJTIwZ2VvbWV0cnklMjBkYXJrfGVufDB8fHx8MTc4MDM5NjkxNXww&ixlib=rb-4.1.0&q=85",
+        "category": "hero_background",
+        "description": "Abstract black glass geometry for the hero section background to give a 3D Claude/Gemini feel."
+      },
+      {
+        "url": "https://images.pexels.com/photos/8954109/pexels-photo-8954109.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "category": "track_record",
+        "description": "Low angle view of a modern glass skyscraper to represent institutional confidence and scale."
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1526289034009-0240ddb68ce3?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxNzV8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMGdsYXNzJTIwZ2VvbWV0cnklMjBkYXJrfGVufDB8fHx8MTc4MDM5NjkxNXww&ixlib=rb-4.1.0&q=85",
+        "category": "services_bg",
+        "description": "Black and white building geometry for the services section."
+      }
+    ],
+    "instructions_to_main_agent": "Use the exact image URLs provided. Do not use generic placeholders. The UI must feel like a Fortune 500 institutional finance firm—stark, sharp, and highly trustworthy (Apple-grade aesthetics). Prioritize pure HTML/Tailwind for marketing layouts and Shadcn (customized) for the dashboard. Ensure the routing handles the pending approval flow correctly. Use the contact email deptofx@proton.me in footers and relevant contact points."
+  }
+}

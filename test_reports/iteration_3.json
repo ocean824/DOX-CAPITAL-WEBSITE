@@ -1,0 +1,33 @@
+{
+  "summary": "Full backend + partial frontend testing of the Workspace sub-site under /workspace. Backend workspace API: 45/45 pytest tests passed covering role mapping (OWNER/TEAM_MEMBER/CLIENT), all read endpoints, contact/transaction CRUD, 8-item auto-task template, task toggle, document upload+download, thread+message, meeting create+respond, knowledge upload+grant, hermes service-key issuance, pipeline-stage add, settings update, admin workspace-role toggle, CLIENT 403 on internal resources, staff review submission + owner approval, and the pending-user workspace gate (403). Legacy backend_test.py: 27/27 still pass. Frontend smoke: nav-workspace button present on main nav after login, OWNER /workspace renders overview with pipeline board, metric cards, recent activity, all key test-ids wired (new-transaction-button, add-contact-button, ai-send-button, vault-upload-button, key-hermes-button). CSS scoping verified — landing has no .workspace selectors leaked. CLIENT nav does NOT show Contacts/Tasks/Review queue; STAFF nav does NOT show Connections. All three roles reach /workspace without hitting the gate.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/workspace_test.py",
+    "/app/backend/tests/backend_test.py",
+    "/app/test_reports/pytest/workspace_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "workspace/core.py Repo.scope() is clean: single boundary for every collection, with CLIENT→documents visibility='client' filter and TEAM_MEMBER internal gate — matches spec.",
+    "document upload rejects categories outside the per-transaction required_documents list + 'Other'; this is correct but was not documented in test_credentials.md. Minor devx note (not a bug).",
+    "review decision correctly blocks a submitter from approving their own review (checked via conditional path when staff submits and owner approves).",
+    "server.py seeds admin and resyncs password every boot (good); workspace_seed() runs on startup and is idempotent.",
+    "CSS scoping under .workspace / .app-modal is airtight — verified landing page body has zero .workspace selectors applied.",
+    "DashboardPage.jsx has dashboard-workspace-link only when status==='approved'; for admin role the /dashboard route redirects to /admin so the link is not reachable through that path — not a bug but worth confirming the UX intent (link is for approved non-admin users)."
+  ],
+  "updated_files": [
+    "/app/backend/tests/workspace_test.py (new)"
+  ],
+  "success_rate": {"backend": "100% (45/45 workspace + 27/27 legacy)", "frontend": "100% of smoke flows (3 roles, 7 workspace pages, 1 CSS-leak check)"},
+  "test_credentials": "OWNER deptofx@proton.me / DoxAdmin!2026; STAFF staff.test@doxs.dev / TestUser!2026; CLIENT client.test@doxs.dev / TestUser!2026 — all working.",
+  "seed_data_creation": "pytest run created a few TEST_ prefixed contacts, transactions, pipeline stages, knowledge grants, pending registrations; non-destructive, no sample data flag.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Workspace backend is at /api/workspace/*. All role scoping enforced server-side via Repo.scope(). Document upload categories must be from tx['required_documents'] + 'Other'. Review-decision rejects self-approval. Workspace trusts site cookie 'access_token' only (no workspace login). CSS is scoped under .workspace/.app-modal — confirmed no leak. For CLIENT, /contacts, /tasks, /reviews return 403 by design. The pytest file /app/backend/tests/workspace_test.py is the canonical regression suite for the workspace. For UI deeper flows (actual create-transaction modal submission, document upload drag-and-drop, SSE updates, AI stream rendering), run Playwright with wait_until='domcontentloaded' and 3-4s sleeps as SSE keeps the network busy.",
+  "rca of the issue": "N/A — no issues found."
+}

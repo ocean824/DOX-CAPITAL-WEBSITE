@@ -1,0 +1,33 @@
+{
+  "summary": "Full regression of the DEAL-AGNOSTIC rename + SOP/settings features on backend and frontend. Rewrote /app/backend/tests/workspace_test.py to the new field names (title/location/value/deal_type/counterparty_id/deal_lead/engagement_date/diligence_date/close_date) and added coverage for: /deal-config visibility to all roles, CSRF origin allow/deny, 422 on unknown deal_type, 422 on out-of-order dates, settings PUT propagating deal_types+checklist_template+required_documents into newly created deals, SOP trust upload+PATCH toggle, grant deal_types requirement, ContactType accepts counterparty and rejects legacy 'buyer'. 24/24 workspace tests PASSED. Legacy backend_test.py 27/27 PASSED. Frontend Playwright smoke across OWNER / TEAM_MEMBER / CLIENT confirmed: overview metric cards ('Active deals','Pipeline value','Overdue steps'/'Upcoming closings'), board pipeline stages (Lead / Qualified / Underwriting / Term sheet / Closing-funding), deal cards show deal_type chip + location, no house photo, no legacy copy (property/address/buyer/seller/closing-disclosure absent). /workspace/transactions List view headers: DEAL / VALUE / STAGE / DEAL LEAD / TARGET CLOSE. Transaction detail shows ENGAGEMENT DATE / DILIGENCE DEADLINE / TARGET CLOSE / DEAL LEAD. People tab shows Counterparty / Deal type / Deal lead. Calendar legend: Engagement / Diligence / Target close. Contacts page shows Counterparty, no Buyer/Seller. Sidebar brand 'D.O.X Deal Operations' present. New-deal modal is dark-themed through the Radix portal (Deal name/Deal type select from settings/Counterparty/Location/Deal lead/Pipeline stage/Client portal access/Engagement date/Diligence deadline/Target close) — verified visually. Settings 'Deal setup' tab (settings-tab-deals) has Deal types / Checklist / Required documents editors and save-deal-setup button. Assistant has data-testid=ai-template-deal_guidance. Knowledge page has 'SOPs (source of truth)' stat, vault-upload-trust select exposed in the upload modal, and SOP badge visible. Marketing site regression (/, /services, /track-record, /compliance, /book) returns 200 and renders D.O.X branding — CSS stays scoped to .workspace. STAFF nav has no Connections; CLIENT nav has no Contacts/Review queue (correct scoping).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/workspace_test.py",
+    "/app/backend/tests/backend_test.py",
+    "/app/test_reports/pytest/workspace_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "core.py CSRF allowlist is correct: build 'allowed' from request.headers['host'], request.url.netloc and APP_ORIGIN netloc, then compare Origin netloc. Browser POSTs from the preview domain succeed; cross-origin POST (Origin=https://attacker.example.com) returns 403 as expected.",
+    "crm_routes.py validate_dates reads engagement_date/diligence_date/close_date and enforces non-decreasing order; PATCH close_date reuses the same check against the stored engagement/diligence values.",
+    "create_transaction rejects a deal_type not in settings.deal_types (422 'Unknown deal type. Add it in Settings first') and seeds exactly len(settings.checklist_template) tasks with due_date = engagement_date + offset_days. New deals also receive the current settings.required_documents snapshot (good — isolates each deal from later edits).",
+    "knowledge_routes.search_knowledge pulls TRUST=sop items first, dedupes against keyword matches, and still falls back to transaction items when nothing matched. ai_routes.chat passes trust into the excerpt payload and the system prompt explicitly binds the model to SOPs.",
+    "ContactType was tightened to {client, counterparty, partner, advisor}; delete_contact still checks the legacy buyer_id/seller_id link in transactions — safe but dead code that should be cleaned up to counterparty_id since the schema no longer carries buyer/seller.",
+    "TransactionPatch only allows close_date among dates; engagement_date/diligence_date are immutable after creation. That's a reasonable product choice but worth documenting since the UI may expose editable fields that silently ignore engagement/diligence patches."
+  ],
+  "updated_files": [
+    "/app/backend/tests/workspace_test.py (rewritten for new field names and new features)"
+  ],
+  "success_rate": {"backend": "100% (24/24 workspace + 27/27 legacy)", "frontend": "100% of covered flows (3 roles, 8 workspace pages, modal styling, marketing regression)"},
+  "test_credentials": "OWNER deptofx@proton.me / DoxAdmin!2026 ; STAFF staff.test@doxs.dev / TestUser!2026 ; CLIENT client.test@doxs.dev / TestUser!2026 — all working.",
+  "seed_data_creation": "pytest created a couple of TEST_ prefixed contacts (counterparty / partner), a TEST deal with 8 auto tasks, a TEST2 deal under a TEST deal_type with 9 auto tasks, a TEST_sop_*.md SOP knowledge item (trust toggled sop<->reference<->sop), a TEST grant for STAFF scoped to Underwriting, and a TEST_pending registration for the workspace-gate check. The pre-existing 'sops/underwriting-deal-flow.md' SOP item was NOT touched. Pipeline-stage test from legacy iteration adds a TEST stage per run — safe to leave.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Workspace deal routes now use title/location/value/deal_type/counterparty_id/deal_lead/engagement_date/diligence_date/close_date. Deal creation enforces (a) deal_type ∈ settings.deal_types else 422, (b) engagement <= diligence <= close else 422. Checklist steps come from settings.checklist_template (list of {title, offset_days}); each deal auto-generates len(template) tasks offset from engagement_date. Required documents on a deal are a snapshot of settings.required_documents at creation time. Document upload still restricts category to tx['required_documents'] + 'Other'. Knowledge trust: 'sop' | 'reference'; SOP items are injected first by search_knowledge and treated as source of truth by ai_routes system prompt. Deals route is at /workspace/transactions (sidebar label 'Deals'). The deals list defaults to Board view — click the 'List' toolbar button to see the DEAL/VALUE/STAGE/DEAL LEAD/TARGET CLOSE headers. New-deal modal renders through a Radix portal but is wrapped in a .workspace scope so dark theming applies. For the AI SSE stream, keep wait_until='domcontentloaded' and sleep 4-6s after Generate; the /api/workspace/events stream never idles. CSRF: any browser POST must send Origin header matching the Host — tests verify both allow and 403 reject paths.",
+  "rca of the issue": "N/A — no regressions found."
+}
