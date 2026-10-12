@@ -6,13 +6,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
 :root {
-  /* DARK THEME (deep navy) — default; applied at night */
-  --page-bg: #0a1326;
+  /* DARK THEME (black) — default; applied at night */
+  --page-bg: #000000;
   --page-fg: #ffffff;
-  --panel: #111c38;
-  --panel-2: #0d1730;
+  --panel: #0e0e0e;
+  --panel-2: #080808;
   --ink-soft: #c7d0e6;
-  --background: 222 47% 10%;
+  --background: 0 0% 0%;
   --foreground: 0 0% 100%;
   --card: 222 42% 13%;
   --card-foreground: 0 0% 100%;
@@ -37,13 +37,13 @@
 }
 
 html[data-theme="light"] {
-  /* "Light" = a lighter NAVY background; text stays white for visibility */
-  --page-bg: #1b2a54;
+  /* "Light" (daytime) also uses a black background; text stays white */
+  --page-bg: #0a0a0a;
   --page-fg: #ffffff;
-  --panel: #243461;
-  --panel-2: #1e2d57;
+  --panel: #161616;
+  --panel-2: #101010;
   --ink-soft: #c7d0e6;
-  --background: 224 51% 22%;
+  --background: 0 0% 4%;
   --foreground: 0 0% 100%;
   --card: 224 44% 26%;
   --card-foreground: 0 0% 100%;
