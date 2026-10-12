@@ -125,7 +125,7 @@ function Scene() {
 /** AAA-style WebGL hero: a self-assembling particle sphere orbiting a glowing D.O.X. core. */
 export default function HeroOrb() {
   return (
-    <div data-testid="hero-orb" className="relative aspect-square w-full max-w-[560px] mx-auto">
+    <div data-testid="hero-orb" className="relative aspect-square w-full max-w-[860px] mx-auto">
       <Canvas
         className="absolute inset-0"
         camera={{ position: [0, 0, 5.2], fov: 50 }}

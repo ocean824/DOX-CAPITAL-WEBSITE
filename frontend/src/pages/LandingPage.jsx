@@ -84,7 +84,7 @@ export default function LandingPage() {
       {/* HERO */}
       <section className="hero-glow pt-28 pb-24 lg:pt-32 lg:pb-32 relative overflow-hidden">
         <div className="mx-auto max-w-5xl px-6 lg:px-12 flex flex-col items-center text-center">
-          <motion.div style={{ y: orbY, scale: orbScale }} className="w-full max-w-[440px]">
+          <motion.div style={{ y: orbY, scale: orbScale }} className="w-full max-w-[860px]">
             <HeroOrb />
           </motion.div>
           <motion.div className="w-full" variants={heroContainer} initial="hidden" animate="show">
