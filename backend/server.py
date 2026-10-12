@@ -818,6 +818,66 @@ async def admin_review_item(user_id: str, item_id: str, payload: ItemReviewIn,
     return await _prescreen_payload(user)
 
 
+# ---- Assistant (lightweight AI chat, mobile) -----------------------------
+ASSISTANT_MODEL = "gpt-6-luna"
+ASSISTANT_SYSTEM = (
+    "You are the D.O.X Capital assistant for clients raising institutional debt capital. "
+    "D.O.X is an advisory and packaging firm that restructures the borrower side so institutional "
+    "capital can transact. Be concise, precise and authoritative — never salesy. "
+    "Your primary job is to help clients understand what documents and financial figures they must "
+    "prepare for the Loan Underwriting Pre-Screening Checklist, and to answer questions about the "
+    "readiness process. Use the checklist below as the source of truth; if something is not covered, "
+    "say so plainly rather than inventing requirements. You cannot change records, approve deals, "
+    "upload documents, or send emails on the user's behalf.\n\n"
+    "=== SOURCE OF TRUTH: PRE-SCREENING CHECKLIST ===\n" + pre.as_markdown()
+)
+
+
+class AssistantIn(BaseModel):
+    message: str = Field(min_length=1, max_length=4000)
+    session_id: Optional[str] = Field(default=None, max_length=80)
+
+
+@api.post("/assistant/chat")
+async def assistant_chat(payload: AssistantIn, user: dict = Depends(require_approved)):
+    from emergentintegrations.llm.chat import LlmChat, UserMessage
+
+    key = os.environ.get("EMERGENT_LLM_KEY")
+    if not key:
+        raise HTTPException(status_code=503, detail="Assistant is temporarily unavailable.")
+    session_id = payload.session_id or str(uuid.uuid4())
+    now = datetime.now(timezone.utc).isoformat()
+    await db.assistant_messages.insert_one({
+        "id": str(uuid.uuid4()), "user_id": user["id"], "session_id": session_id,
+        "role": "user", "text": payload.message, "created_at": now,
+    })
+    try:
+        chat = LlmChat(
+            api_key=key,
+            session_id=f'{user["id"]}:{session_id}',
+            system_message=ASSISTANT_SYSTEM,
+        ).with_model("openai", ASSISTANT_MODEL)
+        reply = await chat.send_message(UserMessage(text=payload.message))
+    except Exception as exc:
+        logger.warning("[assistant] failed: %s", exc)
+        raise HTTPException(status_code=502, detail="The assistant is temporarily unavailable. Please try again.")
+    reply_text = reply if isinstance(reply, str) else str(reply)
+    await db.assistant_messages.insert_one({
+        "id": str(uuid.uuid4()), "user_id": user["id"], "session_id": session_id,
+        "role": "assistant", "text": reply_text,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    })
+    return {"session_id": session_id, "reply": reply_text}
+
+
+@api.get("/assistant/history")
+async def assistant_history(session_id: str, user: dict = Depends(require_approved)):
+    msgs = await db.assistant_messages.find(
+        {"user_id": user["id"], "session_id": session_id}, {"_id": 0}
+    ).sort("created_at", 1).to_list(200)
+    return msgs
+
+
 # ---- Uploads (user docs) -------------------------------------------------
 MAX_UPLOAD_BYTES = 25 * 1024 * 1024  # 25MB
 
