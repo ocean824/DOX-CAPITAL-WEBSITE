@@ -22,10 +22,30 @@ function fibonacciDirs(count) {
   return dirs;
 }
 
+/* Soft circular sprite so points render as round dots instead of squares. */
+function makeCircleTexture() {
+  const s = 64;
+  const canvas = document.createElement("canvas");
+  canvas.width = canvas.height = s;
+  const ctx = canvas.getContext("2d");
+  const g = ctx.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, s / 2);
+  g.addColorStop(0, "rgba(255,255,255,1)");
+  g.addColorStop(0.5, "rgba(255,255,255,0.85)");
+  g.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  ctx.arc(s / 2, s / 2, s / 2, 0, Math.PI * 2);
+  ctx.fill();
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.needsUpdate = true;
+  return tex;
+}
+
 /* Particle shell that breathes between an assembled sphere and a scattered
    orbit — the "pieces coming into and out of orbit" effect. */
 function Shell({ count, radius, orbit, color, size, opacity, swirl }) {
   const ref = useRef();
+  const circle = useMemo(makeCircleTexture, []);
   const { dirs, phase, speed, positions } = useMemo(() => {
     const dirs = fibonacciDirs(count);
     const phase = new Float32Array(count);
@@ -61,6 +81,7 @@ function Shell({ count, radius, orbit, color, size, opacity, swirl }) {
       h("bufferAttribute", { attach: "attributes-position", args: [positions, 3] })),
     h("pointsMaterial", {
       color, size, sizeAttenuation: true, transparent: true, opacity,
+      map: circle, alphaMap: circle, alphaTest: 0.01,
       depthWrite: false, blending: THREE.AdditiveBlending,
     })
   );
@@ -121,7 +142,7 @@ function Scene() {
       { ref: group },
       h(Shell, { count: 650, radius: 1.55, orbit: 0.9, color: "#ffcf4d", size: 0.034, opacity: 0.95, swirl: 0.6 }),
       h(Shell, { count: 380, radius: 1.7, orbit: 1.15, color: "#e0a52e", size: 0.022, opacity: 0.72, swirl: -0.4 }),
-      h(Shell, { count: 220, radius: 1.3, orbit: 0.5, color: "#fff0b8", size: 0.05, opacity: 0.6, swirl: 0.9 }),
+      h(Shell, { count: 220, radius: 1.3, orbit: 0.5, color: "#cfd3dd", size: 0.034, opacity: 0.75, swirl: 0.9 }),
       h(OrbitNodes, null)
     )
   );
