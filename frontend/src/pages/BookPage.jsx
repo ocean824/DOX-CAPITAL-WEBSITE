@@ -110,7 +110,6 @@ export default function BookPage() {
             <div className="pt-6 border-t border-white/10">
               <div className="label-kicker">Confidence</div>
               <p className="text-white/60 text-sm mt-2">
-                $1M+ closed for partners. 48 term-sheets reviewed.
                 You'll speak with a principal — not a sales agent.
               </p>
             </div>
