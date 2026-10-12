@@ -81,6 +81,7 @@ REFRESH_TTL_DAYS = 7
 ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "deptofx@proton.me").lower()
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "DoxAdmin!2026")
 ADMIN_NOTIFY_EMAIL = os.environ.get("ADMIN_NOTIFY_EMAIL", "deptofx@proton.me")
+REPLY_TO_EMAIL = os.environ.get("REPLY_TO_EMAIL", "admin@thedoxs.com")
 RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "").strip()
 SENDER_EMAIL = os.environ.get("SENDER_EMAIL", "onboarding@resend.dev")
 EMERGENT_KEY = os.environ.get("EMERGENT_LLM_KEY", "").strip()
@@ -227,7 +228,7 @@ def _send_email_sync(to: str, subject: str, html: str, reply_to: Optional[str] =
 
 
 async def send_email(to: str, subject: str, html: str, reply_to: Optional[str] = None) -> None:
-    await asyncio.to_thread(_send_email_sync, to, subject, html, reply_to)
+    await asyncio.to_thread(_send_email_sync, to, subject, html, reply_to or REPLY_TO_EMAIL)
 
 
 async def notify_user(user_doc: Optional[dict], subject: str, body_html: str,
