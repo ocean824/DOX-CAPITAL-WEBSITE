@@ -20,6 +20,12 @@ async def create_thread(data:ThreadIn,user=Depends(require('message'))):
     participants=list(set(data.participant_ids+[user['id']]))
     owners=await db.ws_users.find({'role':'OWNER','active':True},{'_id':0,'id':1}).to_list(100)
     allowed=set([user['id']]+[o['id'] for o in owners]+(tx or {}).get('assigned_ids',[])+(tx or {}).get('client_ids',[])+(contact or {}).get('assigned_ids',[]))
+    if user['role']=='CLIENT':
+        # Clients may only reach their associated partner — never admins or underwriters.
+        site=await db.users.find_one({'id':user['id']},{'_id':0,'partner_id':1})
+        partner_id=(site or {}).get('partner_id')
+        if not partner_id:raise HTTPException(403,'No partner is assigned to your account yet. Your D.O.X partner will reach out.')
+        allowed={user['id'],partner_id}
     for id in participants:
         person=await db.ws_users.find_one({'id':id,'active':True},{'_id':0})
         if not person:raise HTTPException(422,'Participant is unavailable')

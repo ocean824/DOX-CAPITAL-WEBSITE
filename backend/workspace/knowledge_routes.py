@@ -94,7 +94,10 @@ async def upsert_items(user,files,target,tags,source,counts):
         existing=await db.knowledge_items.find_one({'path':path},{'_id':0,'content_hash':1})
         if existing and existing['content_hash']==content_hash:
             await db.knowledge_items.update_one({'path':path},{'$set':{**target,'tags':tags}});counts['unchanged']+=1;continue
-        text=extract_text(path,raw)
+        try:
+            text=extract_text(path,raw)
+        except Exception:
+            counts['skipped']=counts.get('skipped',0)+1;continue
         values={'title':title_of(path,text),'content':text,'content_hash':content_hash,'size':len(raw),'format':extension(path),'tags':tags,**target,'source':source,'updated_at':now()}
         values.setdefault('trust','reference')
         if existing:await db.knowledge_items.update_one({'path':path},{'$set':values});counts['updated']+=1
@@ -102,7 +105,7 @@ async def upsert_items(user,files,target,tags,source,counts):
     return counts
 @router.post('/knowledge/sync',response_model=KnowledgeSyncOut)
 async def sync(data:KnowledgeSyncIn,user=Depends(require('manage'))):
-    target=await resolve_target(user,data);counts={'created':0,'updated':0,'unchanged':0,'deleted':0}
+    target=await resolve_target(user,data);counts={'created':0,'updated':0,'unchanged':0,'deleted':0,'skipped':0}
     await upsert_items(user,[(entry.path,decode_payload(entry.content,entry.encoding)) for entry in data.items],target,data.tags,'sync',counts)
     if data.deleted_paths:
         result=await db.knowledge_items.delete_many({'path':{'$in':[normalize_path(p) for p in data.deleted_paths]}});counts['deleted']=result.deleted_count
@@ -118,7 +121,7 @@ async def upload(files:list[UploadFile]=File(...),scope:str=Form('shared'),trans
         raw=await file.read(MAX_BYTES+1)
         if len(raw)>MAX_BYTES:raise HTTPException(413,f'{file.filename} exceeds 25 MB')
         payload.append(((folder.strip('/ ')+'/' if folder.strip('/ ') else '')+(file.filename or 'untitled.txt'),raw))
-    counts=await upsert_items(user,payload,target,[],'upload',{'created':0,'updated':0,'unchanged':0,'deleted':0})
+    counts=await upsert_items(user,payload,target,[],'upload',{'created':0,'updated':0,'unchanged':0,'deleted':0,'skipped':0})
     await activity(user,f'uploaded {len(files)} file{"s" if len(files)!=1 else ""} to the knowledge vault',kind='knowledge')
     return counts
 @router.patch('/knowledge/items/{id}',response_model=KnowledgeItemOut)

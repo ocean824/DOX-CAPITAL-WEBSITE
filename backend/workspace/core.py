@@ -20,10 +20,13 @@ def now(): return datetime.now(timezone.utc).isoformat()
 def digest(value): return hashlib.sha256(value.encode()).hexdigest()
 def clean(doc): return {k:v for k,v in doc.items() if k != '_id'} if doc else None
 
+UW_STAGES = ['underwriting', 'package_submitted', 'closed_funded']
 PERMS = {
     'OWNER': {'read','write','delete','manage','review','ai','message','internal'},
+    'UNDERWRITER': {'read','write','review','ai','message','internal'},
     'TEAM_MEMBER': {'read','write','ai','message','internal'},
-    'CLIENT': {'read','ai'},
+    'PARTNER': {'read','write','ai','message'},
+    'CLIENT': {'read'},
 }
 async def authorize(user, action, resource=None):
     allowed = action in (set(user.get('scopes', [])) if user.get('principal_type') == 'service' else PERMS.get(user.get('role'), set()))
@@ -34,6 +37,9 @@ def workspace_role(site_user):
     """Maps a thedoxs.com account onto a workspace role. Never read from the client."""
     if site_user.get('role') == 'admin': return 'OWNER'
     if site_user.get('status') != 'approved': return None
+    account_type = site_user.get('account_type')
+    if account_type == 'underwriter': return 'UNDERWRITER'
+    if account_type == 'partner': return 'PARTNER'
     return 'TEAM_MEMBER' if site_user.get('workspace_role') == 'staff' else 'CLIENT'
 
 async def current_user(request: Request, credentials: HTTPAuthorizationCredentials = Depends(bearer)):
@@ -87,9 +93,15 @@ class Repo:
             return {} if u['role']=='OWNER' else {'audience_ids':u['id'], 'internal':{'$ne':True}} if u['role']=='CLIENT' else {'audience_ids':u['id']}
         if u['role'] == 'OWNER': return {}
         if collection == 'transactions':
-            return {'client_ids' if u['role']=='CLIENT' else 'assigned_ids':u['id']}
+            if u['role'] == 'CLIENT': return {'client_ids': u['id']}
+            if u['role'] == 'UNDERWRITER': return {'stage_id': {'$in': UW_STAGES}}
+            if u['role'] == 'PARTNER':
+                client_ids = [c['id'] for c in await db.users.find({'partner_id': u['id'], 'account_type': 'client'}, {'_id':0,'id':1}).to_list(500)]
+                return {'client_ids': {'$in': client_ids}}
+            return {'assigned_ids': u['id']}
         if collection == 'contacts':
-            await authorize(u, 'internal'); return {'assigned_ids':u['id']}
+            await authorize(u, 'internal')
+            return {} if u['role'] == 'UNDERWRITER' else {'assigned_ids':u['id']}
         if collection == 'threads': return {'participant_ids':u['id']}
         if collection == 'meetings': return {'participant_ids':u['id']}
         if collection == 'messages':

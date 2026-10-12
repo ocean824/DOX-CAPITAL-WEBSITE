@@ -878,6 +878,20 @@ async def admin_review_item(user_id: str, item_id: str, payload: ItemReviewIn,
     return await _prescreen_payload(user)
 
 
+class ChangePasswordIn(BaseModel):
+    current_password: str = Field(min_length=1, max_length=120)
+    new_password: str = Field(min_length=8, max_length=120)
+
+
+@api.post("/auth/change-password")
+async def change_password(payload: ChangePasswordIn, user: dict = Depends(get_current_user)):
+    doc = await db.users.find_one({"id": user["id"]})
+    if not doc or not verify_password(payload.current_password, doc["password_hash"]):
+        raise HTTPException(status_code=400, detail="Current password is incorrect")
+    await db.users.update_one({"id": user["id"]}, {"$set": {"password_hash": hash_password(payload.new_password)}})
+    return {"ok": True}
+
+
 # ---- Deal flow: phases, roles, scheduling, messaging ---------------------
 PHASES = ["intake", "in_preparation", "ready_to_underwrite", "in_underwriting", "approved", "declined"]
 PHASE_LABELS = {

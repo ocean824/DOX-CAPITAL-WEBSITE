@@ -1,5 +1,28 @@
 # D.O.X Capital — Changelog
 
+## 2026-06 — Workspace overhaul Phase 2 (roles & settings) + Phase 4 (partial)
+### Roles & permissions (backend, curl-tested across all 4 accounts)
+- Distinct workspace roles: **UNDERWRITER** (read-all + review/underwrite, sees deals at Underwriting stage+, no admin powers) and **PARTNER** (sees only their assigned/referral-linked clients' deals + docs + messages; no internal contacts/tasks/reviews). TEAM_MEMBER/OWNER unchanged.
+- **Clients lose AI access** (CLIENT perms = read only); **clients can message only their associated partner** (never admin/underwriter) — enforced in thread creation.
+- Role scoping verified: underwriter sees underwriting+ deals, partner sees only their client's deal, client AI→403, partner contacts→403.
+### Workspace UI (frontend)
+- Sidebar hides Contacts/Tasks/Reviews for Partner, hides AI assistant + Knowledge for Client.
+- **Account menu** on the top-right avatar (Settings + Sign out); **global Back button** in the top bar.
+- **Change password inside the workspace** (new backend `POST /api/auth/change-password`, verified) — no longer bounces to the portal.
+- Connections: removed the **Referrals & Relationships (Dox)** card.
+### Phase 4 (partial)
+- **Knowledge vault upload** now skips empty/unreadable files and reports `skipped` instead of aborting the whole batch (fixes the `.md contains no readable text` error).
+### Cohesion
+- Global scroll-reactive **BackgroundFX** now also renders behind the Workspace (confirmed).
+
+### REMAINING (next sessions, mobile last)
+- **Phase 3 — Calendar & Messages UI**: calendar invitee picker by permission/qualification (drop location/link field), join link shown in the slot for all participants; add permitted users to existing/new chats (backend endpoint + UI); **move AI Assistant under Messages**.
+- **Phase 4 — Contacts**: CSV/Excel import + segments + manual add; AI email-sequence drafting + **Resend** sending (BYO key already in env).
+- **Misc**: deal-type add UX confirm; reproduce "clicking next to close deals"; stage-reorder UI (backend ready).
+- **Phase 5**: Workspace AI deal-advisor tab + OCR document consistency checks vs. checklist.
+- **Mobile app** (Expo) — full experience against the shared backend (LAST).
+
+
 ## 2026-06 — Workspace overhaul (Phase 1) + public-site polish
 ### Public site
 - Hero sphere moved **centered above** the headline; header simplified to **Client + Partner** only; **Underwriter** and **Administrator** are now small links on the Partner login page; client referral-code field; Admin/Partner gold styling.

@@ -222,6 +222,7 @@ class KnowledgeSyncOut(Model):
     updated: int
     unchanged: int
     deleted: int
+    skipped: int = 0
 class KnowledgeItemPatch(Model):
     scope: Optional[KnowledgeScope] = None
     transaction_id: Optional[str] = None
