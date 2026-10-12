@@ -82,11 +82,11 @@ export default function LandingPage() {
       <NavBar />
 
       {/* HERO */}
-      <section className="hero-glow pt-28 pb-24 lg:pt-32 lg:pb-32 relative overflow-hidden">
-        <div className="mx-auto max-w-5xl px-6 lg:px-12 flex flex-col items-center text-center">
-          <motion.div style={{ y: orbY, scale: orbScale }} className="w-full max-w-[860px]">
-            <HeroOrb />
-          </motion.div>
+      <section className="hero-glow relative overflow-hidden min-h-screen flex flex-col justify-center">
+        <motion.div style={{ y: orbY, scale: orbScale }} className="absolute inset-0 z-0 pointer-events-none">
+          <HeroOrb fill />
+        </motion.div>
+        <div className="relative z-10 mx-auto max-w-5xl px-6 lg:px-12 flex flex-col items-center text-center py-28">
           <motion.div className="w-full" variants={heroContainer} initial="hidden" animate="show">
             <motion.h1 variants={heroItem} className="font-display text-5xl sm:text-6xl lg:text-7xl font-light tracking-tight leading-[1.02]">
               Capital doesn't flow to everyone.<br/>
@@ -115,7 +115,7 @@ export default function LandingPage() {
         </div>
 
         {/* marquee */}
-        <div className="mt-24 border-y border-white/10 overflow-hidden">
+        <div className="relative z-10 mt-auto border-y border-white/10 overflow-hidden bg-black/40 backdrop-blur-sm">
           <div className="marquee-track flex gap-12 py-5 whitespace-nowrap">
             {[...PARTNERS, ...PARTNERS].map((p, i) => (
               <span key={`${p}-${i}`} className="label-kicker">{p} ·</span>

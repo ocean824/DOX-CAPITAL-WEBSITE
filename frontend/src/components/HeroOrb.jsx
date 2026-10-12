@@ -149,9 +149,12 @@ function Scene() {
 }
 
 /** AAA-style WebGL hero: a self-assembling particle sphere orbiting a glowing D.O.X. core. */
-export default function HeroOrb() {
+export default function HeroOrb({ fill = false }) {
+  const wrapClass = fill
+    ? "absolute inset-0 w-full h-full"
+    : "relative aspect-square w-full max-w-[860px] mx-auto";
   return (
-    <div data-testid="hero-orb" className="relative aspect-square w-full max-w-[860px] mx-auto">
+    <div data-testid="hero-orb" className={wrapClass}>
       <Canvas
         className="absolute inset-0"
         camera={{ position: [0, 0, 5.2], fov: 50 }}
@@ -167,17 +170,19 @@ export default function HeroOrb() {
           style={{ background: "radial-gradient(circle, rgba(255,207,77,0.42), transparent 68%)" }} />
       </div>
 
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8, filter: "blur(10px)" }}
-          animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-          transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-          className="font-display text-5xl lg:text-6xl tracking-tight"
-          style={{ color: "#fff", textShadow: "0 0 26px rgba(255,207,77,0.8), 0 0 10px rgba(224,165,46,0.6)" }}
-        >
-          D.O.X
-        </motion.div>
-      </div>
+      {!fill && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8, filter: "blur(10px)" }}
+            animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+            transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+            className="font-display text-5xl lg:text-6xl tracking-tight"
+            style={{ color: "#fff", textShadow: "0 0 26px rgba(255,207,77,0.8), 0 0 10px rgba(224,165,46,0.6)" }}
+          >
+            D.O.X
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }
