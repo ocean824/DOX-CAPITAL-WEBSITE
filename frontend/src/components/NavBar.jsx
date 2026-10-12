@@ -63,11 +63,6 @@ export default function NavBar() {
                   Partner
                 </Button>
               </Link>
-              <Link to="/auth?as=underwriter">
-                <Button data-testid="nav-underwriter-signin" variant="outline" className="rounded-none border-white/20 hover:bg-white hover:text-black">
-                  Underwriter
-                </Button>
-              </Link>
             </>
           )}
         </div>

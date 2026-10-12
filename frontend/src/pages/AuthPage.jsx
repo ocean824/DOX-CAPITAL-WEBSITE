@@ -155,18 +155,18 @@ export default function AuthPage() {
       <section className="pt-32 pb-20 hero-glow">
         <div className="mx-auto max-w-6xl px-6 lg:px-12">
           <div className="flex flex-wrap gap-px bg-white/10 w-fit mb-px">
-            {["client", "partner", "underwriter"].map((a) => (
+            {["client", "partner"].map((a) => (
               <button key={a} data-testid={`audience-${a}`} onClick={() => switchAudience(a)}
                 className={`px-6 py-3 label-kicker text-xs transition-colors ${
                   audience === a ? "bg-white text-black" : "bg-[#050505] text-white/50 hover:text-white"
                 }`}>
-                {a === "client" ? "I'm raising capital" : a === "partner" ? "I refer deals" : "I underwrite"}
+                {a === "client" ? "I'm raising capital" : "I refer deals"}
               </button>
             ))}
-            {audience === "admin" && (
-              <button data-testid="audience-admin"
+            {(audience === "admin" || audience === "underwriter") && (
+              <button data-testid={`audience-${audience}`}
                 className="px-6 py-3 label-kicker text-xs bg-white text-black">
-                Administrator
+                {audience === "admin" ? "Administrator" : "Underwriter"}
               </button>
             )}
           </div>
@@ -183,12 +183,18 @@ export default function AuthPage() {
               </div>
               <p className="text-xs text-white/35 mt-10">{copy.footnote}</p>
               {audience === "partner" && (
-                <button data-testid="admin-access-link" onClick={() => switchAudience("admin")}
-                  className="mt-6 block text-xs text-white/40 hover:text-[hsl(var(--gold))] underline underline-offset-4">
-                  Administrator sign in
-                </button>
+                <div className="mt-6 space-y-2">
+                  <button data-testid="admin-access-link" onClick={() => switchAudience("admin")}
+                    className="block text-xs text-white/40 hover:text-[hsl(var(--gold))] underline underline-offset-4">
+                    Administrator sign in
+                  </button>
+                  <button data-testid="underwriter-access-link" onClick={() => switchAudience("underwriter")}
+                    className="block text-xs text-white/40 hover:text-[hsl(var(--gold))] underline underline-offset-4">
+                    Underwriter sign in
+                  </button>
+                </div>
               )}
-              {audience === "admin" && (
+              {(audience === "admin" || audience === "underwriter") && (
                 <button data-testid="back-to-partner-link" onClick={() => switchAudience("partner")}
                   className="mt-6 block text-xs text-white/40 hover:text-white underline underline-offset-4">
                   ← Back to partner access

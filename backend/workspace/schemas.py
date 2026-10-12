@@ -65,6 +65,8 @@ class StageIn(Model):
 class StageOut(StageIn):
     id: str
     position: int
+class StageReorderIn(Model):
+    ids: list[str] = Field(min_length=1,max_length=30)
 class TransactionIn(Model):
     title: str = Field(min_length=3,max_length=160)
     location: str = Field(default='',max_length=160)
@@ -169,11 +171,20 @@ class AIIn(Model):
     transaction_id: Optional[str] = None
     prompt: str = Field(default='',max_length=2000)
 DEFAULT_DEAL_TYPES = ['Contracting','Underwriting','Debt placement','Equity raise','Acquisition','Advisory','Other']
-DEFAULT_CHECKLIST = [{'title':'Qualify the deal','offset_days':2},{'title':'Collect diligence package','offset_days':5},
-    {'title':'Underwrite & price','offset_days':9},{'title':'Issue term sheet','offset_days':13},
-    {'title':'Negotiate terms','offset_days':18},{'title':'Compliance & KYC review','offset_days':22},
-    {'title':'Prepare closing documents','offset_days':26},{'title':'Confirm funding & close','offset_days':30}]
-DEFAULT_REQUIRED_DOCUMENTS = ['Engagement letter','Diligence package','Underwriting memo','Closing statement']
+DEFAULT_CHECKLIST = [{'title':'Qualify borrower & collect identification','offset_days':2},
+    {'title':'Verify ownership, resumes & personal financials','offset_days':4},
+    {'title':'Confirm equity / proof of funds','offset_days':6},
+    {'title':'Collateral schedule, valuation & title','offset_days':9},
+    {'title':'Risk review: credit & legal disclosure','offset_days':12},
+    {'title':'Underwrite & assemble funding package','offset_days':16},
+    {'title':'Submit package to funding source','offset_days':20},
+    {'title':'Confirm funding & close','offset_days':24}]
+DEFAULT_REQUIRED_DOCUMENTS = ['Completed borrower application','Certificate of formation / incorporation',
+    'EIN confirmation letter','Resume for each >=10% owner','Personal financial statement for each >=10% owner',
+    "Passport or driver's licence copy for each >=10% owner",'Current debt schedule',
+    'Proof of funds for the required equity','Wire confirmation or bank statement evidencing the equity',
+    'Collateral schedule','Preliminary valuation or broker opinion of value','Title commitment / title search',
+    'Business and personal credit reports','Litigation, bankruptcy, lien and disciplinary disclosure']
 KnowledgeScope = Literal['project','shared']
 KnowledgeTrust = Literal['sop','reference']
 class ChecklistStep(Model):

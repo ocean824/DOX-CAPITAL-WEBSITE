@@ -82,22 +82,25 @@ export default function LandingPage() {
       <NavBar />
 
       {/* HERO */}
-      <section className="hero-glow pt-32 pb-24 lg:pt-44 lg:pb-32 relative overflow-hidden">
-        <div className="mx-auto max-w-7xl px-6 lg:px-12 grid lg:grid-cols-12 gap-12 items-center">
-          <motion.div className="lg:col-span-7" variants={heroContainer} initial="hidden" animate="show">
+      <section className="hero-glow pt-28 pb-24 lg:pt-32 lg:pb-32 relative overflow-hidden">
+        <div className="mx-auto max-w-5xl px-6 lg:px-12 flex flex-col items-center text-center">
+          <motion.div style={{ y: orbY, scale: orbScale }} className="w-full max-w-[440px]">
+            <HeroOrb />
+          </motion.div>
+          <motion.div className="w-full" variants={heroContainer} initial="hidden" animate="show">
             <motion.div variants={heroItem} className="label-kicker">Business Funding Consulting · D.O.X Capital</motion.div>
             <motion.h1 variants={heroItem} className="font-display text-5xl sm:text-6xl lg:text-7xl font-light tracking-tight leading-[1.02] mt-6">
               Capital doesn't flow to everyone.<br/>
               It flows to the{" "}
               <span className="italic" style={{ color: "hsl(var(--gold))" }}>structured</span>.
             </motion.h1>
-            <motion.p variants={heroItem} className="text-white/70 text-lg max-w-xl mt-8 leading-relaxed">
+            <motion.p variants={heroItem} className="text-white/70 text-lg max-w-2xl mx-auto mt-8 leading-relaxed">
               We engineer corporate structures for institutional funding. Most businesses
               have great ideas but fail the bank's structural audit — we rebuild your
               entity, operations, and financial narrative to match the exact criteria of
               top-tier lenders.
             </motion.p>
-            <motion.div variants={heroItem} className="flex flex-wrap items-center gap-3 mt-10">
+            <motion.div variants={heroItem} className="flex flex-wrap items-center justify-center gap-3 mt-10">
               <Link to="/book">
                 <Button data-testid="hero-cta-book" className="rounded-none bg-white text-black hover:bg-white/90 px-7 h-12 btn-shimmer">
                   Book Discovery Call <ArrowUpRight className="ml-2 h-4 w-4" strokeWidth={1.25} />
@@ -109,10 +112,6 @@ export default function LandingPage() {
                 </Button>
               </Link>
             </motion.div>
-          </motion.div>
-
-          <motion.div className="lg:col-span-5" style={{ y: orbY, scale: orbScale }}>
-            <HeroOrb />
           </motion.div>
         </div>
 

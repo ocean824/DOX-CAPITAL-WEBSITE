@@ -2,7 +2,7 @@ from datetime import date, timedelta
 from fastapi import APIRouter, Depends, HTTPException
 from workspace.core import db, uid, require, Repo, activity, authorize, settings
 from workspace.schemas import DEFAULT_CHECKLIST, DEFAULT_DEAL_TYPES, DEFAULT_REQUIRED_DOCUMENTS
-from workspace.schemas import (ContactIn, ContactOut, StageIn, StageOut, TransactionIn, TransactionOut,
+from workspace.schemas import (ContactIn, ContactOut, StageIn, StageOut, StageReorderIn, TransactionIn, TransactionOut,
     TransactionPatch, TaskIn, TaskOut, TaskPatch, OK, ActivityOut, SettingsIn, SettingsOut,
     UserOut, Preferences)
 
@@ -58,6 +58,11 @@ async def create_stage(data:StageIn,user=Depends(require('manage'))):
     record={'id':uid(),**data.model_dump(),'position':await db.pipeline_stages.count_documents({})}
     await db.pipeline_stages.insert_one(record.copy()); await activity(user,f'added pipeline stage {data.name}')
     return record
+@router.patch('/pipeline-stages/reorder',response_model=list[StageOut])
+async def reorder_stages(data:StageReorderIn,user=Depends(require('manage'))):
+    for position,id in enumerate(data.ids):
+        await db.pipeline_stages.update_one({'id':id},{'$set':{'position':position}})
+    return await db.pipeline_stages.find({},{'_id':0}).sort('position',1).to_list(30)
 @router.patch('/pipeline-stages/{id}',response_model=StageOut)
 async def update_stage(id:str,data:StageIn,user=Depends(require('manage'))):
     stage=await db.pipeline_stages.find_one({'id':id},{'_id':0})
@@ -93,7 +98,15 @@ async def update_transaction(id:str,data:TransactionPatch,user=Depends(require('
     if any(k in values for k in ('assigned_ids','client_ids')):
         await authorize(user,'manage')
         await validate_users(values.get('assigned_ids',[]),['OWNER','TEAM_MEMBER']);await validate_users(values.get('client_ids',[]),['CLIENT'])
-    if 'stage_id' in values and not await db.pipeline_stages.find_one({'id':values['stage_id']},{'_id':0}): raise HTTPException(422,'Invalid pipeline stage')
+    if 'stage_id' in values:
+        target=await db.pipeline_stages.find_one({'id':values['stage_id']},{'_id':0,'position':1})
+        if not target: raise HTTPException(422,'Invalid pipeline stage')
+        qualified=await db.pipeline_stages.find_one({'id':'qualified'},{'_id':0,'position':1})
+        if qualified and target['position']>=qualified['position']:
+            present={d['category'] for d in await db.documents.find({'transaction_id':id,'is_deleted':{'$ne':True}},{'_id':0,'category':1}).to_list(500)}
+            missing=[d for d in tx.get('required_documents',[]) if d not in present]
+            if missing:
+                raise HTTPException(422,'Upload required documents before qualifying: '+', '.join(missing[:5])+(f' +{len(missing)-5} more' if len(missing)>5 else ''))
     if 'close_date' in values: await validate_dates({**tx,**values})
     record=await repo.update('transactions',id,values)
     await activity(user,f'updated {record["title"]}',record,'transaction')

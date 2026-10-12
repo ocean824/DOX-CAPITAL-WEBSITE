@@ -1,5 +1,18 @@
 # D.O.X Capital — Changelog
 
+## 2026-06 — Workspace overhaul (Phase 1) + public-site polish
+### Public site
+- Hero sphere moved **centered above** the headline; header simplified to **Client + Partner** only; **Underwriter** and **Administrator** are now small links on the Partner login page; client referral-code field; Admin/Partner gold styling.
+### Workspace Phase 1 (backend, tested via curl)
+- New pipeline: **Lead → Pre-Qualified → Qualified → Underwriting → Package Submitted → Closed/Funded** (Term Sheet removed; existing deals migrated term_sheet→underwriting, closing→closed_funded; orphans→lead).
+- Checklist template + **14 required documents** now sourced from the pre-screening PDF (one-time settings refresh via migration flag `prescreen_v2`).
+- **Qualified gate**: a deal cannot move to Qualified+ until all required documents are uploaded.
+- Stage **reorder** endpoint `PATCH /api/workspace/pipeline-stages/reorder`.
+- **Mock/sample data cleanup** on seed.
+### Workspace Phase 1 (frontend)
+- Single "Add deal" button (removed per-column adds); fixed retired `closing` stage references → `closed_funded`.
+
+
 ## 2026-06 — Cross-platform fork: Underwriter deal-flow, email notifications, AAA web FX
 
 ### Backend (shared, FastAPI) — tested 15/15 pytest (`/app/backend/tests/deals_test.py`)

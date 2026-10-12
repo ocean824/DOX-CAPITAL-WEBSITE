@@ -1,7 +1,9 @@
 from workspace.core import db, now, DEFAULT_PREFERENCES, workspace_role
 from workspace.schemas import DEFAULT_CHECKLIST, DEFAULT_DEAL_TYPES, DEFAULT_REQUIRED_DOCUMENTS
 
-STAGES = [('lead','Lead','#829fba'),('qualified','Qualified','#b5a0c4'),('underwriting','Underwriting','#e5b869'),('term_sheet','Term sheet','#c4a07a'),('closing','Closing / funding','#79b99d')]
+STAGES = [('lead','Lead','#829fba'),('pre_qualified','Pre-Qualified','#8fb0c9'),('qualified','Qualified','#b5a0c4'),('underwriting','Underwriting','#e5b869'),('package_submitted','Package Submitted','#c4a07a'),('closed_funded','Closed / Funded','#79b99d')]
+STAGE_REMAP = {'term_sheet':'underwriting','closing':'closed_funded'}
+NEW_STAGE_IDS = [s[0] for s in STAGES]
 RENAMES = {'address':'title','property_type':'deal_type','contract_date':'engagement_date','contingency_date':'diligence_date','closing_date':'close_date','buyer_id':'counterparty_id','agent':'deal_lead'}
 
 
@@ -49,7 +51,27 @@ async def seed():
         'checklist_template':[dict(s) for s in DEFAULT_CHECKLIST],'required_documents':list(DEFAULT_REQUIRED_DOCUMENTS),
         'knowledge_rules':{'enabled':False,'roles':['TEAM_MEMBER'],'scopes':['project'],'deal_types':list(DEFAULT_DEAL_TYPES),'path_prefixes':[]}}})
     await db.service_keys.update_many({'service':'hermes','scopes':{'$ne':'knowledge:grant'}},{'$addToSet':{'scopes':'knowledge:grant'}})
+    # Pipeline: remap retired stages, then force the established order/names/colours.
+    for old, new in STAGE_REMAP.items():
+        await db.transactions.update_many({'stage_id': old}, {'$set': {'stage_id': new}})
+    async for tx in db.transactions.find({'stage_id': {'$nin': NEW_STAGE_IDS}}, {'_id':0,'id':1}):
+        await db.transactions.update_one({'id': tx['id']}, {'$set': {'stage_id': 'lead'}})
+    await db.pipeline_stages.delete_many({'id': {'$nin': NEW_STAGE_IDS}})
     for position,(id,name,color) in enumerate(STAGES):
-        await db.pipeline_stages.update_one({'id':id},{'$setOnInsert':{'name':name,'color':color,'position':position}}, upsert=True)
+        await db.pipeline_stages.update_one({'id':id},{'$set':{'name':name,'color':color,'position':position}}, upsert=True)
+    # One-time refresh of checklist + required documents to the pre-screening source of truth.
+    mig = await db.settings.find_one({'id':'migrations'},{'_id':0}) or {}
+    if mig.get('checklist_version') != 'prescreen_v2':
+        await db.settings.update_one({'id':'workspace'},{'$set':{
+            'required_documents':list(DEFAULT_REQUIRED_DOCUMENTS),
+            'checklist_template':[dict(s) for s in DEFAULT_CHECKLIST]}})
+        await db.settings.update_one({'id':'migrations'},{'$set':{'checklist_version':'prescreen_v2'}},upsert=True)
+    # Remove seeded sample/mock records.
+    sample_ids=[t['id'] async for t in db.transactions.find({'sample':True},{'_id':0,'id':1})]
+    if sample_ids:
+        await db.transactions.delete_many({'sample':True})
+        for coll in ('tasks','documents','reviews','review_comments'):
+            await db[coll].delete_many({'transaction_id':{'$in':sample_ids}})
+    await db.contacts.delete_many({'sample':True})
     await sync_workspace_users()
     await migrate_deal_records()
