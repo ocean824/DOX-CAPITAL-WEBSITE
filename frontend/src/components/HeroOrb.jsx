@@ -91,7 +91,7 @@ function OrbitNodes() {
             "mesh",
             { key: j, position: [Math.cos(a) * ring.r, Math.sin(a) * ring.r, 0] },
             h("sphereGeometry", { args: [0.05, 16, 16] }),
-            h("meshBasicMaterial", { color: "#F0C65A", toneMapped: false })
+            h("meshBasicMaterial", { color: "#6d8cff", toneMapped: false })
           );
         })
       )
@@ -114,9 +114,9 @@ function Scene() {
     h(
       "group",
       { ref: group },
-      h(Shell, { count: 650, radius: 1.55, orbit: 0.9, color: "#D4AF37", size: 0.034, opacity: 0.95, swirl: 0.6 }),
-      h(Shell, { count: 380, radius: 1.7, orbit: 1.15, color: "#ffffff", size: 0.022, opacity: 0.6, swirl: -0.4 }),
-      h(Shell, { count: 220, radius: 1.3, orbit: 0.5, color: "#9a7b25", size: 0.05, opacity: 0.5, swirl: 0.9 }),
+      h(Shell, { count: 650, radius: 1.55, orbit: 0.9, color: "#4f74ff", size: 0.034, opacity: 0.95, swirl: 0.6 }),
+      h(Shell, { count: 380, radius: 1.7, orbit: 1.15, color: "#6d3fc4", size: 0.022, opacity: 0.7, swirl: -0.4 }),
+      h(Shell, { count: 220, radius: 1.3, orbit: 0.5, color: "#2a3f8f", size: 0.05, opacity: 0.6, swirl: 0.9 }),
       h(OrbitNodes, null)
     )
   );
@@ -131,13 +131,14 @@ export default function HeroOrb() {
         camera={{ position: [0, 0, 5.2], fov: 50 }}
         dpr={[1, 2]}
         gl={{ antialias: true, alpha: true }}
+        onCreated={({ gl }) => gl.setClearAlpha(0)}
       >
         {h(Scene, null)}
       </Canvas>
 
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none" aria-hidden>
         <div className="absolute h-40 w-40 rounded-full sphere-glow"
-          style={{ background: "radial-gradient(circle, rgba(212,175,55,0.35), transparent 68%)" }} />
+          style={{ background: "radial-gradient(circle, rgba(79,116,255,0.38), transparent 68%)" }} />
       </div>
 
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -146,7 +147,7 @@ export default function HeroOrb() {
           animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
           transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
           className="font-display text-5xl lg:text-6xl tracking-tight"
-          style={{ color: "#fff", textShadow: "0 0 24px rgba(212,175,55,0.55), 0 0 8px rgba(255,255,255,0.4)" }}
+          style={{ color: "#fff", textShadow: "0 0 26px rgba(79,116,255,0.75), 0 0 10px rgba(109,63,196,0.55)" }}
         >
           D.O.X
         </motion.div>

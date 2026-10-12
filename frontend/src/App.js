@@ -4,6 +4,7 @@ import "@/App.css";
 
 import { AuthProvider } from "@/lib/auth";
 import BackgroundFX from "@/components/BackgroundFX";
+import ThemeController from "@/components/ThemeController";
 import LandingPage from "@/pages/LandingPage";
 import BookPage from "@/pages/BookPage";
 import AuthPage from "@/pages/AuthPage";
@@ -29,6 +30,7 @@ function App() {
     <div className="App">
       <AuthProvider>
         <BrowserRouter>
+          <ThemeController />
           <BackgroundFX />
           <div style={{ position: "relative", zIndex: 1 }}>
           <SiteGate>

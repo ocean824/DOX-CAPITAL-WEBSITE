@@ -6,27 +6,62 @@
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
 :root {
-  --background: 0 0% 2%;
-  --foreground: 0 0% 98%;
-  --card: 0 0% 6%;
-  --card-foreground: 0 0% 98%;
-  --popover: 0 0% 6%;
-  --popover-foreground: 0 0% 98%;
-  --primary: 0 0% 98%;
-  --primary-foreground: 0 0% 9%;
-  --secondary: 0 0% 9%;
-  --secondary-foreground: 0 0% 98%;
-  --muted: 0 0% 9%;
-  --muted-foreground: 0 0% 64%;
-  --accent: 0 0% 14%;
-  --accent-foreground: 0 0% 98%;
-  --destructive: 0 62% 30%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 0 0% 14%;
-  --input: 0 0% 14%;
-  --ring: 0 0% 83%;
+  /* DARK THEME (deep navy) — default; applied at night */
+  --page-bg: #0a1326;
+  --page-fg: #ffffff;
+  --panel: #111c38;
+  --panel-2: #0d1730;
+  --ink-soft: #c7d0e6;
+  --background: 222 47% 10%;
+  --foreground: 0 0% 100%;
+  --card: 222 42% 13%;
+  --card-foreground: 0 0% 100%;
+  --popover: 222 42% 13%;
+  --popover-foreground: 0 0% 100%;
+  --primary: 226 70% 62%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 222 30% 18%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 222 30% 18%;
+  --muted-foreground: 220 15% 70%;
+  --accent: 268 60% 64%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 62% 45%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 222 30% 24%;
+  --input: 222 30% 24%;
+  --ring: 226 70% 62%;
   --radius: 0.125rem;
-  --gold: 44 65% 53%;
+  --gold: 226 78% 66%;    /* primary accent = navy-blue (name kept for compatibility) */
+  --gold2: 266 50% 48%;   /* secondary accent = purple (darker) */
+}
+
+html[data-theme="light"] {
+  /* "Light" = a lighter NAVY background; text stays white for visibility */
+  --page-bg: #1b2a54;
+  --page-fg: #ffffff;
+  --panel: #243461;
+  --panel-2: #1e2d57;
+  --ink-soft: #c7d0e6;
+  --background: 224 51% 22%;
+  --foreground: 0 0% 100%;
+  --card: 224 44% 26%;
+  --card-foreground: 0 0% 100%;
+  --popover: 224 44% 26%;
+  --popover-foreground: 0 0% 100%;
+  --primary: 226 82% 70%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 224 35% 30%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 224 35% 30%;
+  --muted-foreground: 220 25% 82%;
+  --accent: 266 52% 58%;
+  --accent-foreground: 0 0% 100%;
+  --border: 224 30% 36%;
+  --input: 224 30% 36%;
+  --ring: 226 82% 70%;
+  --gold: 226 82% 70%;    /* navy-blue accent (brighter for the lighter navy) */
+  --gold2: 266 52% 52%;   /* purple (darker) */
 }
 
 * {
@@ -34,13 +69,14 @@
 }
 
 html, body, #root {
-  background: #050505;
-  color: #fff;
+  background: var(--page-bg);
+  color: var(--page-fg);
   min-height: 100vh;
   font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   letter-spacing: -0.005em;
+  transition: background 0.6s ease, color 0.6s ease;
 }
 
 .font-display { font-family: 'Fraunces', Georgia, serif; font-feature-settings: 'ss01'; }
@@ -68,8 +104,8 @@ html, body, #root {
 /* Hero radial glow */
 .hero-glow {
   background:
-    radial-gradient(900px 600px at 70% -10%, rgba(212,175,55,0.10), transparent 60%),
-    radial-gradient(900px 700px at 0% 100%, rgba(255,255,255,0.04), transparent 60%),
+    radial-gradient(900px 600px at 70% -10%, hsl(var(--gold) / 0.14), transparent 60%),
+    radial-gradient(900px 700px at 0% 100%, hsl(var(--gold2) / 0.12), transparent 60%),
     transparent;
 }
 
@@ -118,7 +154,7 @@ html, body, #root {
 .cursor-arrow:hover { cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'><circle cx='8' cy='8' r='3' fill='%23D4AF37'/></svg>") 8 8, pointer; }
 
 /* Selection */
-::selection { background: rgba(212,175,55,0.35); color: #fff; }
+::selection { background: hsl(var(--gold) / 0.35); color: #fff; }
 
 /* Subtle dotted grid background utility */
 .dot-grid {
@@ -147,15 +183,17 @@ html, body, #root {
   animation: dox-sheen 9s linear infinite;
 }
 .sphere-glow { animation: dox-pulse 6s ease-in-out infinite; }
-.orbit-ring  { border: 1px solid rgba(255,255,255,.10); border-radius: 9999px; }
+.orbit-ring  { border: 1px solid hsl(var(--gold) / .22); border-radius: 9999px; }
 .orbit-node  { border-radius: 9999px; background: hsl(var(--gold)); box-shadow: 0 0 14px hsl(var(--gold)); }
-.particle    { position: absolute; border-radius: 9999px; background: rgba(255,255,255,.8); animation: dox-twinkle 3.6s ease-in-out infinite; }
+.particle    { position: absolute; border-radius: 9999px; background: hsl(var(--gold2) / .85); animation: dox-twinkle 3.6s ease-in-out infinite; }
 
 /* Scroll progress bar */
 .scroll-progress {
   position: fixed; top: 0; left: 0; right: 0; height: 2px; transform-origin: 0%;
-  background: linear-gradient(90deg, hsl(var(--gold)), #fff); z-index: 120;
+  background: linear-gradient(90deg, hsl(var(--gold)), hsl(var(--gold2))); z-index: 120;
 }
+
+/* Light theme keeps white text on a lighter navy — no white→dark remaps needed. */
 
 /* Richer reveal: blur-in + longer travel */
 .reveal { filter: blur(6px); }

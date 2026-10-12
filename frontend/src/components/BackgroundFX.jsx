@@ -73,10 +73,10 @@ function Field() {
     null,
     h("points", { ref: points },
       h("bufferGeometry", null, h("bufferAttribute", { attach: "attributes-position", args: [positions, 3] })),
-      h("pointsMaterial", { color: "#D4AF37", size: 0.05, sizeAttenuation: true, transparent: true, opacity: 0.55, depthWrite: false, blending: THREE.AdditiveBlending })),
+      h("pointsMaterial", { color: "#4f74ff", size: 0.05, sizeAttenuation: true, transparent: true, opacity: 0.6, depthWrite: false, blending: THREE.AdditiveBlending })),
     h("lineSegments", { ref: lines },
       h("bufferGeometry", null, h("bufferAttribute", { attach: "attributes-position", args: [linkPos, 3] })),
-      h("lineBasicMaterial", { color: "#9a7b25", transparent: true, opacity: 0.16, depthWrite: false, blending: THREE.AdditiveBlending }))
+      h("lineBasicMaterial", { color: "#6d3fc4", transparent: true, opacity: 0.2, depthWrite: false, blending: THREE.AdditiveBlending }))
   );
 }
 
@@ -96,9 +96,9 @@ export default function BackgroundFX() {
   return (
     <div
       aria-hidden
-      style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none" }}
+      style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none", background: "var(--page-bg)" }}
     >
-      <Canvas camera={{ position: [0, 0, 8], fov: 60 }} dpr={[1, 1.5]} gl={{ antialias: true, alpha: true }}>
+      <Canvas camera={{ position: [0, 0, 8], fov: 60 }} dpr={[1, 1.5]} gl={{ antialias: true, alpha: true }} onCreated={({ gl }) => gl.setClearAlpha(0)}>
         {h(Field, null)}
       </Canvas>
     </div>
