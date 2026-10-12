@@ -148,7 +148,7 @@ export default function HeroOrb() {
           className="font-display text-5xl lg:text-6xl tracking-tight"
           style={{ color: "#fff", textShadow: "0 0 24px rgba(212,175,55,0.55), 0 0 8px rgba(255,255,255,0.4)" }}
         >
-          D.O.X.
+          D.O.X
         </motion.div>
       </div>
     </div>

@@ -88,8 +88,7 @@ export default function LandingPage() {
             <HeroOrb />
           </motion.div>
           <motion.div className="w-full" variants={heroContainer} initial="hidden" animate="show">
-            <motion.div variants={heroItem} className="label-kicker">Business Funding Consulting · D.O.X Capital</motion.div>
-            <motion.h1 variants={heroItem} className="font-display text-5xl sm:text-6xl lg:text-7xl font-light tracking-tight leading-[1.02] mt-6">
+            <motion.h1 variants={heroItem} className="font-display text-5xl sm:text-6xl lg:text-7xl font-light tracking-tight leading-[1.02]">
               Capital doesn't flow to everyone.<br/>
               It flows to the{" "}
               <span className="italic" style={{ color: "hsl(var(--gold))" }}>structured</span>.
