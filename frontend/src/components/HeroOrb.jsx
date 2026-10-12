@@ -90,8 +90,11 @@ function OrbitNodes() {
           return h(
             "mesh",
             { key: j, position: [Math.cos(a) * ring.r, Math.sin(a) * ring.r, 0] },
-            h("sphereGeometry", { args: [0.05, 16, 16] }),
-            h("meshBasicMaterial", { color: "#ffe08a", toneMapped: false })
+            h("sphereGeometry", { args: [0.05, 32, 32] }),
+            h("meshStandardMaterial", {
+              color: "#d4af37", metalness: 1, roughness: 0.25,
+              emissive: "#8a6a12", emissiveIntensity: 0.35,
+            })
           );
         })
       )
@@ -109,8 +112,10 @@ function Scene() {
   return h(
     React.Fragment,
     null,
-    h("ambientLight", { intensity: 0.6 }),
-    h("pointLight", { position: [4, 3, 5], intensity: 1.2, color: "#fff4d6" }),
+    h("ambientLight", { intensity: 0.7 }),
+    h("pointLight", { position: [4, 3, 5], intensity: 1.6, color: "#fff4d6" }),
+    h("pointLight", { position: [-4, -2, 3], intensity: 0.9, color: "#ffd46b" }),
+    h("directionalLight", { position: [0, 5, 2], intensity: 1.1, color: "#ffffff" }),
     h(
       "group",
       { ref: group },
