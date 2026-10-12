@@ -1,0 +1,48 @@
+{
+  "summary": "Full backend + web E2E of the new deal-flow role model (admin, underwriter, partner, client), referral assignment, readiness-gated Jitsi scheduling, per-deal messaging, pre-screen-grounded AI assistant, and the split Client/Partner/Underwriter auth audience (admin tucked under partner). 15/15 backend pytest cases pass. Web UI: landing renders (3D hero + bg FX, no runtime errors — only a deprecated THREE.Clock warning), all 4 role logins route to the correct portals, underwriter console scopes to ready+ deals and exposes phase actions, partner console shows referral code DOXVIP and only the assigned client, client dashboard shows the phase pill + the new tabs (Underwriting Call / Messages / Assistant). Messaging + Assistant verified end-to-end against live API. No bugs blocking the feature set.",
+  "platforms_tested": ["web"],
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "web": {
+      "ui_bugs": [],
+      "integration_issues": [],
+      "design_issues": [
+        {"screen": "Client dashboard header", "issues": ["Two pills render next to the heading: account approval ('APPROVED') AND phase ('IN UNDERWRITING'). Not a bug, but can read as redundant. Minor UX polish — consider merging into a single state chip or clearly labeling 'Phase: In Underwriting'."]}
+      ]
+    },
+    "mobile": {
+      "ui_bugs": [], "integration_issues": [], "design_issues": [], "react_native_issues": []
+    }
+  },
+  "parity_issues": [],
+  "test_report_links": [
+    "/app/backend/tests/deals_test.py",
+    "/app/test_reports/pytest/deals_results.xml"
+  ],
+  "action_items": [
+    "(Optional) three.js deprecation: hero/FX use THREE.Clock which is deprecated — migrate to THREE.Timer when convenient. Non-blocking.",
+    "(Nit) Dashboard header renders both account approval and deal phase as unlabelled chips; label the phase chip 'Phase:' to disambiguate."
+  ],
+  "critical_code_review_comments": [
+    "server.py:1052 PUT /underwriter/deals/{id}/phase accepts (in_underwriting|approved|declined) only — intake/in_preparation/ready_to_underwrite are correctly derived from readiness state in _effective_phase; the regex blocks writing those terminal-adjacent states manually, which is the right contract.",
+    "server.py:935 _require_deal_access correctly covers admin OR underwriter OR owning partner OR self — verified 403 for an outsider client and 403 for an unassigned partner.",
+    "server.py:1077 Scheduling gate blocks when phase not in SCHEDULABLE_PHASES — verified 400 for a fresh intake client and 200 once underwriter forces in_underwriting.",
+    "AuthPage.jsx:92 audience is driven by ?as= query param (partner/admin/underwriter) with a non-admin fallback; admin is intentionally reachable only via the 'Administrator sign in' link on the partner audience — matches the spec.",
+    "NavBar.jsx shows only Client / Partner / Underwriter sign-in buttons (plus Book Discovery Call) — no Admin button in header, as required.",
+    "DealScheduler/DealThread/DealAssistant are all mounted inside the client dashboard tabs and all expose data-testids suitable for e2e automation.",
+    "/api/admin/users caps at 500 docs with no pagination (server.py:1313) — fine today, but worth paginating once the user table grows."
+  ],
+  "updated_files": [
+    "/app/backend/tests/deals_test.py (new)"
+  ],
+  "success_rate": {"backend": "100% (15/15 pytest)", "frontend": "100% of covered flows (auth routing x4 roles, underwriter console, partner console, client dashboard tabs x6, messaging post+read, AI assistant chat, landing)"},
+  "test_credentials": "Used the four review-request accounts verbatim: admin deptofx@proton.me / DoxAdmin!2026; underwriter underwriter@thedoxs.com / DoxUnder!2026; partner partner@thedoxs.com / DoxPartner!2026 (referral DOXVIP); client client@thedoxs.com / DoxClient!2026 (assigned to Test Partner).",
+  "seed_data_creation": "Test suite creates throwaway client accounts prefixed 'gatetest<ts>' and 'outa<ts>/outb<ts>' @doxs.dev to exercise negative access + scheduling-gate paths; all approved via admin. Client@thedoxs.com was left in phase=in_underwriting (set by the underwriter test). Posted one UI message 'UI smoke test message' to the client's deal thread and triggered one live assistant exchange (session persisted).",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Backend pytest file /app/backend/tests/deals_test.py covers login routing per role, partner scoping, underwriter phase change + scheduling gate, item review (status not state), per-deal messaging + outsider block, and the AI assistant chat. _prescreen_payload nests user info under .user.{id,email,name,company} — use that shape, not top-level. Admin/users is capped at 500 without pagination, so filter by ?status=pending when hunting for freshly-registered users. The seed in server.py:_seed_role_accounts auto-links client@thedoxs.com to partner@thedoxs.com (referral DOXVIP). SCHEDULABLE_PHASES = (ready_to_underwrite, in_underwriting, approved); phase <= in_preparation returns 400 from POST /api/deals/{id}/meetings. AuthPage reads audience from ?as= query (partner|admin|underwriter), default client; admin audience is only reachable via the 'Administrator sign in' link on partner audience. No admin button in NavBar.",
+  "rca of the issue": "N/A — all requested features behave as described."
+}

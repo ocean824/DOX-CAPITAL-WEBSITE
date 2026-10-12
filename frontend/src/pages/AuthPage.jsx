@@ -65,13 +65,31 @@ const COPY = {
     ],
     footnote: <>Administrator accounts are provisioned internally — there is no self sign-up.</>,
   },
+  underwriter: {
+    kicker: "Underwriter Access",
+    heading: "Underwrite prepared deals.",
+    body:
+      "Underwriters see every file that has reached the Ready-to-Underwrite phase. Review the pre-screening checklist, clear the red-flag gates, move the deal through underwriting and schedule calls — all from one console.",
+    bullets: [
+      "See all deals prepared for underwriting",
+      "Review documents and clear underwriting gates",
+      "Move deals to In Underwriting, Approved or Declined",
+    ],
+    roleLabel: "Your title",
+    rolePlaceholder: "Credit / Underwriting",
+    companyLabel: "Firm / desk",
+    messageLabel: "Your underwriting focus",
+    messagePlaceholder: "Asset classes and facility sizes you underwrite.",
+    cta: "Request Underwriter Access",
+    footnote: <>Underwriter access is reviewed and approved by an administrator before activation.</>,
+  },
 };
 
 export default function AuthPage() {
   const { setUser, refresh } = useAuth();
   const nav = useNavigate();
   const [params, setParams] = useSearchParams();
-  const audience = ["partner", "admin"].includes(params.get("as")) ? params.get("as") : "client";
+  const audience = ["partner", "admin", "underwriter"].includes(params.get("as")) ? params.get("as") : "client";
   const copy = COPY[audience];
   const isAdmin = audience === "admin";
 
@@ -82,7 +100,7 @@ export default function AuthPage() {
 
   const [rg, setRg] = useState({
     name: "", email: "", password: "", company: "",
-    role_requested: "", message: "",
+    role_requested: "", message: "", referral_code: "",
   });
   const [rgErr, setRgErr] = useState("");
   const [rgBusy, setRgBusy] = useState(false);
@@ -103,7 +121,8 @@ export default function AuthPage() {
       toast.success("Welcome back");
       const u = data.user;
       if (u.role === "admin") nav("/admin");
-      else if (u.account_type === "partner" && u.status === "approved") nav("/workspace");
+      else if (u.account_type === "underwriter" && u.status === "approved") nav("/underwriter");
+      else if (u.account_type === "partner" && u.status === "approved") nav("/partner");
       else nav("/dashboard");
     } catch (e2) {
       setLiErr(formatApiError(e2.response?.data?.detail) || e2.message);
@@ -116,7 +135,11 @@ export default function AuthPage() {
     e.preventDefault();
     setRgBusy(true); setRgErr("");
     try {
-      await api.post("/auth/register", { ...rg, account_type: audience });
+      await api.post("/auth/register", {
+        ...rg,
+        account_type: audience,
+        referral_code: audience === "client" ? rg.referral_code : undefined,
+      });
       setRgDone(true);
       toast.success("Application received");
     } catch (e2) {
@@ -127,19 +150,25 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="bg-[#050505] text-white min-h-screen grain">
+    <div className="text-white min-h-screen grain">
       <NavBar />
       <section className="pt-32 pb-20 hero-glow">
         <div className="mx-auto max-w-6xl px-6 lg:px-12">
           <div className="flex flex-wrap gap-px bg-white/10 w-fit mb-px">
-            {["client", "partner", "admin"].map((a) => (
+            {["client", "partner", "underwriter"].map((a) => (
               <button key={a} data-testid={`audience-${a}`} onClick={() => switchAudience(a)}
                 className={`px-6 py-3 label-kicker text-xs transition-colors ${
                   audience === a ? "bg-white text-black" : "bg-[#050505] text-white/50 hover:text-white"
                 }`}>
-                {a === "client" ? "I'm raising capital" : a === "partner" ? "I refer deals" : "Administrator"}
+                {a === "client" ? "I'm raising capital" : a === "partner" ? "I refer deals" : "I underwrite"}
               </button>
             ))}
+            {audience === "admin" && (
+              <button data-testid="audience-admin"
+                className="px-6 py-3 label-kicker text-xs bg-white text-black">
+                Administrator
+              </button>
+            )}
           </div>
 
           <div className="grid lg:grid-cols-12 gap-px bg-white/10">
@@ -153,6 +182,18 @@ export default function AuthPage() {
                 {copy.bullets.map((b) => <Row key={b} icon={ShieldCheck} text={b} />)}
               </div>
               <p className="text-xs text-white/35 mt-10">{copy.footnote}</p>
+              {audience === "partner" && (
+                <button data-testid="admin-access-link" onClick={() => switchAudience("admin")}
+                  className="mt-6 block text-xs text-white/40 hover:text-[hsl(var(--gold))] underline underline-offset-4">
+                  Administrator sign in
+                </button>
+              )}
+              {audience === "admin" && (
+                <button data-testid="back-to-partner-link" onClick={() => switchAudience("partner")}
+                  className="mt-6 block text-xs text-white/40 hover:text-white underline underline-offset-4">
+                  ← Back to partner access
+                </button>
+              )}
             </aside>
 
             <div className="lg:col-span-7 bg-[#050505] p-10 lg:p-14">
@@ -160,7 +201,7 @@ export default function AuthPage() {
                 <TabsList className="rounded-none bg-transparent p-0 gap-6 border-b border-white/10">
                   <TabsTrigger data-testid="tab-login" value="login"
                     className="rounded-none data-[state=active]:bg-transparent data-[state=active]:text-white data-[state=active]:border-b data-[state=active]:border-white px-0 pb-3 text-white/60">
-                    {audience === "partner" ? "Partner Sign In" : audience === "admin" ? "Admin Sign In" : "Client Sign In"}
+                    {audience === "partner" ? "Partner Sign In" : audience === "admin" ? "Admin Sign In" : audience === "underwriter" ? "Underwriter Sign In" : "Client Sign In"}
                   </TabsTrigger>
                   {!isAdmin && (
                     <TabsTrigger data-testid="tab-register" value="register"
@@ -228,6 +269,15 @@ export default function AuthPage() {
                           onChange={(e) => setRg((s) => ({ ...s, role_requested: e.target.value }))}
                           className="rounded-none bg-black/40 border-white/15" />
                       </Field>
+                      {audience === "client" && (
+                        <Field label="Referral code (optional)" className="sm:col-span-2">
+                          <Input data-testid="reg-referral" value={rg.referral_code}
+                            placeholder="From your D.O.X partner, e.g. DOXVIP"
+                            onChange={(e) => setRg((s) => ({ ...s, referral_code: e.target.value.toUpperCase() }))}
+                            className="rounded-none bg-black/40 border-white/15" />
+                          <p className="text-xs text-white/40 mt-1">Have a partner introduction? Enter their code to link your file.</p>
+                        </Field>
+                      )}
                       <Field label="Password" className="sm:col-span-2">
                         <Input data-testid="reg-password" type="password" required minLength={8} value={rg.password}
                           onChange={(e) => setRg((s) => ({ ...s, password: e.target.value }))}

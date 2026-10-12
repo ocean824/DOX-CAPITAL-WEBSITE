@@ -1,73 +1,155 @@
-import { useEffect, useRef } from "react";
+import React, { useMemo, useRef } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { motion } from "framer-motion";
+import * as THREE from "three";
 
-/** Lightweight WebGL-free 3D-ish hero scene: layered animated blobs + tilt parallax. */
+// three.js intrinsics are created via React.createElement (NOT JSX) so the
+// visual-edits babel plugin does not inject x-* source attrs that R3F rejects.
+const h = React.createElement;
+
+/* Fibonacci-sphere unit directions — even distribution over a sphere. */
+function fibonacciDirs(count) {
+  const dirs = new Float32Array(count * 3);
+  const golden = Math.PI * (3 - Math.sqrt(5));
+  for (let i = 0; i < count; i++) {
+    const y = 1 - (i / (count - 1)) * 2;
+    const r = Math.sqrt(1 - y * y);
+    const theta = golden * i;
+    dirs[i * 3] = Math.cos(theta) * r;
+    dirs[i * 3 + 1] = y;
+    dirs[i * 3 + 2] = Math.sin(theta) * r;
+  }
+  return dirs;
+}
+
+/* Particle shell that breathes between an assembled sphere and a scattered
+   orbit — the "pieces coming into and out of orbit" effect. */
+function Shell({ count, radius, orbit, color, size, opacity, swirl }) {
+  const ref = useRef();
+  const { dirs, phase, speed, positions } = useMemo(() => {
+    const dirs = fibonacciDirs(count);
+    const phase = new Float32Array(count);
+    const speed = new Float32Array(count);
+    for (let i = 0; i < count; i++) {
+      phase[i] = Math.random() * Math.PI * 2;
+      speed[i] = 0.5 + Math.random() * 1.1;
+    }
+    return { dirs, phase, speed, positions: new Float32Array(count * 3) };
+  }, [count]);
+
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    const arr = ref.current.geometry.attributes.position.array;
+    for (let i = 0; i < count; i++) {
+      const k = 0.5 + 0.5 * Math.sin(t * speed[i] + phase[i]); // 0..1 in/out
+      const rad = radius + k * orbit;
+      const a = swirl * (k - 0.5) * 2 + t * 0.15 * speed[i];
+      const dx = dirs[i * 3], dy = dirs[i * 3 + 1], dz = dirs[i * 3 + 2];
+      const ca = Math.cos(a), sa = Math.sin(a);
+      arr[i * 3] = (dx * ca - dz * sa) * rad;
+      arr[i * 3 + 1] = dy * rad;
+      arr[i * 3 + 2] = (dx * sa + dz * ca) * rad;
+    }
+    ref.current.geometry.attributes.position.needsUpdate = true;
+    ref.current.rotation.y = t * 0.06;
+  });
+
+  return h(
+    "points",
+    { ref },
+    h("bufferGeometry", null,
+      h("bufferAttribute", { attach: "attributes-position", args: [positions, 3] })),
+    h("pointsMaterial", {
+      color, size, sizeAttenuation: true, transparent: true, opacity,
+      depthWrite: false, blending: THREE.AdditiveBlending,
+    })
+  );
+}
+
+/* Bright gold nodes riding tilted orbital rings. */
+function OrbitNodes() {
+  const group = useRef();
+  const rings = useMemo(() => ([
+    { r: 2.2, tilt: 1.3, speed: 0.5, n: 3 },
+    { r: 2.7, tilt: 0.6, speed: -0.35, n: 2 },
+    { r: 1.9, tilt: 1.9, speed: 0.7, n: 2 },
+  ]), []);
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    group.current.children.forEach((ring, i) => { ring.rotation.z = t * rings[i].speed; });
+  });
+  return h(
+    "group",
+    { ref: group },
+    rings.map((ring, i) =>
+      h(
+        "group",
+        { key: i, rotation: [ring.tilt, 0, 0] },
+        Array.from({ length: ring.n }).map((_, j) => {
+          const a = (j / ring.n) * Math.PI * 2;
+          return h(
+            "mesh",
+            { key: j, position: [Math.cos(a) * ring.r, Math.sin(a) * ring.r, 0] },
+            h("sphereGeometry", { args: [0.05, 16, 16] }),
+            h("meshBasicMaterial", { color: "#F0C65A", toneMapped: false })
+          );
+        })
+      )
+    )
+  );
+}
+
+function Scene() {
+  const group = useRef();
+  useFrame((state) => {
+    const { x, y } = state.pointer;
+    group.current.rotation.y += ((x * 0.5) - group.current.rotation.y) * 0.04;
+    group.current.rotation.x += ((-y * 0.4) - group.current.rotation.x) * 0.04;
+  });
+  return h(
+    React.Fragment,
+    null,
+    h("ambientLight", { intensity: 0.6 }),
+    h("pointLight", { position: [4, 3, 5], intensity: 1.2, color: "#ffffff" }),
+    h(
+      "group",
+      { ref: group },
+      h(Shell, { count: 650, radius: 1.55, orbit: 0.9, color: "#D4AF37", size: 0.034, opacity: 0.95, swirl: 0.6 }),
+      h(Shell, { count: 380, radius: 1.7, orbit: 1.15, color: "#ffffff", size: 0.022, opacity: 0.6, swirl: -0.4 }),
+      h(Shell, { count: 220, radius: 1.3, orbit: 0.5, color: "#9a7b25", size: 0.05, opacity: 0.5, swirl: 0.9 }),
+      h(OrbitNodes, null)
+    )
+  );
+}
+
+/** AAA-style WebGL hero: a self-assembling particle sphere orbiting a glowing D.O.X. core. */
 export default function HeroOrb() {
-  const ref = useRef(null);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    let raf;
-    let t = 0;
-    const tick = () => {
-      t += 0.006;
-      const o1 = el.querySelector("[data-orb=\"1\"]");
-      const o2 = el.querySelector("[data-orb=\"2\"]");
-      const o3 = el.querySelector("[data-orb=\"3\"]");
-      const ring = el.querySelector("[data-ring]");
-      if (o1) o1.style.transform = `translate(${Math.sin(t) * 20}px, ${Math.cos(t * 0.7) * 14}px)`;
-      if (o2) o2.style.transform = `translate(${Math.cos(t * 0.9) * 18}px, ${Math.sin(t * 1.1) * 22}px)`;
-      if (o3) o3.style.transform = `translate(${Math.sin(t * 1.3) * 26}px, ${Math.cos(t * 0.6) * 18}px)`;
-      if (ring) ring.style.transform = `rotate(${(t * 30) % 360}deg)`;
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    const onMove = (e) => {
-      const r = el.getBoundingClientRect();
-      const x = (e.clientX - r.left) / r.width - 0.5;
-      const y = (e.clientY - r.top) / r.height - 0.5;
-      el.style.setProperty("--tilt-x", `${x * 6}deg`);
-      el.style.setProperty("--tilt-y", `${-y * 6}deg`);
-    };
-    el.addEventListener("mousemove", onMove);
-    return () => { cancelAnimationFrame(raf); el.removeEventListener("mousemove", onMove); };
-    // Self-contained animation loop; no reactive deps.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
   return (
-    <div
-      ref={ref}
-      data-testid="hero-orb"
-      className="relative aspect-square w-full max-w-[560px] mx-auto"
-      style={{ perspective: 1200 }}
-    >
-      <div
-        className="absolute inset-0 transition-transform duration-300"
-        style={{ transform: "rotateX(var(--tilt-y,0)) rotateY(var(--tilt-x,0))", transformStyle: "preserve-3d" }}
+    <div data-testid="hero-orb" className="relative aspect-square w-full max-w-[560px] mx-auto">
+      <Canvas
+        className="absolute inset-0"
+        camera={{ position: [0, 0, 5.2], fov: 50 }}
+        dpr={[1, 2]}
+        gl={{ antialias: true, alpha: true }}
       >
-        {/* concentric rings */}
-        <div data-ring className="absolute inset-6 rounded-full border border-white/10" style={{ transition: "transform 0.2s linear" }} />
-        <div className="absolute inset-16 rounded-full border border-white/5" />
-        <div className="absolute inset-28 rounded-full border border-white/5" />
+        {h(Scene, null)}
+      </Canvas>
 
-        {/* metallic core */}
-        <div className="absolute inset-[28%] rounded-full"
-             style={{
-               background:
-                 "radial-gradient(circle at 30% 25%, #fff, #c9c9c9 22%, #555 55%, #1b1b1b 80%, #0a0a0a 100%)",
-               boxShadow:
-                 "inset 0 0 80px rgba(0,0,0,0.7), 0 0 80px rgba(212,175,55,0.18)",
-             }} />
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none" aria-hidden>
+        <div className="absolute h-40 w-40 rounded-full sphere-glow"
+          style={{ background: "radial-gradient(circle, rgba(212,175,55,0.35), transparent 68%)" }} />
+      </div>
 
-        {/* color orbs */}
-        <div data-orb="1" className="orb" style={{ top: "8%", left: "12%", width: 160, height: 160, background: "#D4AF37" }} />
-        <div data-orb="2" className="orb" style={{ bottom: "8%", right: "14%", width: 180, height: 180, background: "#3a3a3a" }} />
-        <div data-orb="3" className="orb" style={{ top: "40%", right: "0%", width: 120, height: 120, background: "#888" }} />
-
-        {/* hairline cross */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute left-1/2 top-0 bottom-0 w-px bg-white/5" />
-          <div className="absolute top-1/2 left-0 right-0 h-px bg-white/5" />
-        </div>
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8, filter: "blur(10px)" }}
+          animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+          transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+          className="font-display text-5xl lg:text-6xl tracking-tight"
+          style={{ color: "#fff", textShadow: "0 0 24px rgba(212,175,55,0.55), 0 0 8px rgba(255,255,255,0.4)" }}
+        >
+          D.O.X.
+        </motion.div>
       </div>
     </div>
   );

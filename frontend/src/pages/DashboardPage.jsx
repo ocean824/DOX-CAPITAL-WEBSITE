@@ -8,6 +8,10 @@ import { Button } from "../components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../components/ui/tabs";
 import { Badge } from "../components/ui/badge";
 import { ReadinessTab } from "../components/ReadinessTab";
+import { DealThread } from "../components/DealThread";
+import { DealAssistant } from "../components/DealAssistant";
+import { DealScheduler } from "../components/DealScheduler";
+import { PhasePill } from "../lib/deal";
 import { toast } from "sonner";
 import {
   UploadCloud, FileText, Download, ExternalLink, Clock,
@@ -18,6 +22,7 @@ export default function DashboardPage() {
   const { user } = useAuth();
   const [uploads, setUploads] = useState([]);
   const [signDocs, setSignDocs] = useState([]);
+  const [phase, setPhase] = useState(null);
   const [loading, setLoading] = useState(true);
   const fileRef = useRef(null);
   const [uploading, setUploading] = useState(false);
@@ -37,9 +42,11 @@ export default function DashboardPage() {
       Promise.all([
         api.get("/uploads/mine").catch(() => ({ data: [] })),
         api.get("/documents").catch(() => ({ data: [] })),
-      ]).then(([u, d]) => {
+        api.get("/prescreen/me").catch(() => ({ data: {} })),
+      ]).then(([u, d, p]) => {
         setUploads(u.data);
         setSignDocs(d.data);
+        setPhase(p.data?.phase || null);
         setLoading(false);
       });
     } else if (user !== null) {
@@ -50,7 +57,8 @@ export default function DashboardPage() {
   if (user === null) return <CenterMsg>Loading…</CenterMsg>;
   if (user === false) return <Navigate to="/auth" replace />;
   if (user.role === "admin") return <Navigate to="/admin" replace />;
-  if (user.account_type === "partner" && user.status === "approved") return <Navigate to="/workspace" replace />;
+  if (user.account_type === "underwriter" && user.status === "approved") return <Navigate to="/underwriter" replace />;
+  if (user.account_type === "partner" && user.status === "approved") return <Navigate to="/partner" replace />;
 
   const status = user.status || "pending";
 
@@ -76,7 +84,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="bg-[#050505] text-white min-h-screen grain">
+    <div className="text-white min-h-screen grain">
       <NavBar />
       <section className="pt-32 pb-16 hero-glow">
         <div className="mx-auto max-w-7xl px-6 lg:px-12">
@@ -89,6 +97,12 @@ export default function DashboardPage() {
               <p className="text-white/55 mt-2 text-sm">{user.email}</p>
             </div>
             <StatusBadge status={status} />
+            {status === "approved" && phase && (
+              <div className="flex items-center gap-2">
+                <span className="label-kicker text-[10px]">Deal phase</span>
+                <PhasePill phase={phase} />
+              </div>
+            )}
           </div>
           {status === "approved" && (
             <a
@@ -156,6 +170,18 @@ export default function DashboardPage() {
                 <TabsTrigger data-testid="tab-readiness" value="readiness"
                   className="rounded-none data-[state=active]:bg-transparent data-[state=active]:text-white data-[state=active]:border-b data-[state=active]:border-white px-0 pb-3 text-white/60">
                   Document Readiness
+                </TabsTrigger>
+                <TabsTrigger data-testid="tab-call" value="call"
+                  className="rounded-none data-[state=active]:bg-transparent data-[state=active]:text-white data-[state=active]:border-b data-[state=active]:border-white px-0 pb-3 text-white/60">
+                  Underwriting Call
+                </TabsTrigger>
+                <TabsTrigger data-testid="tab-messages" value="messages"
+                  className="rounded-none data-[state=active]:bg-transparent data-[state=active]:text-white data-[state=active]:border-b data-[state=active]:border-white px-0 pb-3 text-white/60">
+                  Messages
+                </TabsTrigger>
+                <TabsTrigger data-testid="tab-assistant" value="assistant"
+                  className="rounded-none data-[state=active]:bg-transparent data-[state=active]:text-white data-[state=active]:border-b data-[state=active]:border-white px-0 pb-3 text-white/60">
+                  Assistant
                 </TabsTrigger>
               </TabsList>
 
@@ -245,6 +271,28 @@ export default function DashboardPage() {
 
               <TabsContent value="readiness" className="mt-8">
                 <ReadinessTab />
+              </TabsContent>
+
+              <TabsContent value="call" className="mt-8">
+                <div className="max-w-4xl">
+                  <h2 className="font-display text-2xl">Schedule your underwriting call.</h2>
+                  <p className="text-white/60 text-sm mt-3 mb-6 max-w-2xl">
+                    Once your file is prepared (Ready to Underwrite), book a video call with an
+                    underwriter or our team.
+                  </p>
+                  <DealScheduler clientId={user.id} phase={phase} />
+                </div>
+              </TabsContent>
+
+              <TabsContent value="messages" className="mt-8">
+                <div className="max-w-3xl">
+                  <h2 className="font-display text-2xl mb-6">Your deal conversation.</h2>
+                  <DealThread clientId={user.id} />
+                </div>
+              </TabsContent>
+
+              <TabsContent value="assistant" className="mt-8">
+                <DealAssistant />
               </TabsContent>
             </Tabs>
           )}

@@ -72,7 +72,7 @@ export default function AdminPage() {
   const pending = users.filter((u) => u.status === "pending");  const everyone = users.filter((u) => u.role !== "admin");
 
   return (
-    <div className="bg-[#050505] text-white min-h-screen grain">
+    <div className="text-white min-h-screen grain">
       <NavBar />
       <section className="pt-32 pb-12 hero-glow">
         <div className="mx-auto max-w-7xl px-6 lg:px-12">

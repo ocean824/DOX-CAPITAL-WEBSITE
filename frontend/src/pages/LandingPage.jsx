@@ -1,10 +1,21 @@
 import { Link } from "react-router-dom";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowUpRight, Shield, FileCheck2, Building2, Check, Lock } from "lucide-react";
 import { Button } from "../components/ui/button";
 import NavBar from "../components/NavBar";
 import Footer from "../components/Footer";
 import HeroOrb from "../components/HeroOrb";
 import Reveal from "../components/Reveal";
+import ScrollProgress from "../components/ScrollProgress";
+
+const heroContainer = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.12, delayChildren: 0.1 } },
+};
+const heroItem = {
+  hidden: { opacity: 0, y: 24, filter: "blur(8px)" },
+  show: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } },
+};
 
 const SERVICES = [
   {
@@ -62,27 +73,31 @@ const FAQ = [
 ];
 
 export default function LandingPage() {
+  const { scrollY } = useScroll();
+  const orbY = useTransform(scrollY, [0, 700], [0, -90]);
+  const orbScale = useTransform(scrollY, [0, 700], [1, 1.08]);
   return (
-    <div className="bg-[#050505] text-white grain min-h-screen">
+    <div className="text-white grain min-h-screen">
+      <ScrollProgress />
       <NavBar />
 
       {/* HERO */}
       <section className="hero-glow pt-32 pb-24 lg:pt-44 lg:pb-32 relative overflow-hidden">
         <div className="mx-auto max-w-7xl px-6 lg:px-12 grid lg:grid-cols-12 gap-12 items-center">
-          <Reveal className="lg:col-span-7">
-            <div className="reveal label-kicker">Business Funding Consulting · D.O.X Capital</div>
-            <h1 className="reveal font-display text-5xl sm:text-6xl lg:text-7xl font-light tracking-tight leading-[1.02] mt-6">
+          <motion.div className="lg:col-span-7" variants={heroContainer} initial="hidden" animate="show">
+            <motion.div variants={heroItem} className="label-kicker">Business Funding Consulting · D.O.X Capital</motion.div>
+            <motion.h1 variants={heroItem} className="font-display text-5xl sm:text-6xl lg:text-7xl font-light tracking-tight leading-[1.02] mt-6">
               Capital doesn't flow to everyone.<br/>
               It flows to the{" "}
               <span className="italic" style={{ color: "hsl(var(--gold))" }}>structured</span>.
-            </h1>
-            <p className="reveal text-white/70 text-lg max-w-xl mt-8 leading-relaxed">
+            </motion.h1>
+            <motion.p variants={heroItem} className="text-white/70 text-lg max-w-xl mt-8 leading-relaxed">
               We engineer corporate structures for institutional funding. Most businesses
               have great ideas but fail the bank's structural audit — we rebuild your
               entity, operations, and financial narrative to match the exact criteria of
               top-tier lenders.
-            </p>
-            <div className="reveal flex flex-wrap items-center gap-3 mt-10">
+            </motion.p>
+            <motion.div variants={heroItem} className="flex flex-wrap items-center gap-3 mt-10">
               <Link to="/book">
                 <Button data-testid="hero-cta-book" className="rounded-none bg-white text-black hover:bg-white/90 px-7 h-12 btn-shimmer">
                   Book Discovery Call <ArrowUpRight className="ml-2 h-4 w-4" strokeWidth={1.25} />
@@ -93,12 +108,12 @@ export default function LandingPage() {
                   Client Sign In
                 </Button>
               </Link>
-            </div>
-          </Reveal>
+            </motion.div>
+          </motion.div>
 
-          <div className="lg:col-span-5">
+          <motion.div className="lg:col-span-5" style={{ y: orbY, scale: orbScale }}>
             <HeroOrb />
-          </div>
+          </motion.div>
         </div>
 
         {/* marquee */}

@@ -180,27 +180,67 @@ async def require_approved(user: dict = Depends(get_current_user)) -> dict:
     return user
 
 
+def _is_underwriter(user: dict) -> bool:
+    return user.get("account_type") == "underwriter" and user.get("status") == "approved"
+
+
+async def require_underwriter(user: dict = Depends(get_current_user)) -> dict:
+    """Underwriter OR admin."""
+    if user.get("role") == "admin" or _is_underwriter(user):
+        return user
+    raise HTTPException(status_code=403, detail="Underwriter access required")
+
+
+async def require_staff(user: dict = Depends(get_current_user)) -> dict:
+    """Admin-level read + underwriting write: admin OR approved underwriter."""
+    if user.get("role") == "admin" or _is_underwriter(user):
+        return user
+    raise HTTPException(status_code=403, detail="Staff access required")
+
+
+async def require_partner(user: dict = Depends(require_approved)) -> dict:
+    if user.get("role") == "admin" or user.get("account_type") == "partner":
+        return user
+    raise HTTPException(status_code=403, detail="Partner access required")
+
+
 # ---------------------------------------------------------------------------
 # Helpers — Email (Resend) with MOCK fallback
 # ---------------------------------------------------------------------------
-def _send_email_sync(to: str, subject: str, html: str) -> None:
+def _send_email_sync(to: str, subject: str, html: str, reply_to: Optional[str] = None) -> None:
     if not RESEND_API_KEY:
-        logger.info("[EMAIL MOCK] to=%s subject=%s\n%s", to, subject, html[:400])
+        logger.info("[EMAIL MOCK] to=%s reply_to=%s subject=%s\n%s", to, reply_to, subject, html[:400])
         return
     try:
-        result = resend.Emails.send({
+        msg = {
             "from": SENDER_EMAIL,
             "to": [to],
             "subject": subject,
             "html": html,
-        })
+        }
+        if reply_to:
+            msg["reply_to"] = reply_to
+        result = resend.Emails.send(msg)
         logger.info("[EMAIL SENT] to=%s id=%s subject=%s", to, result.get("id"), subject)
     except Exception as exc:  # network or key issues
         logger.warning("[EMAIL FAILED] to=%s subject=%s err=%s", to, subject, exc)
 
 
-async def send_email(to: str, subject: str, html: str) -> None:
-    await asyncio.to_thread(_send_email_sync, to, subject, html)
+async def send_email(to: str, subject: str, html: str, reply_to: Optional[str] = None) -> None:
+    await asyncio.to_thread(_send_email_sync, to, subject, html, reply_to)
+
+
+async def notify_user(user_doc: Optional[dict], subject: str, body_html: str,
+                      reply_to: Optional[str] = None) -> None:
+    """Lean notification email to a party's own signup inbox. Reply-To routes replies
+    to the relevant human. Only call for important deal events."""
+    if user_doc and user_doc.get("email"):
+        await send_email(user_doc["email"], subject, email_shell(subject, body_html), reply_to=reply_to)
+
+
+def escape_html(text: Optional[str]) -> str:
+    from html import escape
+    return escape(text or "")
 
 
 def email_shell(title: str, body_html: str) -> str:
@@ -282,7 +322,8 @@ class RegisterIn(BaseModel):
     company: Optional[str] = Field(default=None, max_length=120)
     role_requested: Optional[str] = Field(default="investor", max_length=40)
     message: Optional[str] = Field(default=None, max_length=600)
-    account_type: str = Field(default="client", pattern="^(client|partner)$")
+    account_type: str = Field(default="client", pattern="^(client|partner|underwriter)$")
+    referral_code: Optional[str] = Field(default=None, max_length=24)
 
 
 class LoginIn(BaseModel):
@@ -384,6 +425,11 @@ async def on_startup():
             )
     # warm up storage
     init_storage()
+    # seed demo accounts for the new deal-flow roles (idempotent, approved)
+    try:
+        await _seed_role_accounts()
+    except Exception as exc:
+        logger.warning("role account seed: %s", exc)
     # workspace sub-site: indexes, pipeline stages, settings, user mirror
     try:
         await workspace_seed()
@@ -455,6 +501,14 @@ async def register(payload: RegisterIn, response: Response):
     if await db.users.find_one({"email": email}):
         raise HTTPException(status_code=400, detail="An account with that email already exists")
     user_id = str(uuid.uuid4())
+    partner_id = None
+    if payload.referral_code:
+        ref = await db.users.find_one(
+            {"referral_code": payload.referral_code.strip().upper(), "account_type": "partner"},
+            {"_id": 0, "id": 1},
+        )
+        if ref:
+            partner_id = ref["id"]
     doc = {
         "id": user_id,
         "name": payload.name.strip(),
@@ -466,7 +520,8 @@ async def register(payload: RegisterIn, response: Response):
         "role": "user",
         "status": "pending",
         "account_type": payload.account_type,
-        "workspace_role": "staff" if payload.account_type == "partner" else "client",
+        "partner_id": partner_id,
+        "workspace_role": "staff" if payload.account_type in ("partner", "underwriter") else "client",
         "created_at": datetime.now(timezone.utc).isoformat(),
     }
     await db.users.insert_one(doc)
@@ -706,6 +761,7 @@ async def _prescreen_payload(user: dict) -> dict:
         sections.append({**s, "items": items})
 
     result = pre.evaluate(track, rec.get("metrics") or {}, item_status)
+    phase = _effective_phase(rec, result.get("ready", False), track)
     return {
         "user": {"id": user["id"], "name": user.get("name"), "email": user["email"],
                  "company": user.get("company")},
@@ -717,6 +773,10 @@ async def _prescreen_payload(user: dict) -> dict:
         "sections": sections,
         "unassigned": by_item.get("unassigned", []),
         "ready_notified_at": rec.get("ready_notified_at"),
+        "phase": phase,
+        "phase_label": PHASE_LABELS.get(phase, phase),
+        "underwriter_id": rec.get("underwriter_id"),
+        "partner_id": user.get("partner_id"),
         **result,
     }
 
@@ -777,7 +837,7 @@ async def admin_list_prescreen(admin: dict = Depends(require_admin)):
 
 
 @api.put("/admin/prescreen/{user_id}/track")
-async def admin_set_track(user_id: str, payload: TrackIn, admin: dict = Depends(require_admin)):
+async def admin_set_track(user_id: str, payload: TrackIn, admin: dict = Depends(require_staff)):
     user = await db.users.find_one({"id": user_id}, {"_id": 0, "password_hash": 0})
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -800,7 +860,7 @@ async def admin_set_track(user_id: str, payload: TrackIn, admin: dict = Depends(
 
 @api.put("/admin/prescreen/{user_id}/items/{item_id}")
 async def admin_review_item(user_id: str, item_id: str, payload: ItemReviewIn,
-                            admin: dict = Depends(require_admin)):
+                            admin: dict = Depends(require_staff)):
     user = await db.users.find_one({"id": user_id}, {"_id": 0, "password_hash": 0})
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -816,6 +876,284 @@ async def admin_review_item(user_id: str, item_id: str, payload: ItemReviewIn,
     )
     await _maybe_notify_ready(user)
     return await _prescreen_payload(user)
+
+
+# ---- Deal flow: phases, roles, scheduling, messaging ---------------------
+PHASES = ["intake", "in_preparation", "ready_to_underwrite", "in_underwriting", "approved", "declined"]
+PHASE_LABELS = {
+    "intake": "Intake",
+    "in_preparation": "In Preparation",
+    "ready_to_underwrite": "Ready to Underwrite",
+    "in_underwriting": "In Underwriting",
+    "approved": "Approved",
+    "declined": "Declined",
+}
+PHASE_ORDER = {p: i for i, p in enumerate(PHASES)}
+UNDERWRITER_PHASES = ("ready_to_underwrite", "in_underwriting", "approved", "declined")
+SCHEDULABLE_PHASES = ("ready_to_underwrite", "in_underwriting", "approved")
+
+
+def _effective_phase(rec: dict, ready: bool, track: Optional[str]) -> str:
+    """Intake/In-Preparation/Ready-to-Underwrite are derived from readiness; an
+    underwriter/admin explicitly drives the terminal phases."""
+    manual = rec.get("phase")
+    if manual in ("in_underwriting", "approved", "declined"):
+        return manual
+    if not track:
+        return "intake"
+    return "ready_to_underwrite" if ready else "in_preparation"
+
+
+class PhaseIn(BaseModel):
+    phase: str = Field(pattern="^(in_underwriting|approved|declined)$")
+    note: Optional[str] = Field(default=None, max_length=1000)
+
+
+class PartnerAssignIn(BaseModel):
+    partner_id: Optional[str] = None
+
+
+class DealMeetingIn(BaseModel):
+    with_role: str = Field(pattern="^(underwriter|admin)$")
+    preferred_date: str
+    preferred_time: str
+    timezone: Optional[str] = Field(default="UTC", max_length=80)
+    notes: Optional[str] = Field(default=None, max_length=1000)
+
+
+class DealMessageIn(BaseModel):
+    body: str = Field(min_length=1, max_length=5000)
+
+
+async def _get_client_user(client_id: str) -> dict:
+    client = await db.users.find_one({"id": client_id}, {"_id": 0, "password_hash": 0})
+    if not client:
+        raise HTTPException(status_code=404, detail="Deal not found")
+    return client
+
+
+async def _require_deal_access(user: dict, client_id: str) -> dict:
+    """Return the client user doc if the caller may see this deal, else 403."""
+    client = await _get_client_user(client_id)
+    if user.get("role") == "admin" or _is_underwriter(user):
+        return client
+    if user.get("account_type") == "partner" and client.get("partner_id") == user["id"]:
+        return client
+    if user["id"] == client_id:
+        return client
+    raise HTTPException(status_code=403, detail="You do not have access to this deal")
+
+
+async def _deal_recipients(client: dict) -> list[dict]:
+    """Client + assigned partner + assigned underwriter (deduped)."""
+    people = [client]
+    if client.get("partner_id"):
+        p = await db.users.find_one({"id": client["partner_id"]}, {"_id": 0, "password_hash": 0})
+        if p:
+            people.append(p)
+    rec = await db.prescreen.find_one({"user_id": client["id"]}, {"_id": 0, "underwriter_id": 1})
+    uw_id = (rec or {}).get("underwriter_id")
+    if uw_id:
+        uw = await db.users.find_one({"id": uw_id}, {"_id": 0, "password_hash": 0})
+        if uw:
+            people.append(uw)
+    seen, out = set(), []
+    for person in people:
+        if person and person["id"] not in seen:
+            seen.add(person["id"])
+            out.append(person)
+    return out
+
+
+async def _notify_deal(client: dict, actor_email: Optional[str], subject: str,
+                       body_html: str, exclude_ids: tuple = ()) -> None:
+    for person in await _deal_recipients(client):
+        if person["id"] in exclude_ids:
+            continue
+        await notify_user(person, subject, body_html, reply_to=actor_email)
+
+
+async def _seed_role_accounts() -> None:
+    """Pre-approved demo accounts for QA of the deal-flow roles. Real accounts are
+    created via the self-serve sign-up + admin approval flow."""
+    demo = [
+        {"email": "underwriter@thedoxs.com", "name": "Test Underwriter",
+         "password": "DoxUnder!2026", "account_type": "underwriter", "workspace_role": "staff"},
+        {"email": "partner@thedoxs.com", "name": "Test Partner",
+         "password": "DoxPartner!2026", "account_type": "partner", "workspace_role": "staff",
+         "referral_code": "DOXVIP"},
+        {"email": "client@thedoxs.com", "name": "Test Client",
+         "password": "DoxClient!2026", "account_type": "client", "workspace_role": "client"},
+    ]
+    for d in demo:
+        if await db.users.find_one({"email": d["email"]}):
+            continue
+        await db.users.insert_one({
+            "id": str(uuid.uuid4()),
+            "name": d["name"],
+            "email": d["email"],
+            "password_hash": hash_password(d["password"]),
+            "role": "user",
+            "status": "approved",
+            "account_type": d["account_type"],
+            "workspace_role": d["workspace_role"],
+            "referral_code": d.get("referral_code"),
+            "company": "D.O.X Demo",
+            "approved_at": datetime.now(timezone.utc).isoformat(),
+            "created_at": datetime.now(timezone.utc).isoformat(),
+        })
+        logger.info("Seeded demo %s account %s", d["account_type"], d["email"])
+    # link the demo client to the demo partner
+    partner = await db.users.find_one({"email": "partner@thedoxs.com"}, {"_id": 0, "id": 1})
+    client = await db.users.find_one({"email": "client@thedoxs.com"}, {"_id": 0, "id": 1, "partner_id": 1})
+    if partner and client and not client.get("partner_id"):
+        await db.users.update_one({"id": client["id"]}, {"$set": {"partner_id": partner["id"]}})
+
+
+# ---- Admin: assign a partner to a client ---------------------------------
+@api.put("/admin/clients/{user_id}/partner")
+async def admin_assign_partner(user_id: str, payload: PartnerAssignIn, admin: dict = Depends(require_admin)):
+    client = await _get_client_user(user_id)
+    if payload.partner_id:
+        partner = await db.users.find_one({"id": payload.partner_id, "account_type": "partner"}, {"_id": 0})
+        if not partner:
+            raise HTTPException(status_code=404, detail="Partner not found")
+    await db.users.update_one({"id": user_id}, {"$set": {"partner_id": payload.partner_id}})
+    return {"ok": True, "partner_id": payload.partner_id}
+
+
+# ---- Partner: my referral code + my assigned client deals ----------------
+@api.get("/partner/me")
+async def partner_me(user: dict = Depends(require_partner)):
+    me = await db.users.find_one({"id": user["id"]}, {"_id": 0, "password_hash": 0})
+    return {"referral_code": me.get("referral_code"), "name": me.get("name"), "email": me.get("email")}
+
+
+@api.get("/partner/clients")
+async def partner_clients(user: dict = Depends(require_partner)):
+    q = {"account_type": "client", "status": "approved"}
+    if user.get("role") != "admin":
+        q["partner_id"] = user["id"]
+    clients = await db.users.find(q, {"_id": 0, "password_hash": 0}).sort("created_at", -1).to_list(500)
+    return [await _prescreen_payload(c) for c in clients]
+
+
+# ---- Underwriter: all deals ready for underwriting + act on them ---------
+@api.get("/underwriter/deals")
+async def underwriter_deals(user: dict = Depends(require_staff)):
+    clients = await db.users.find(
+        {"account_type": "client", "status": "approved"}, {"_id": 0, "password_hash": 0}
+    ).sort("created_at", -1).to_list(500)
+    payloads = [await _prescreen_payload(c) for c in clients]
+    return [p for p in payloads if p["phase"] in UNDERWRITER_PHASES]
+
+
+@api.put("/underwriter/deals/{user_id}/phase")
+async def underwriter_set_phase(user_id: str, payload: PhaseIn, user: dict = Depends(require_staff)):
+    client = await _get_client_user(user_id)
+    patch = {"phase": payload.phase, "phase_updated_at": datetime.now(timezone.utc).isoformat()}
+    if _is_underwriter(user):
+        patch["underwriter_id"] = user["id"]
+    if payload.phase in ("approved", "declined"):
+        patch["decided_by"] = user["email"]
+        patch["decided_at"] = datetime.now(timezone.utc).isoformat()
+    await db.prescreen.update_one({"user_id": user_id}, {"$set": patch}, upsert=True)
+    label = PHASE_LABELS[payload.phase]
+    await _notify_deal(
+        client, user["email"], f"[D.O.X] Your deal is now: {label}",
+        f"<p>Your file has moved to <strong>{label}</strong>.</p>"
+        f"{('<p>' + escape_html(payload.note) + '</p>') if payload.note else ''}"
+        "<p>Sign in to your portal for details and next steps.</p>",
+        exclude_ids=(user["id"],),
+    )
+    return await _prescreen_payload(client)
+
+
+# ---- Readiness-gated meeting scheduling (Jitsi) --------------------------
+@api.post("/deals/{client_id}/meetings")
+async def create_deal_meeting(client_id: str, payload: DealMeetingIn, user: dict = Depends(require_approved)):
+    client = await _require_deal_access(user, client_id)
+    snapshot = await _prescreen_payload(client)
+    if snapshot["phase"] not in SCHEDULABLE_PHASES:
+        raise HTTPException(status_code=400,
+                            detail="This deal must be prepared (Ready to Underwrite) before scheduling.")
+    room = _jitsi_room(client.get("name") or "dox")
+    meet_link = f"https://meet.jit.si/{room}"
+    when = f"{payload.preferred_date} at {payload.preferred_time} ({payload.timezone or 'UTC'})"
+    doc = {
+        "id": str(uuid.uuid4()),
+        "kind": "underwriting",
+        "client_id": client_id,
+        "client_name": client.get("name"),
+        "client_email": client.get("email"),
+        "with_role": payload.with_role,
+        "requested_by": user["id"],
+        "requested_by_name": user.get("name"),
+        "requested_by_role": user.get("account_type") or user.get("role"),
+        "preferred_date": payload.preferred_date,
+        "preferred_time": payload.preferred_time,
+        "timezone": payload.timezone,
+        "notes": payload.notes,
+        "meet_link": meet_link,
+        "status": "scheduled",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.bookings.insert_one(dict(doc))
+    body = (f"<p>An underwriting call for <strong>{client.get('name')}</strong> is scheduled for "
+            f"<strong>{when}</strong>.</p>"
+            f"<p>Join here: <a href=\"{meet_link}\" style=\"color:#D4AF37;\">{meet_link}</a></p>"
+            f"<p>Requested with: {payload.with_role.title()}</p>")
+    # firm always gets a copy; participants get copies with the requester as Reply-To
+    await send_email(ADMIN_NOTIFY_EMAIL, f"[D.O.X] Underwriting call — {client.get('name')} · {when}",
+                     email_shell("Underwriting Call Scheduled", body), reply_to=user.get("email"))
+    await _notify_deal(client, user.get("email"), f"[D.O.X] Underwriting call confirmed — {when}", body)
+    return {"ok": True, "id": doc["id"], "meet_link": meet_link}
+
+
+@api.get("/deals/{client_id}/meetings")
+async def list_deal_meetings(client_id: str, user: dict = Depends(require_approved)):
+    await _require_deal_access(user, client_id)
+    return await db.bookings.find(
+        {"client_id": client_id, "kind": "underwriting"}, {"_id": 0}
+    ).sort("created_at", -1).to_list(200)
+
+
+# ---- Per-deal messaging (the real two-way channel) -----------------------
+@api.get("/deals/{client_id}/messages")
+async def list_deal_messages(client_id: str, user: dict = Depends(require_approved)):
+    await _require_deal_access(user, client_id)
+    msgs = await db.deal_messages.find({"client_id": client_id}, {"_id": 0}).sort("created_at", 1).to_list(500)
+    await db.deal_messages.update_many(
+        {"client_id": client_id, "read_by": {"$ne": user["id"]}},
+        {"$addToSet": {"read_by": user["id"]}},
+    )
+    return msgs
+
+
+@api.post("/deals/{client_id}/messages")
+async def post_deal_message(client_id: str, payload: DealMessageIn, user: dict = Depends(require_approved)):
+    client = await _require_deal_access(user, client_id)
+    msg = {
+        "id": str(uuid.uuid4()),
+        "client_id": client_id,
+        "sender_id": user["id"],
+        "sender_name": user.get("name") or user.get("email"),
+        "sender_role": user.get("account_type") or user.get("role"),
+        "body": payload.body.strip(),
+        "read_by": [user["id"]],
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.deal_messages.insert_one(dict(msg))
+    await _notify_deal(
+        client, user.get("email"),
+        f"[D.O.X] New message on your deal from {msg['sender_name']}",
+        f"<p><strong>{msg['sender_name']}</strong> sent you a message:</p>"
+        f"<blockquote style=\"border-left:2px solid #D4AF37;padding-left:12px;color:#d4d4d8;\">"
+        f"{escape_html(payload.body[:400])}</blockquote>"
+        "<p>Sign in to your portal to reply.</p>",
+        exclude_ids=(user["id"],),
+    )
+    return msg
 
 
 # ---- Assistant (lightweight AI chat, mobile) -----------------------------
@@ -983,6 +1321,10 @@ async def admin_approve(user_id: str, admin: dict = Depends(require_admin)):
         raise HTTPException(status_code=404, detail="User not found")
     await db.users.update_one({"id": user_id}, {"$set": {"status": "approved",
                                                           "approved_at": datetime.now(timezone.utc).isoformat()}})
+    # partners get a referral code on approval so they can invite clients
+    if user.get("account_type") == "partner" and not user.get("referral_code"):
+        code = f"DOX{secrets.token_hex(3).upper()}"
+        await db.users.update_one({"id": user_id}, {"$set": {"referral_code": code}})
     await sync_workspace_users()
     await send_email(
         user["email"],

@@ -3,11 +3,14 @@ import { Toaster } from "sonner";
 import "@/App.css";
 
 import { AuthProvider } from "@/lib/auth";
+import BackgroundFX from "@/components/BackgroundFX";
 import LandingPage from "@/pages/LandingPage";
 import BookPage from "@/pages/BookPage";
 import AuthPage from "@/pages/AuthPage";
 import DashboardPage from "@/pages/DashboardPage";
 import AdminPage from "@/pages/AdminPage";
+import UnderwriterPage from "@/pages/UnderwriterPage";
+import PartnerPage from "@/pages/PartnerPage";
 import WorkspaceApp from "@/workspace/WorkspaceApp";
 import SiteGate from "@/components/SiteGate";
 
@@ -26,6 +29,8 @@ function App() {
     <div className="App">
       <AuthProvider>
         <BrowserRouter>
+          <BackgroundFX />
+          <div style={{ position: "relative", zIndex: 1 }}>
           <SiteGate>
           <Routes>
             <Route path="/" element={<LandingPage />} />
@@ -33,10 +38,13 @@ function App() {
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/admin" element={<AdminPage />} />
+            <Route path="/underwriter" element={<UnderwriterPage />} />
+            <Route path="/partner" element={<PartnerPage />} />
             <Route path="/workspace/*" element={<WorkspaceApp />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
           </SiteGate>
+          </div>
         </BrowserRouter>
         <Toaster theme="dark" position="bottom-right" toastOptions={TOAST_OPTIONS} />
       </AuthProvider>

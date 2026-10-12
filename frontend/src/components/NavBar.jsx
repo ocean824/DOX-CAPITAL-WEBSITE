@@ -37,9 +37,9 @@ export default function NavBar() {
                   </Button>
                 </Link>
               )}
-              <Link to={user.role === "admin" ? "/admin" : "/dashboard"}>
+              <Link to={user.role === "admin" ? "/admin" : user.account_type === "underwriter" ? "/underwriter" : user.account_type === "partner" ? "/partner" : "/dashboard"}>
                 <Button data-testid="nav-dashboard" className="rounded-none bg-white text-black hover:bg-white/90">
-                  {user.role === "admin" ? "Admin" : "Portal"}
+                  {user.role === "admin" ? "Admin" : user.account_type === "underwriter" ? "Underwriter" : user.account_type === "partner" ? "Partner" : "Portal"}
                 </Button>
               </Link>
               <Button
@@ -55,17 +55,17 @@ export default function NavBar() {
             <>
               <Link to="/auth?as=client">
                 <Button data-testid="nav-client-signin" className="rounded-none bg-white text-black hover:bg-white/90">
-                  Client Sign In / Sign Up
+                  Client
                 </Button>
               </Link>
               <Link to="/auth?as=partner">
                 <Button data-testid="nav-partner-signin" variant="outline" className="rounded-none border-[hsl(var(--gold))]/40 text-[hsl(var(--gold))] hover:bg-[hsl(var(--gold))] hover:text-black">
-                  Partner Sign In / Sign Up
+                  Partner
                 </Button>
               </Link>
-              <Link to="/auth?as=admin">
-                <Button data-testid="nav-admin-signin" variant="outline" className="rounded-none border-white/20 hover:bg-white hover:text-black">
-                  Admin
+              <Link to="/auth?as=underwriter">
+                <Button data-testid="nav-underwriter-signin" variant="outline" className="rounded-none border-white/20 hover:bg-white hover:text-black">
+                  Underwriter
                 </Button>
               </Link>
             </>
