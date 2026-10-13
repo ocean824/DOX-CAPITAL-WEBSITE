@@ -84,6 +84,8 @@ ADMIN_NOTIFY_EMAIL = os.environ.get("ADMIN_NOTIFY_EMAIL", "deptofx@proton.me")
 REPLY_TO_EMAIL = os.environ.get("REPLY_TO_EMAIL", "admin@thedoxs.com")
 RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "").strip()
 SENDER_EMAIL = os.environ.get("SENDER_EMAIL", "onboarding@resend.dev")
+RESEND_WEBHOOK_SECRET = os.environ.get("RESEND_WEBHOOK_SECRET", "").strip()
+MAIL_DOMAIN = os.environ.get("MAIL_DOMAIN", "thedoxs.com")
 EMERGENT_KEY = os.environ.get("EMERGENT_LLM_KEY", "").strip()
 APP_NAME = os.environ.get("APP_NAME", "doxcapital")
 
@@ -370,6 +372,9 @@ async def on_startup():
         await db.users.create_index("id", unique=True)
         await db.bookings.create_index("id", unique=True)
         await db.uploads.create_index("id", unique=True)
+        await db.users.create_index("business_handle", unique=True, sparse=True)
+        await db.inbox.create_index("id", unique=True)
+        await db.inbox.create_index([("owner_user_id", 1), ("received_at", -1)])
     except Exception as exc:
         logger.warning("index setup: %s", exc)
     # keep the pre-screening checklist in the workspace vault as an SOP
@@ -431,6 +436,11 @@ async def on_startup():
         await _seed_role_accounts()
     except Exception as exc:
         logger.warning("role account seed: %s", exc)
+    # assign each staff/admin a <handle>@thedoxs.com business inbox address
+    try:
+        await _backfill_business_emails()
+    except Exception as exc:
+        logger.warning("business email backfill: %s", exc)
     # workspace sub-site: indexes, pipeline stages, settings, user mirror
     try:
         await workspace_seed()
@@ -1171,6 +1181,240 @@ async def post_deal_message(client_id: str, payload: DealMessageIn, user: dict =
     return msg
 
 
+# ---- Business email inboxes (Resend inbound → in-app Inbox) --------------
+import re as _re
+import json as _json
+
+
+def _slug_handle(name: Optional[str], email: str) -> str:
+    base = (name or email.split("@")[0] or "").strip().lower()
+    base = _re.sub(r"[^a-z0-9]+", ".", base).strip(".")
+    return base or email.split("@")[0].lower()
+
+
+def _can_have_inbox(user: dict) -> bool:
+    """Admin, underwriters and partners get a business inbox (not plain clients)."""
+    return user.get("role") == "admin" or user.get("account_type") in ("partner", "underwriter")
+
+
+async def assign_business_email(user: dict) -> Optional[str]:
+    if user.get("business_email"):
+        return user["business_email"]
+    if not _can_have_inbox(user):
+        return None
+    handle = "admin" if user.get("role") == "admin" else _slug_handle(user.get("name"), user["email"])
+    candidate, n = handle, 1
+    while await db.users.find_one({"business_handle": candidate, "id": {"$ne": user["id"]}}):
+        n += 1
+        candidate = f"{handle}{n}"
+    be = f"{candidate}@{MAIL_DOMAIN}"
+    await db.users.update_one({"id": user["id"]},
+                              {"$set": {"business_handle": candidate, "business_email": be}})
+    user["business_email"] = be
+    user["business_handle"] = candidate
+    return be
+
+
+async def _backfill_business_emails() -> None:
+    async for u in db.users.find({"business_email": {"$exists": False}}):
+        u.pop("_id", None)
+        await assign_business_email(u)
+
+
+def _extract_addresses(value) -> list[str]:
+    """Pull bare email addresses out of a 'to'/'from' field (string or list)."""
+    if value is None:
+        return []
+    items = value if isinstance(value, list) else [value]
+    out = []
+    for item in items:
+        for m in _re.findall(r"[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}", str(item)):
+            out.append(m.lower())
+    return out
+
+
+def _verify_resend_signature(raw_body: str, headers) -> bool:
+    if not RESEND_WEBHOOK_SECRET:
+        logger.warning("[INBOUND] RESEND_WEBHOOK_SECRET not set — rejecting")
+        return False
+    try:
+        resend.Webhooks.verify({
+            "payload": raw_body,
+            "headers": {
+                "id": headers.get("svix-id", ""),
+                "timestamp": headers.get("svix-timestamp", ""),
+                "signature": headers.get("svix-signature", ""),
+            },
+            "webhook_secret": RESEND_WEBHOOK_SECRET,
+        })
+        return True
+    except Exception as exc:
+        logger.warning("[INBOUND] signature verification failed: %s", exc)
+        return False
+
+
+def _fetch_received_email(email_id: str) -> dict:
+    """Pull full body + attachment metadata from Resend's Receiving API."""
+    out = {"html": "", "text": "", "attachments": []}
+    try:
+        rec = resend.Emails.Receiving.get(email_id)
+        out["html"] = getattr(rec, "html", "") or ""
+        out["text"] = getattr(rec, "text", "") or ""
+    except Exception as exc:
+        logger.warning("[INBOUND] receiving.get failed id=%s err=%s", email_id, exc)
+    try:
+        att = resend.Emails.Receiving.Attachments.list(email_id=email_id)
+        items = att.get("data", []) if isinstance(att, dict) else getattr(att, "data", [])
+        for a in (items or []):
+            g = a.get if isinstance(a, dict) else (lambda k, d=None: getattr(a, k, d))
+            out["attachments"].append({
+                "filename": g("filename") or g("name") or "attachment",
+                "content_type": g("content_type") or g("contentType") or "application/octet-stream",
+                "size": g("size") or 0,
+            })
+    except Exception as exc:
+        logger.info("[INBOUND] attachments.list skipped id=%s err=%s", email_id, exc)
+    return out
+
+
+@api.post("/inbound/resend")
+async def resend_inbound(request: Request):
+    raw = (await request.body()).decode("utf-8", "replace")
+    if not _verify_resend_signature(raw, request.headers):
+        raise HTTPException(status_code=401, detail="Invalid signature")
+    try:
+        event = _json.loads(raw)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid payload")
+    if event.get("type") != "email.received":
+        return {"ok": True, "ignored": event.get("type")}
+    data = event.get("data", {}) or {}
+    email_id = data.get("email_id") or data.get("id")
+    if not email_id:
+        return {"ok": True, "ignored": "no email_id"}
+    if await db.inbox.find_one({"resend_email_id": email_id}, {"_id": 0, "id": 1}):
+        return {"ok": True, "duplicate": True}
+
+    to_addrs = _extract_addresses(data.get("to"))
+    from_addrs = _extract_addresses(data.get("from"))
+    from_raw = data.get("from") if isinstance(data.get("from"), str) else (from_addrs[0] if from_addrs else "")
+    # route to the matching business inbox
+    owner_id = None
+    for addr in to_addrs:
+        u = await db.users.find_one({"business_email": addr}, {"_id": 0, "id": 1})
+        if u:
+            owner_id = u["id"]
+            break
+    content = await asyncio.to_thread(_fetch_received_email, email_id)
+    snippet = (content["text"] or _re.sub(r"<[^>]+>", " ", content["html"]))[:200].strip()
+    doc = {
+        "id": str(uuid.uuid4()),
+        "resend_email_id": email_id,
+        "owner_user_id": owner_id,
+        "to": to_addrs,
+        "from_email": from_addrs[0] if from_addrs else "",
+        "from_raw": from_raw,
+        "subject": data.get("subject") or "(no subject)",
+        "snippet": snippet,
+        "text": content["text"],
+        "html": content["html"],
+        "attachments": content["attachments"],
+        "read": False,
+        "replied": False,
+        "linked_contact_id": None,
+        "linked_deal_id": None,
+        "received_at": data.get("created_at") or datetime.now(timezone.utc).isoformat(),
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.inbox.insert_one(dict(doc))
+    logger.info("[INBOUND] stored id=%s to=%s owner=%s", email_id, to_addrs, owner_id)
+    return {"ok": True}
+
+
+async def _require_inbox_user(user: dict = Depends(require_approved)) -> dict:
+    if not _can_have_inbox(user):
+        raise HTTPException(status_code=403, detail="No business inbox for this account")
+    await assign_business_email(user)
+    return user
+
+
+def _inbox_card(m: dict) -> dict:
+    return {k: m.get(k) for k in ("id", "from_email", "from_raw", "to", "subject", "snippet",
+                                  "read", "replied", "linked_contact_id", "linked_deal_id",
+                                  "received_at", "attachments")}
+
+
+@api.get("/inbox")
+async def list_inbox(scope: Optional[str] = None, user: dict = Depends(_require_inbox_user)):
+    be = user.get("business_email")
+    if user.get("role") == "admin" and scope == "all":
+        q: dict = {}
+    else:
+        q = {"owner_user_id": user["id"]}
+    msgs = await db.inbox.find(q, {"_id": 0}).sort("received_at", -1).to_list(500)
+    unread = sum(1 for m in msgs if not m.get("read"))
+    return {"business_email": be, "unread": unread, "messages": [_inbox_card(m) for m in msgs]}
+
+
+async def _owned_message(message_id: str, user: dict) -> dict:
+    m = await db.inbox.find_one({"id": message_id}, {"_id": 0})
+    if not m:
+        raise HTTPException(status_code=404, detail="Message not found")
+    if user.get("role") != "admin" and m.get("owner_user_id") != user["id"]:
+        raise HTTPException(status_code=403, detail="Not your message")
+    return m
+
+
+@api.get("/inbox/{message_id}")
+async def get_inbox_message(message_id: str, user: dict = Depends(_require_inbox_user)):
+    m = await _owned_message(message_id, user)
+    if not m.get("read"):
+        await db.inbox.update_one({"id": message_id}, {"$set": {"read": True}})
+        m["read"] = True
+    return m
+
+
+class InboxReplyIn(BaseModel):
+    body: str = Field(min_length=1, max_length=20000)
+
+
+@api.post("/inbox/{message_id}/reply")
+async def reply_inbox_message(message_id: str, payload: InboxReplyIn,
+                              user: dict = Depends(_require_inbox_user)):
+    m = await _owned_message(message_id, user)
+    to_addr = m.get("from_email")
+    if not to_addr:
+        raise HTTPException(status_code=400, detail="No sender address to reply to")
+    subject = m.get("subject") or ""
+    if not subject.lower().startswith("re:"):
+        subject = f"Re: {subject}"
+    body_html = (f"<p>{escape_html(payload.body).replace(chr(10), '<br>')}</p>"
+                 f"<hr style='border:none;border-top:1px solid #1f1f1f;margin:18px 0;'/>"
+                 f"<p style='color:#71717a;font-size:12px;'>On {escape_html(m.get('received_at',''))}, "
+                 f"{escape_html(m.get('from_raw') or to_addr)} wrote:</p>"
+                 f"<blockquote style='border-left:2px solid #333;padding-left:12px;color:#a1a1aa;'>"
+                 f"{escape_html((m.get('text') or '')[:1500])}</blockquote>")
+    await send_email(to_addr, subject, email_shell(subject, body_html),
+                     reply_to=user.get("business_email"))
+    await db.inbox.update_one({"id": message_id}, {"$set": {"replied": True}})
+    return {"ok": True}
+
+
+class InboxLinkIn(BaseModel):
+    contact_id: Optional[str] = None
+    deal_id: Optional[str] = None
+
+
+@api.post("/inbox/{message_id}/link")
+async def link_inbox_message(message_id: str, payload: InboxLinkIn,
+                             user: dict = Depends(_require_inbox_user)):
+    await _owned_message(message_id, user)
+    await db.inbox.update_one({"id": message_id},
+                              {"$set": {"linked_contact_id": payload.contact_id,
+                                        "linked_deal_id": payload.deal_id}})
+    return {"ok": True}
+
+
 # ---- Assistant (lightweight AI chat, mobile) -----------------------------
 ASSISTANT_MODEL = "gpt-6-luna"
 ASSISTANT_SYSTEM = (
@@ -1340,6 +1584,10 @@ async def admin_approve(user_id: str, admin: dict = Depends(require_admin)):
     if user.get("account_type") == "partner" and not user.get("referral_code"):
         code = f"DOX{secrets.token_hex(3).upper()}"
         await db.users.update_one({"id": user_id}, {"$set": {"referral_code": code}})
+    # give partners/underwriters their <handle>@thedoxs.com inbox on approval
+    fresh = await db.users.find_one({"id": user_id}, {"_id": 0, "password_hash": 0})
+    if fresh:
+        await assign_business_email(fresh)
     await sync_workspace_users()
     await send_email(
         user["email"],

@@ -9,6 +9,7 @@ import Contacts from './pages/Contacts';
 import Tasks from './pages/Tasks';
 import Reviews from './pages/Reviews';
 import Messages from './pages/Messages';
+import Inbox from './pages/Inbox';
 import Assistant from './pages/Assistant';
 import Settings from './pages/Settings';
 import Integrations from './pages/Integrations';
@@ -55,6 +56,7 @@ export default function WorkspaceApp() {
           <Route path="tasks" element={<Staff><Tasks /></Staff>} />
           <Route path="reviews" element={<Staff><Reviews /></Staff>} />
           <Route path="messages" element={<Messages />} />
+          <Route path="inbox" element={<Staff><Inbox /></Staff>} />
           <Route path="assistant" element={<Assistant />} />
           <Route path="knowledge" element={<Knowledge />} />
           <Route path="calendar" element={<Calendar />} />

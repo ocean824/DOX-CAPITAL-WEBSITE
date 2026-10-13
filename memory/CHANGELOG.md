@@ -61,3 +61,10 @@
 
 ### Demo credentials → /app/memory/test_credentials.md
 admin deptofx@proton.me / DoxAdmin!2026 · underwriter@thedoxs.com / DoxUnder!2026 · partner@thedoxs.com / DoxPartner!2026 (DOXVIP) · client@thedoxs.com / DoxClient!2026
+
+## 2026-06 — In-portal Email (Resend Inbound) + per-user business inboxes
+- Each admin/underwriter/partner gets a `<handle>@thedoxs.com` business email (auto-assigned on approval + backfill; admin = admin@thedoxs.com, e.g. partner.test@thedoxs.com).
+- Backend: `POST /api/inbound/resend` webhook (Svix signature verified via resend.Webhooks.verify, secret in RESEND_WEBHOOK_SECRET), fetches full body/attachments via resend.Emails.Receiving, routes to the user whose business_email matches `to`, stores in db.inbox.
+- Inbox API (main /api, cookie auth): GET /api/inbox (?scope=all for admin), GET /api/inbox/{id} (marks read), POST /api/inbox/{id}/reply (sends via Resend outbound, Reply-To = user business email), POST /api/inbox/{id}/link (link to deal).
+- Frontend: workspace Inbox page (/workspace/inbox) + sidebar nav, gated to non-client roles. List + reader + reply + link-to-deal.
+- NOTE: inbound only flows in PRODUCTION — the Resend webhook is registered against https://www.thedoxs.com/api/inbound/resend. Root-domain MX now routes ALL thedoxs.com mail to Resend.
