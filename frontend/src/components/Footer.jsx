@@ -64,7 +64,7 @@ export default function Footer() {
         </div>
         <div className="md:col-span-2">
           <div className="label-kicker" aria-hidden="true">&nbsp;</div>
-          <ul className="mt-4 flex items-center gap-5 text-sm text-white/70">
+          <ul className="mt-4 flex flex-col items-start gap-3 text-sm text-white/70">
             <li><AnimatedLetter char="A" to="/auth?as=admin" testid="footer-admin-signin" /></li>
             <li><AnimatedLetter char="U" to="/auth?as=underwriter" testid="footer-underwriter-signin" /></li>
           </ul>
