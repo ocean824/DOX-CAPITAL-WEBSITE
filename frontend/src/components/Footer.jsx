@@ -1,5 +1,29 @@
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import { LEGAL_DOCS } from "../legal/legalContent";
+
+function AnimatedLetter({ char, to, testid }) {
+  return (
+    <Link to={to} data-testid={testid} className="inline-block" aria-label={char === "A" ? "Admin" : "Underwriter"}>
+      <motion.span
+        className="font-display text-3xl leading-none inline-block"
+        style={{ color: "hsl(var(--gold))" }}
+        animate={{
+          y: [0, -3, 0],
+          textShadow: [
+            "0 0 4px rgba(255,207,77,0.3)",
+            "0 0 16px rgba(255,207,77,0.85)",
+            "0 0 4px rgba(255,207,77,0.3)",
+          ],
+        }}
+        transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
+        whileHover={{ scale: 1.35, rotate: char === "A" ? -6 : 6, color: "#ffffff" }}
+      >
+        {char}
+      </motion.span>
+    </Link>
+  );
+}
 
 export default function Footer() {
   return (
@@ -40,9 +64,9 @@ export default function Footer() {
         </div>
         <div className="md:col-span-2">
           <div className="label-kicker" aria-hidden="true">&nbsp;</div>
-          <ul className="mt-4 space-y-2 text-sm text-white/70">
-            <li><Link to="/auth?as=admin" data-testid="footer-admin-signin" className="hover:text-white">Admin</Link></li>
-            <li><Link to="/auth?as=underwriter" data-testid="footer-underwriter-signin" className="hover:text-white">Underwriter</Link></li>
+          <ul className="mt-4 flex items-center gap-5 text-sm text-white/70">
+            <li><AnimatedLetter char="A" to="/auth?as=admin" testid="footer-admin-signin" /></li>
+            <li><AnimatedLetter char="U" to="/auth?as=underwriter" testid="footer-underwriter-signin" /></li>
           </ul>
         </div>
         <div className="md:col-span-2">
