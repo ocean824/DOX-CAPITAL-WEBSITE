@@ -90,7 +90,7 @@ class Repo:
         if collection == 'ai_usage_logs':
             await authorize(u, 'manage'); return {}
         if collection == 'activities':
-            return {} if u['role']=='OWNER' else {'audience_ids':u['id'], 'internal':{'$ne':True}} if u['role']=='CLIENT' else {'audience_ids':u['id']}
+            return {} if u['role'] in ('OWNER','UNDERWRITER') else {'audience_ids':u['id'], 'internal':{'$ne':True}} if u['role']=='CLIENT' else {'audience_ids':u['id']}
         if u['role'] == 'OWNER': return {}
         if collection == 'transactions':
             if u['role'] == 'CLIENT': return {'client_ids': u['id']}
