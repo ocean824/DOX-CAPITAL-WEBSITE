@@ -13,7 +13,13 @@ import {
   ChevronDown, ChevronRight, CheckCircle2, AlertTriangle, Download, MessageSquare, CalendarClock,
 } from "lucide-react";
 
-const NEXT = { missing: "verified", received: "verified", verified: "rejected", rejected: "received", na: "received" };
+const STATUS_OPTIONS = [
+  { key: "missing", label: "Missing" },
+  { key: "received", label: "Received" },
+  { key: "verified", label: "Verified" },
+  { key: "rejected", label: "Rejected" },
+  { key: "na", label: "N/A" },
+];
 const CHIP = {
   missing: "text-white/40 border-white/15", received: "text-[hsl(var(--gold))] border-[hsl(var(--gold))]/40",
   verified: "text-emerald-300 border-emerald-500/40", rejected: "text-red-300 border-red-500/40",
@@ -29,6 +35,7 @@ export default function UnderwriterPage() {
   const { user } = useAuth();
   const [rows, setRows] = useState([]);
   const [open, setOpen] = useState("");
+  const [menu, setMenu] = useState("");
   const [panel, setPanel] = useState("review");
   const [loading, setLoading] = useState(true);
 
@@ -53,9 +60,11 @@ export default function UnderwriterPage() {
 
   const patch = (next) => setRows((rs) => rs.map((r) => (r.user.id === next.user.id ? next : r)));
 
-  const cycleItem = async (uid, item) => {
+  const setItemStatus = async (uid, item, status) => {
+    setMenu("");
+    if (status === item.status) return;
     try {
-      const { data } = await api.put(`/admin/prescreen/${uid}/items/${item.id}`, { status: NEXT[item.status] || "verified", note: null });
+      const { data } = await api.put(`/admin/prescreen/${uid}/items/${item.id}`, { status, note: null });
       patch(data);
     } catch (e) { toast.error(formatApiError(e.response?.data?.detail) || e.message); }
   };
@@ -152,10 +161,22 @@ export default function UnderwriterPage() {
                                             </a>
                                           ))}
                                         </div>
-                                        <Button data-testid={`uw-cycle-${r.user.id}-${i.id}`} variant="outline" onClick={() => cycleItem(r.user.id, i)}
-                                          className={`rounded-none bg-transparent h-7 px-3 text-[10px] tracking-widest uppercase shrink-0 ${CHIP[i.status]}`}>
-                                          {i.status}
-                                        </Button>
+                                        <div className="relative shrink-0">
+                                          <Button data-testid={`uw-cycle-${r.user.id}-${i.id}`} variant="outline" onClick={() => setMenu(menu === `${r.user.id}-${i.id}` ? "" : `${r.user.id}-${i.id}`)}
+                                            className={`rounded-none bg-transparent h-7 px-3 text-[10px] tracking-widest uppercase ${CHIP[i.status]}`}>
+                                            {i.status} <ChevronDown className="h-3 w-3 ml-1 opacity-60" />
+                                          </Button>
+                                          {menu === `${r.user.id}-${i.id}` && (
+                                            <div className="absolute right-0 mt-1 z-20 bg-[#0d0d12] border border-white/15 min-w-[150px] py-1 shadow-xl">
+                                              {STATUS_OPTIONS.map((s) => (
+                                                <button key={s.key} data-testid={`uw-status-${r.user.id}-${i.id}-${s.key}`} onClick={() => setItemStatus(r.user.id, i, s.key)}
+                                                  className={`w-full text-left px-3 py-2 text-[10px] tracking-widest uppercase hover:bg-white/5 ${i.status === s.key ? "text-white" : "text-white/50"}`}>
+                                                  {s.label}
+                                                </button>
+                                              ))}
+                                            </div>
+                                          )}
+                                        </div>
                                       </div>
                                     ))}
                                   </div>

@@ -94,7 +94,7 @@ class Repo:
         if u['role'] == 'OWNER': return {}
         if collection == 'transactions':
             if u['role'] == 'CLIENT': return {'client_ids': u['id']}
-            if u['role'] == 'UNDERWRITER': return {'stage_id': {'$in': UW_STAGES}}
+            if u['role'] == 'UNDERWRITER': return {}
             if u['role'] == 'PARTNER':
                 client_ids = [c['id'] for c in await db.users.find({'partner_id': u['id'], 'account_type': 'client'}, {'_id':0,'id':1}).to_list(500)]
                 return {'client_ids': {'$in': client_ids}}
