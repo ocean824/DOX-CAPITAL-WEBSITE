@@ -70,6 +70,42 @@ export default function AdminPage() {
   };
 
   const pending = users.filter((u) => u.status === "pending");  const everyone = users.filter((u) => u.role !== "admin");
+  const clients = everyone.filter((u) => u.account_type !== "partner" && u.account_type !== "underwriter");
+  const partners = everyone.filter((u) => u.account_type === "partner");
+
+  const usersList = (list) => (
+    list.length === 0 ? <Empty text="No users in this group yet." /> : (
+      <div className="border-y border-white/10 divide-y divide-white/10">
+        {list.map((u) => (
+          <div key={u.id} className="py-5 grid md:grid-cols-12 gap-4 items-center">
+            <div className="md:col-span-4 flex items-center gap-3">
+              <UserIcon className="h-4 w-4 text-white/40" strokeWidth={1.25} />
+              <div>
+                <div className="font-display text-base">{u.name}</div>
+                <div className="text-white/50 text-xs">{u.email}</div>
+                <div className="label-kicker text-[10px] mt-1 text-white/40">
+                  {u.account_type === "partner" ? "Partner" : u.account_type === "underwriter" ? "Underwriter" : "Client"}
+                </div>
+              </div>
+            </div>
+            <div className="md:col-span-3 text-sm text-white/60">{u.company || "—"}</div>
+            <div className="md:col-span-3 text-xs text-white/40">{new Date(u.created_at).toLocaleString()}</div>
+            <div className="md:col-span-2 flex flex-col items-end gap-2">
+              <StatusBadge status={u.status} />
+              {u.status === "approved" && (
+                <div className="flex items-center gap-1">
+                  <button data-testid={`ws-role-client-${u.id}`} onClick={() => setWorkspaceRole(u.id, "client")}
+                    className={`text-[10px] tracking-widest uppercase border px-2 py-1 ${u.workspace_role !== "staff" ? "border-white/60 text-white" : "border-white/15 text-white/40 hover:text-white"}`}>Client</button>
+                  <button data-testid={`ws-role-staff-${u.id}`} onClick={() => setWorkspaceRole(u.id, "staff")}
+                    className={`text-[10px] tracking-widest uppercase border px-2 py-1 ${u.workspace_role === "staff" ? "border-[hsl(var(--gold))] text-[hsl(var(--gold))]" : "border-white/15 text-white/40 hover:text-white"}`}>Staff</button>
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    )
+  );
 
   return (
     <div className="text-white min-h-screen grain">
@@ -116,6 +152,14 @@ export default function AdminPage() {
               <TabsTrigger data-testid="adm-tab-users" value="users"
                 className="rounded-none data-[state=active]:bg-transparent data-[state=active]:text-white data-[state=active]:border-b data-[state=active]:border-white px-0 pb-3 text-white/60">
                 All Users
+              </TabsTrigger>
+              <TabsTrigger data-testid="adm-tab-clients" value="clients"
+                className="rounded-none data-[state=active]:bg-transparent data-[state=active]:text-white data-[state=active]:border-b data-[state=active]:border-white px-0 pb-3 text-white/60">
+                Clients
+              </TabsTrigger>
+              <TabsTrigger data-testid="adm-tab-partners" value="partners"
+                className="rounded-none data-[state=active]:bg-transparent data-[state=active]:text-white data-[state=active]:border-b data-[state=active]:border-white px-0 pb-3 text-white/60">
+                Partners
               </TabsTrigger>
               <TabsTrigger data-testid="adm-tab-readiness" value="readiness"
                 className="rounded-none data-[state=active]:bg-transparent data-[state=active]:text-white data-[state=active]:border-b data-[state=active]:border-white px-0 pb-3 text-white/60">
@@ -164,47 +208,15 @@ export default function AdminPage() {
             </TabsContent>
 
             <TabsContent value="users" className="mt-8">
-              {everyone.length === 0 ? <Empty text="No users yet." /> : (
-                <div className="border-y border-white/10 divide-y divide-white/10">
-                  {everyone.map((u) => (
-                    <div key={u.id} className="py-5 grid md:grid-cols-12 gap-4 items-center">
-                      <div className="md:col-span-4 flex items-center gap-3">
-                        <UserIcon className="h-4 w-4 text-white/40" strokeWidth={1.25} />
-                        <div>
-                          <div className="font-display text-base">{u.name}</div>
-                          <div className="text-white/50 text-xs">{u.email}</div>
-                          <div className="label-kicker text-[10px] mt-1 text-white/40">
-                            {u.account_type === "partner" ? "Partner" : "Client"}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="md:col-span-3 text-sm text-white/60">{u.company || "—"}</div>
-                      <div className="md:col-span-3 text-xs text-white/40">{new Date(u.created_at).toLocaleString()}</div>
-                      <div className="md:col-span-2 flex flex-col items-end gap-2">
-                        <StatusBadge status={u.status} />
-                        {u.status === "approved" && (
-                          <div className="flex items-center gap-1">
-                            <button
-                              data-testid={`ws-role-client-${u.id}`}
-                              onClick={() => setWorkspaceRole(u.id, "client")}
-                              className={`text-[10px] tracking-widest uppercase border px-2 py-1 ${u.workspace_role !== "staff" ? "border-white/60 text-white" : "border-white/15 text-white/40 hover:text-white"}`}
-                            >
-                              Client
-                            </button>
-                            <button
-                              data-testid={`ws-role-staff-${u.id}`}
-                              onClick={() => setWorkspaceRole(u.id, "staff")}
-                              className={`text-[10px] tracking-widest uppercase border px-2 py-1 ${u.workspace_role === "staff" ? "border-[hsl(var(--gold))] text-[hsl(var(--gold))]" : "border-white/15 text-white/40 hover:text-white"}`}
-                            >
-                              Staff
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+              {everyone.length === 0 ? <Empty text="No users yet." /> : usersList(everyone)}
+            </TabsContent>
+
+            <TabsContent value="clients" className="mt-8" data-testid="adm-clients-list">
+              {usersList(clients)}
+            </TabsContent>
+
+            <TabsContent value="partners" className="mt-8" data-testid="adm-partners-list">
+              {usersList(partners)}
             </TabsContent>
 
             <TabsContent value="readiness" className="mt-8">
