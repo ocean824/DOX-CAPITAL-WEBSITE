@@ -25,7 +25,7 @@ PERMS = {
     'OWNER': {'read','write','delete','manage','review','ai','message','internal'},
     'UNDERWRITER': {'read','write','review','ai','message','internal'},
     'TEAM_MEMBER': {'read','write','message','internal'},
-    'PARTNER': {'read','write','message'},
+    'PARTNER': {'read','write','message','internal'},
     'CLIENT': {'read'},
 }
 async def authorize(user, action, resource=None):

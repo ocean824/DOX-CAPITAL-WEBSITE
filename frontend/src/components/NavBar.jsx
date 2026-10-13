@@ -30,16 +30,16 @@ export default function NavBar() {
           )}
           {user && user !== false ? (
             <>
-              {(user.role === "admin" || (user.status === "approved" && user.account_type === "partner")) && (
+              {user.role === "admin" && (
                 <Link to="/workspace">
                   <Button data-testid="nav-workspace" variant="outline" className="rounded-none border-[hsl(var(--gold))]/40 text-[hsl(var(--gold))] hover:bg-[hsl(var(--gold))] hover:text-black">
                     Workspace
                   </Button>
                 </Link>
               )}
-              <Link to={user.role === "admin" ? "/admin" : user.account_type === "underwriter" ? "/underwriter" : user.account_type === "partner" ? "/partner" : "/dashboard"}>
+              <Link to={user.role === "admin" ? "/admin" : (user.account_type === "underwriter" || user.account_type === "partner") ? "/workspace" : "/dashboard"}>
                 <Button data-testid="nav-dashboard" className="rounded-none bg-white text-black hover:bg-white/90">
-                  {user.role === "admin" ? "Admin" : user.account_type === "underwriter" ? "Underwriter" : user.account_type === "partner" ? "Partner" : "Portal"}
+                  {user.role === "admin" ? "Admin" : (user.account_type === "underwriter" || user.account_type === "partner") ? "Workspace" : "Portal"}
                 </Button>
               </Link>
               <Button

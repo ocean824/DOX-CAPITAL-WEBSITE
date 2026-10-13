@@ -121,8 +121,7 @@ export default function AuthPage() {
       toast.success("Welcome back");
       const u = data.user;
       if (u.role === "admin") nav("/admin");
-      else if (u.account_type === "underwriter" && u.status === "approved") nav("/underwriter");
-      else if (u.account_type === "partner" && u.status === "approved") nav("/partner");
+      else if ((u.account_type === "underwriter" || u.account_type === "partner") && u.status === "approved") nav("/workspace");
       else nav("/dashboard");
     } catch (e2) {
       setLiErr(formatApiError(e2.response?.data?.detail) || e2.message);
