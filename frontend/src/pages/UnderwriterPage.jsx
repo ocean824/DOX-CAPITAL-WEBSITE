@@ -227,13 +227,14 @@ export default function UnderwriterPage() {
                                           ))}
                                         </div>
                                         <div className="flex items-center gap-2 shrink-0">
-                                          {i.uploads?.length > 0 && (
-                                            <button data-testid={`uw-preview-${r.user.id}-${i.id}`} title="Preview document"
-                                              onClick={() => window.open(`/api/uploads/${i.uploads[0].id}/download?inline=1`, "_blank", "noopener")}
-                                              className="h-7 w-7 inline-flex items-center justify-center border border-white/15 text-white/50 hover:text-[hsl(var(--gold))] hover:border-[hsl(var(--gold))]/40">
+                                          {(() => { const hasDoc = i.uploads?.length > 0; return (
+                                            <button data-testid={`uw-preview-${r.user.id}-${i.id}`} disabled={!hasDoc}
+                                              title={hasDoc ? "Preview document" : "No document uploaded yet"}
+                                              onClick={() => hasDoc && window.open(`/api/uploads/${i.uploads[0].id}/download?inline=1`, "_blank", "noopener")}
+                                              className={`h-7 w-7 inline-flex items-center justify-center border ${hasDoc ? "border-white/15 text-white/60 hover:text-[hsl(var(--gold))] hover:border-[hsl(var(--gold))]/40 cursor-pointer" : "border-white/5 text-white/15 cursor-not-allowed"}`}>
                                               <Eye className="h-3.5 w-3.5" />
                                             </button>
-                                          )}
+                                          ); })()}
                                           <div className="relative">
                                             <Button data-testid={`uw-cycle-${r.user.id}-${i.id}`} variant="outline" onClick={() => setMenu(menu === `${r.user.id}-${i.id}` ? "" : `${r.user.id}-${i.id}`)}
                                               className={`rounded-none bg-transparent h-7 px-3 text-[10px] tracking-widest uppercase ${CHIP[i.status]}`}>
