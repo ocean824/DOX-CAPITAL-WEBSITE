@@ -1,0 +1,30 @@
+{
+  "summary": "FOLLOW-UP RETEST of iteration_8 nav allowlist + red-flag copy fix on web. ALL FOUR REVIEW-REQUEST ITEMS PASS. (1) PARTNER (partner@thedoxs.com) workspace nav now includes Contacts — main-nav set = {Overview, Deals, Calendar, Contacts, Messages} and /workspace/contacts loads with breadcrumb 'Contacts' for partner. (2) CLIENT (client@thedoxs.com) workspace nav still omits Contacts — main-nav set = {Overview, Deals, Calendar, Messages}; direct navigation to /workspace/contacts as client redirects to /workspace (Staff guard holding). (3) UNDERWRITER and ADMIN both still see the FULL 7-item main nav {Overview, Deals, Calendar, Contacts, Tasks, Review queue, Messages} — regression intact. (4) TransactionForm red-flag copy now reads '⚑ Red flag: client is requesting more than the deal value.' when amount_needed > deal value, '... the entire deal value.' when equal, and is hidden when amount_needed < deal value. Shell.js per-role allowlist (clientPaths vs partnerPaths vs null for OWNER/TEAM_MEMBER/UNDERWRITER) is clean and the only change needed shipped correctly.",
+  "platforms_tested": ["web"],
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "web": {
+      "ui_bugs": [],
+      "integration_issues": [],
+      "design_issues": []
+    },
+    "mobile": {"ui_bugs": [], "integration_issues": [], "design_issues": [], "react_native_issues": []}
+  },
+  "parity_issues": [],
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Shell.js:15-18 — per-role allowlist is correct and minimal. CLIENT=clientPaths, PARTNER=clientPaths+contacts, everyone else (OWNER/TEAM_MEMBER/UNDERWRITER) bypasses the filter via `null`. Clean.",
+    "TransactionForm.js:14-15,22 — redFlag triggers when needed>=value AND value>0; overAsk sub-branch for needed>value renders 'more than the deal value' (grammar fix from iteration_8 landed). Verified live for all three value/needed relationships.",
+    "DEV-ONLY console noise (not a bug): the Expo/visual-editor instrumentation injects a <span data-ve-dynamic> inside <option> on the Contacts page filter, which triggers React's 'In HTML, <span> cannot be a child of <option>' hydration warning. This is from the editor overlay and does not affect production builds or functionality — flag only if you ship the overlay to prod.",
+    "Benign 403s on partner session (console) are from guarded admin-only endpoints the partner workspace does not call explicitly — no visible UI breakage, but worth a quick audit of useData hooks to make sure partner doesn't fetch endpoints it isn't allowed to."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (frontend-only run)", "frontend": "100% of review-request items (4/4 PASS)"},
+  "test_credentials": "Used all four review-request accounts: partner@thedoxs.com / DoxPartner!2026, client@thedoxs.com / DoxClient!2026, underwriter@thedoxs.com / DoxUnder!2026, deptofx@proton.me / DoxAdmin!2026. Login via /auth with ?as=partner|client|underwriter|admin query param.",
+  "seed_data_creation": "None. Red-flag indicator was verified reactively on the create-deal modal (not submitted) to avoid polluting admin's deal list.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Iteration_9 fully verified the per-role nav allowlist (Shell.js:15-18) and the 'more than the deal value' red-flag copy (TransactionForm.js:22). All four roles tested on web. No open issues. One cosmetic console noise around <span> in <option> is editor-overlay-only. If you re-test, use /auth?as=<role> query param to pick audience, then after submit navigate directly to /workspace (post-login lands on /partner /dashboard /underwriter /admin landing pages first).",
+  "rca of the issue": "N/A — fix landed correctly. iteration_8 identified Shell.js:16 lumped PARTNER with CLIENT in a single limitedPaths filter; iteration_9 code now defines clientPaths (4 items) and partnerPaths (= clientPaths + '/workspace/contacts'), and uses `null` for OWNER/TEAM_MEMBER/UNDERWRITER to bypass the filter entirely. nav.filter((path)=>!allowPaths||allowPaths.includes(path)) correctly scopes each role."
+}

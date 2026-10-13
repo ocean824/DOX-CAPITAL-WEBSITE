@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field, ConfigDict, EmailStr
 from typing import Literal, Optional
 
-Role = Literal['OWNER','TEAM_MEMBER','CLIENT']
+Role = Literal['OWNER','TEAM_MEMBER','UNDERWRITER','PARTNER','CLIENT']
 class Model(BaseModel):
     model_config = ConfigDict(extra='forbid')
 class OK(Model):

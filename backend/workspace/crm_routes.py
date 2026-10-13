@@ -7,6 +7,7 @@ from workspace.schemas import (ContactIn, ContactOut, StageIn, StageOut, StageRe
     UserOut, Preferences)
 
 router=APIRouter(prefix='/api/workspace',tags=['CRM'])
+STAFF_ROLES=['OWNER','TEAM_MEMBER','UNDERWRITER','PARTNER']
 async def deal_config():
     config=await settings() or {}
     return (config.get('deal_types') or DEFAULT_DEAL_TYPES,
@@ -29,7 +30,7 @@ async def contacts(user=Depends(require('internal'))): return await Repo(user).l
 @router.post('/contacts',response_model=ContactOut,status_code=201)
 async def create_contact(data:ContactIn,user=Depends(require('write'))):
     assigned=data.assigned_ids if user['role']=='OWNER' else [user['id']]
-    await validate_users(assigned,['OWNER','TEAM_MEMBER'])
+    await validate_users(assigned,STAFF_ROLES)
     record=await Repo(user).insert('contacts',{**data.model_dump(),'assigned_ids':assigned,'created_by':user['id']})
     await activity(user,f'added {data.name} to contacts',kind='contact')
     return record
@@ -40,7 +41,7 @@ async def update_contact(id:str,data:ContactIn,user=Depends(require('write'))):
     repo=Repo(user); old=await repo.get('contacts',id)
     values=data.model_dump()
     if user['role']!='OWNER': values['assigned_ids']=old['assigned_ids']
-    await validate_users(values['assigned_ids'],['OWNER','TEAM_MEMBER'])
+    await validate_users(values['assigned_ids'],STAFF_ROLES)
     record=await repo.update('contacts',id,values)
     await activity(user,f'updated {data.name}',kind='contact')
     return record
@@ -83,7 +84,7 @@ async def create_transaction(data:TransactionIn,user=Depends(require('write'))):
     if user['role']!='OWNER':
         if data.client_ids: raise HTTPException(403,'Only the owner can grant client access')
         values['assigned_ids']=[user['id']]
-    await validate_users(values['assigned_ids'],['OWNER','TEAM_MEMBER'])
+    await validate_users(values['assigned_ids'],STAFF_ROLES)
     await validate_users(values['client_ids'],['CLIENT'])
     record=await repo.insert('transactions',{**values,'created_by':user['id'],'review_status':'not_submitted','required_documents':required,'sample':False})
     for step in checklist:
@@ -97,7 +98,7 @@ async def update_transaction(id:str,data:TransactionPatch,user=Depends(require('
     repo=Repo(user); tx=await repo.get('transactions',id); values=data.model_dump(exclude_none=True)
     if any(k in values for k in ('assigned_ids','client_ids')):
         await authorize(user,'manage')
-        await validate_users(values.get('assigned_ids',[]),['OWNER','TEAM_MEMBER']);await validate_users(values.get('client_ids',[]),['CLIENT'])
+        await validate_users(values.get('assigned_ids',[]),STAFF_ROLES);await validate_users(values.get('client_ids',[]),['CLIENT'])
     if 'stage_id' in values:
         target=await db.pipeline_stages.find_one({'id':values['stage_id']},{'_id':0,'position':1})
         if not target: raise HTTPException(422,'Invalid pipeline stage')
@@ -119,7 +120,7 @@ async def transaction_tasks(id:str,user=Depends(require('internal'))):
 @router.post('/transactions/{id}/tasks',response_model=TaskOut,status_code=201)
 async def add_task(id:str,data:TaskIn,user=Depends(require('write'))):
     repo=Repo(user); tx=await repo.get('transactions',id)
-    await validate_users([data.assignee_id],['OWNER','TEAM_MEMBER'])
+    await validate_users([data.assignee_id],STAFF_ROLES)
     if data.assignee_id not in tx['assigned_ids'] and data.assignee_id != user['id']: raise HTTPException(422,'Task assignee must be on this transaction')
     try: date.fromisoformat(data.due_date)
     except ValueError: raise HTTPException(422,'Invalid due date')
@@ -129,7 +130,7 @@ async def add_task(id:str,data:TaskIn,user=Depends(require('write'))):
 async def update_task(id:str,data:TaskPatch,user=Depends(require('write'))):
     repo=Repo(user); task=await repo.get('tasks',id); tx=await repo.get('transactions',task['transaction_id'])
     if data.assignee_id:
-        await validate_users([data.assignee_id],['OWNER','TEAM_MEMBER'])
+        await validate_users([data.assignee_id],STAFF_ROLES)
         if data.assignee_id not in tx['assigned_ids'] and data.assignee_id != user['id']: raise HTTPException(422,'Assignee must be on this transaction')
     if data.due_date:
         try: date.fromisoformat(data.due_date)

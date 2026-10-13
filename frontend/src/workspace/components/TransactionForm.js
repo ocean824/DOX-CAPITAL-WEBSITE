@@ -19,7 +19,7 @@ export const TransactionForm=({open,onClose,stage='lead'})=>{
   <Field label="Deal type"><select data-testid="field-deal-type" name="deal_type">{dealTypes.map(x=><option key={x}>{x}</option>)}</select></Field>
   <Field label="Deal value ($)" name="value" type="number" min="0" step="1" required placeholder="2,400,000" value={value} onChange={e=>setValue(e.target.value)}/>
   <Field label="Amount needed ($)" name="amount_needed" type="number" min="0" step="1" placeholder="e.g. 1,800,000" value={needed} onChange={e=>setNeeded(e.target.value)}/>
-  <div className="full"><p className="field-hint" data-testid="amount-needed-hint">Capital the client actually needs — usually less than the total deal value. {redFlag&&<strong data-testid="amount-needed-redflag" style={{color:'var(--red,#e5484d)'}}>⚑ Red flag: client is requesting {overAsk?'more than':'the entire'} deal value.</strong>}</p></div>
+  <div className="full"><p className="field-hint" data-testid="amount-needed-hint">Capital the client actually needs — usually less than the total deal value. {redFlag&&<strong data-testid="amount-needed-redflag" style={{color:'var(--red,#e5484d)'}}>⚑ Red flag: client is requesting {overAsk?'more than the':'the entire'} deal value.</strong>}</p></div>
   <Field label="Counterparty"><select name="counterparty_id" data-testid="field-counterparty-id"><option value="">Not linked</option>{contacts.map(c=><option value={c.id} key={c.id}>{c.name}{c.company?` · ${c.company}`:''}</option>)}</select></Field>
   <Field label="Location (optional)" name="location" placeholder="Miami, FL"/>
   <Field label="Pipeline stage"><select name="stage_id" data-testid="field-stage-id" defaultValue={stage}>{stages.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select></Field>

@@ -57,8 +57,8 @@ export default function WorkspaceApp() {
           <Route path="reviews" element={<Staff><Reviews /></Staff>} />
           <Route path="messages" element={<Messages />} />
           <Route path="inbox" element={<Staff><Inbox /></Staff>} />
-          <Route path="assistant" element={<Assistant />} />
-          <Route path="knowledge" element={<Knowledge />} />
+          <Route path="assistant" element={<Staff><Assistant /></Staff>} />
+          <Route path="knowledge" element={<Staff><Knowledge /></Staff>} />
           <Route path="calendar" element={<Calendar />} />
           <Route path="settings" element={<Settings />} />
           <Route path="integrations" element={<Owner><Integrations /></Owner>} />

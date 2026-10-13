@@ -1,0 +1,38 @@
+{
+  "summary": "RETEST of iteration_7 blocker + full partner/underwriter/client/admin workspace E2E on web. CRITICAL BLOCKER RESOLVED: /api/workspace/auth/me now returns HTTP 200 with role 'PARTNER' / 'UNDERWRITER' for partner@thedoxs.com and underwriter@thedoxs.com (schemas.py Role Literal was extended). Both roles now successfully load the full Workspace Shell — no more 'Sign in to continue' gate. Partner create-deal form works end-to-end: 'Amount needed ($)' field (name=amount_needed) and live red-flag warning [data-testid='amount-needed-redflag'] behave correctly across all three cases (needed<value → hidden; needed==value → 'requesting the entire deal value'; needed>value → 'requesting more than deal value'). Partner/UW Inbox renders their business_email (test.partner@thedoxs.com, test.underwriter@thedoxs.com) and correctly hides the admin-only scope toggle. Admin Inbox scope toggle is visible (admin-only). CLIENT nav correctly hides Inbox/AI/Knowledge AND direct URLs /workspace/inbox, /workspace/assistant, /workspace/knowledge all redirect to /workspace (Staff guard working). ScrollToTop works on BOTH workspace and site routes (scrollY resets to 0 after every route change). ONE REMAINING MISMATCH vs review request: Partner nav does NOT include 'Contacts' — Shell.js:16 lumps PARTNER with CLIENT in the limitedPaths filter, so Partner sees only Overview/Deals/Calendar/Messages (+ Inbox/AI/Knowledge/Settings). Review request explicitly says Partner should see Contacts.",
+  "platforms_tested": ["web"],
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "web": {
+      "ui_bugs": [
+        {"component": "Shell.js nav filter", "issue": "Partner workspace nav is MISSING 'Contacts' (and Tasks/Review queue). Shell.js:16 filters limitedPaths for both CLIENT and PARTNER identically, so partner only sees Overview, Deals, Calendar, Messages in the main nav. Review request explicitly requires Partner to see Contacts.", "selector": "[data-testid='nav-contacts']", "priority": "MEDIUM"}
+      ],
+      "integration_issues": [],
+      "design_issues": [
+        {"screen": "TransactionForm red-flag copy", "issues": ["Copy reads '⚑ Red flag: client is requesting more than deal value.' — missing article 'the' before 'deal value'. Minor grammar."]}
+      ]
+    },
+    "mobile": {"ui_bugs": [], "integration_issues": [], "design_issues": [], "react_native_issues": []}
+  },
+  "parity_issues": [],
+  "test_report_links": [],
+  "action_items": [
+    "DECIDE: Partner nav scope. Review request wants Partner to see Dashboard, Deals, Contacts, Messages, Inbox, AI assistant, Settings. Current Shell.js:16 includes 'contacts' only when user.role is not CLIENT AND not PARTNER. Either (a) remove PARTNER from the limitedPaths filter and define a PARTNER-specific allowlist that includes '/workspace/contacts', or (b) keep PARTNER on limitedPaths but add '/workspace/contacts' to limitedPaths (then also allow CLIENT contacts, which may not be desired). Recommend (a) — e.g. per-role nav allowlist map.",
+    "NICE-TO-HAVE: fix red-flag copy to 'requesting more than THE deal value' in TransactionForm.js:22 for grammar.",
+    "NICE-TO-HAVE: review request listed 'Knowledge' NOT visible for Partner, but current Shell.js shows nav-knowledge for all non-CLIENT roles (so Partner currently sees Knowledge vault). If knowledge should be hidden from Partner, add explicit role check in Shell.js INTELLIGENCE section."
+  ],
+  "critical_code_review_comments": [
+    "schemas.py:4 Role Literal correctly extended to include UNDERWRITER and PARTNER — the 500 blocker from iteration_7 is resolved and verified via curl + full UI load.",
+    "WorkspaceApp.jsx:60-61 — /workspace/assistant and /workspace/knowledge now wrapped in <Staff>. Confirmed via direct URL test as CLIENT: both redirect to /workspace. The iteration_7 client-leak concern is fixed.",
+    "App.js:36 — <ScrollToTop /> correctly placed inside BrowserRouter. Verified it resets window.scrollY to 0 on route change for both site routes (/ → /legal) and workspace routes (/workspace/inbox → /workspace/transactions).",
+    "Shell.js:16 — limitedPaths filter still treats CLIENT and PARTNER identically (`user.role !== 'CLIENT' && user.role !== 'PARTNER'`). This diverges from the review request which lists Contacts as a Partner nav item. Needs a product decision + code fix."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (frontend-only run)", "frontend": "Partner workspace: ~90% (shell + deals + create-deal + red-flag + inbox + assistant + settings all pass; Contacts missing from nav vs review request). Underwriter workspace: 100% of covered flows (shell + full nav + inbox with business email). Client workspace: 100% (nav scoping + direct-URL guards all working). Admin workspace: Inbox scope toggle + ScrollToTop verified."},
+  "test_credentials": "Used all four review-request accounts: partner@thedoxs.com / DoxPartner!2026, underwriter@thedoxs.com / DoxUnder!2026, client@thedoxs.com / DoxClient!2026, deptofx@proton.me / DoxAdmin!2026.",
+  "seed_data_creation": "None. Did NOT submit the test deal — only verified the red-flag indicator reactively on the form (modal cancelled before submit) to avoid polluting partner's deal list.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "iteration_7 critical blocker (500 on /api/workspace/auth/me for PARTNER/UNDERWRITER) is FIXED and verified via both curl and UI. Full partner + underwriter workspace shell boots. Red-flag indicator on create-deal form works for all three value/amount_needed relationships. CLIENT Staff guards on /inbox, /assistant, /knowledge all redirect correctly. ScrollToTop verified on both site and workspace routes. ONLY remaining visible gap vs review request: Partner nav does not include Contacts — this is a Shell.js:16 filter choice, not a bug in the auth/role plumbing. If main agent fixes it, re-test by (a) logging in as partner, (b) checking [data-testid='nav-contacts'] is visible, (c) clicking it and verifying /workspace/contacts loads partner-scoped contacts.",
+  "rca of the issue": "iteration_7 RCA fix verified: workspace/schemas.py Role was extended from Literal['OWNER','TEAM_MEMBER','CLIENT'] to Literal['OWNER','TEAM_MEMBER','UNDERWRITER','PARTNER','CLIENT']. Pydantic ResponseValidationError no longer thrown. curl verification: /api/auth/login (partner@thedoxs.com) HTTP 200 → /api/workspace/auth/me returns {role:'PARTNER'} HTTP 200. Same for underwriter → {role:'UNDERWRITER'} HTTP 200. Downstream UI: Protected() in WorkspaceApp.jsx now receives a non-null user and renders <Shell /> instead of the Gate."
+}

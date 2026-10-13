@@ -14,6 +14,7 @@ import UnderwriterPage from "@/pages/UnderwriterPage";
 import PartnerPage from "@/pages/PartnerPage";
 import WorkspaceApp from "@/workspace/WorkspaceApp";
 import SiteGate from "@/components/SiteGate";
+import ScrollToTop from "@/components/ScrollToTop";
 import LegalPage from "@/pages/LegalPage";
 import LegalDocPage from "@/pages/LegalDocPage";
 
@@ -32,6 +33,7 @@ function App() {
     <div className="App">
       <AuthProvider>
         <BrowserRouter>
+          <ScrollToTop />
           <ThemeController />
           <BackgroundFX />
           <div style={{ position: "relative", zIndex: 1 }}>

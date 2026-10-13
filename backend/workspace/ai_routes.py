@@ -21,7 +21,7 @@ class UsageOut(BaseModel):
 async def usage(user=Depends(require('ai'))):
     config=await settings();day=datetime.now(timezone.utc).date().isoformat()
     counter=await db.ai_daily_usage.find_one({'id':f'{user["id"]}:{day}'},{'_id':0})
-    limit=None if user['role']=='OWNER' else config['team_daily_limit' if user['role']=='TEAM_MEMBER' else 'client_daily_limit']
+    limit=None if user['role']=='OWNER' else config['client_daily_limit' if user['role']=='CLIENT' else 'team_daily_limit']
     return {'used':(counter or {}).get('count',0),'limit':limit,'model':MODEL_LABEL}
 @router.get('/logs',response_model=list[AILogOut])
 async def logs(user=Depends(require('manage'))):return await Repo(user).list('ai_usage_logs',sort=('created_at',-1))
@@ -38,7 +38,7 @@ async def chat(data:AIIn,user=Depends(require('ai'))):
         await db.ai_usage_logs.insert_one({**record,'status':'blocked','response':'Request blocked by gateway policy.'})
         raise HTTPException(400,'This request is outside the assistant’s permitted transaction tasks.')
     day=datetime.now(timezone.utc).date().isoformat();counter_id=f'{user["id"]}:{day}';config=await settings()
-    limit=None if user['role']=='OWNER' else config['team_daily_limit' if user['role']=='TEAM_MEMBER' else 'client_daily_limit']
+    limit=None if user['role']=='OWNER' else config['client_daily_limit' if user['role']=='CLIENT' else 'team_daily_limit']
     await db.ai_daily_usage.update_one({'id':counter_id},{'$setOnInsert':{'count':0}},upsert=True)
     query={'id':counter_id}
     if limit is not None:query['count']={'$lt':limit}
