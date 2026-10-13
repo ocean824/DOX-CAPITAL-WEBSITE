@@ -20,22 +20,7 @@ export default function Footer() {
             deptofx@proton.me
           </a>
         </div>
-        <div className="md:col-span-2">
-          <div className="label-kicker">Firm</div>
-          <ul className="mt-4 space-y-2 text-sm text-white/70">
-            <li><a href="/#services" className="hover:text-white">Services</a></li>
-            <li><a href="/#compliance" className="hover:text-white">Compliance</a></li>
-          </ul>
-        </div>
-        <div className="md:col-span-2">
-          <div className="label-kicker">Engage</div>
-          <ul className="mt-4 space-y-2 text-sm text-white/70">
-            <li><Link to="/book" className="hover:text-white">Book a Discovery Call</Link></li>
-            <li><Link to="/auth?as=partner" className="hover:text-white">Partner Sign In</Link></li>
-            <li><Link to="/auth?as=client" className="hover:text-white">Client Sign In</Link></li>
-          </ul>
-        </div>
-        <div className="md:col-span-2">
+        <div className="md:col-span-5">
           <div className="label-kicker">Legal</div>
           <ul className="mt-4 space-y-2 text-sm text-white/70">
             <li><Link to="/legal/terms" className="hover:text-white">Terms of Service</Link></li>
