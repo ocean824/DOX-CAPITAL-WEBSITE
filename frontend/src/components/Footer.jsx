@@ -41,8 +41,8 @@ export default function Footer() {
         <div className="md:col-span-2">
           <div className="label-kicker" aria-hidden="true">&nbsp;</div>
           <ul className="mt-4 space-y-2 text-sm text-white/70">
-            <li><Link to="/auth?as=admin" data-testid="footer-admin-signin" className="hover:text-white">Admin Sign In</Link></li>
-            <li><Link to="/auth?as=underwriter" data-testid="footer-underwriter-signin" className="hover:text-white">Underwriter Sign In</Link></li>
+            <li><Link to="/auth?as=admin" data-testid="footer-admin-signin" className="hover:text-white">Admin</Link></li>
+            <li><Link to="/auth?as=underwriter" data-testid="footer-underwriter-signin" className="hover:text-white">Underwriter</Link></li>
           </ul>
         </div>
         <div className="md:col-span-2">
