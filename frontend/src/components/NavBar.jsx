@@ -19,9 +19,7 @@ export default function NavBar() {
           <span className="font-display text-xl tracking-tight">D.O.X</span>
           <span className="label-kicker hidden sm:inline">Capital</span>
         </Link>
-        <nav className="hidden lg:flex items-center gap-8">
-          <NavLink to="/" end className={linkCls} data-testid="nav-home">Home</NavLink>
-        </nav>
+        <nav className="hidden lg:flex items-center gap-8"></nav>
         <div className="flex items-center gap-2">
           <Link to="/book">
             <Button data-testid="nav-book-call" variant="outline" className="rounded-none border-white/20 hover:bg-white hover:text-black">

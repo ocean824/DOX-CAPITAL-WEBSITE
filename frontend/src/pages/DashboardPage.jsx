@@ -11,7 +11,7 @@ import { ReadinessTab } from "../components/ReadinessTab";
 import { DealThread } from "../components/DealThread";
 import { DealAssistant } from "../components/DealAssistant";
 import { DealScheduler } from "../components/DealScheduler";
-import { PhasePill } from "../lib/deal";
+import { PhasePill, DealTimeline } from "../lib/deal";
 import { toast } from "sonner";
 import {
   UploadCloud, FileText, Download, ExternalLink, Clock,
@@ -118,22 +118,7 @@ export default function DashboardPage() {
               </div>
             )}
           </div>
-          {status === "approved" && (
-            <a
-              href="/workspace"
-              data-testid="dashboard-workspace-link"
-              className="mt-8 inline-flex items-center gap-3 border border-[hsl(var(--gold))]/40 px-6 py-4 hover:bg-[hsl(var(--gold))]/10 transition-colors"
-            >
-              <LayoutGrid className="h-5 w-5 text-[hsl(var(--gold))]" strokeWidth={1.25} />
-              <span>
-                <span className="block font-display text-xl">Open your deal room</span>
-                <span className="block text-xs text-white/50 mt-1">
-                  Your live deals, documents, meetings, messages and the knowledge assistant
-                </span>
-              </span>
-              <ExternalLink className="h-4 w-4 text-white/40 ml-2" />
-            </a>
-          )}
+          {status === "approved" && <DealTimeline phase={phase} />}
         </div>
       </section>
 

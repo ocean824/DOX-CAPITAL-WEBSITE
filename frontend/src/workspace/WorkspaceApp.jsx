@@ -32,6 +32,7 @@ function Protected() {
   if (loading) return <div className="workspace boot" data-testid="workspace-loading"><span className="brand-serif">D.O.X</span><span className="loading-line" /></div>;
   if (denied) return <Gate title="Workspace access pending" body={denied} cta="Back to your portal" to="/dashboard" />;
   if (!user) return <Gate title="Sign in to continue" body="The D.O.X Workspace uses your thedoxs.com account." cta="Sign in" to="/auth?next=/workspace" />;
+  if (user.role === 'CLIENT') return <Navigate to="/dashboard" replace />;
   return <Shell />;
 }
 
