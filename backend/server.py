@@ -318,6 +318,11 @@ def get_object(path: str):
 # ---------------------------------------------------------------------------
 # Pydantic models
 # ---------------------------------------------------------------------------
+LEGAL_VERSION = "June 2026"
+LEGAL_TERMS_DOC_ID = "DOX-LEGAL-01"
+LEGAL_PRIVACY_DOC_ID = "DOX-LEGAL-02"
+
+
 class RegisterIn(BaseModel):
     name: str = Field(min_length=2, max_length=80)
     email: EmailStr
@@ -327,6 +332,7 @@ class RegisterIn(BaseModel):
     message: Optional[str] = Field(default=None, max_length=600)
     account_type: str = Field(default="client", pattern="^(client|partner|underwriter)$")
     referral_code: Optional[str] = Field(default=None, max_length=24)
+    accepted_legal: bool = False
 
 
 class LoginIn(BaseModel):
@@ -505,9 +511,11 @@ async def stats():
 
 # ---- Auth ----------------------------------------------------------------
 @api.post("/auth/register")
-async def register(payload: RegisterIn, response: Response):
+async def register(payload: RegisterIn, request: Request, response: Response):
     if await site_is_locked():
         raise HTTPException(status_code=403, detail="D.O.X Capital is in pre-launch. Access is invite-only.")
+    if not payload.accepted_legal:
+        raise HTTPException(status_code=422, detail="You must accept the Terms of Service and Privacy Policy to continue")
     email = payload.email.lower()
     if await db.users.find_one({"email": email}):
         raise HTTPException(status_code=400, detail="An account with that email already exists")
@@ -520,6 +528,7 @@ async def register(payload: RegisterIn, response: Response):
         )
         if ref:
             partner_id = ref["id"]
+    client_ip = (request.headers.get("x-forwarded-for") or (request.client.host if request.client else "")).split(",")[0].strip()
     doc = {
         "id": user_id,
         "name": payload.name.strip(),
@@ -533,6 +542,14 @@ async def register(payload: RegisterIn, response: Response):
         "account_type": payload.account_type,
         "partner_id": partner_id,
         "workspace_role": "staff" if payload.account_type in ("partner", "underwriter") else "client",
+        "legal_acceptance": {
+            "version": LEGAL_VERSION,
+            "terms_doc_id": LEGAL_TERMS_DOC_ID,
+            "privacy_doc_id": LEGAL_PRIVACY_DOC_ID,
+            "accepted_at": datetime.now(timezone.utc).isoformat(),
+            "ip": client_ip,
+            "user_agent": request.headers.get("user-agent", "")[:400],
+        },
         "created_at": datetime.now(timezone.utc).isoformat(),
     }
     await db.users.insert_one(doc)
@@ -1656,6 +1673,36 @@ async def admin_set_workspace_role(user_id: str, payload: WorkspaceRoleIn,
     await db.users.update_one({"id": user_id}, {"$set": {"workspace_role": payload.workspace_role}})
     await sync_workspace_users()
     return {"ok": True, "workspace_role": payload.workspace_role}
+
+
+@api.get("/admin/assistant-usage")
+async def admin_assistant_usage(admin: dict = Depends(require_admin)):
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=30)).isoformat()
+    logs = await db.ai_usage_logs.find(
+        {"created_at": {"$gte": cutoff}}, {"_id": 0}
+    ).sort("created_at", -1).to_list(5000)
+    per_user, per_day = {}, {}
+    for entry in logs:
+        key = entry.get("user_id")
+        pu = per_user.setdefault(key, {
+            "user_id": key, "user_name": entry.get("user_name") or "Unknown",
+            "total": 0, "blocked": 0, "last_used": entry.get("created_at"),
+        })
+        pu["total"] += 1
+        if entry.get("status") == "blocked":
+            pu["blocked"] += 1
+        day = (entry.get("created_at") or "")[:10]
+        per_day[day] = per_day.get(day, 0) + 1
+    recent = [{
+        "user_name": e.get("user_name"), "template": e.get("template"),
+        "status": e.get("status"), "created_at": e.get("created_at"),
+    } for e in logs[:50]]
+    return {
+        "total": len(logs),
+        "per_user": sorted(per_user.values(), key=lambda x: -x["total"]),
+        "per_day": [{"day": d, "count": c} for d, c in sorted(per_day.items(), reverse=True)],
+        "recent": recent,
+    }
 
 
 # ---------------------------------------------------------------------------
