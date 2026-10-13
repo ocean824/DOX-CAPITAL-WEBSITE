@@ -39,11 +39,11 @@ export default function Footer() {
           </p>
           <div className="label-kicker mt-8">Contact</div>
           <a
-            href="mailto:deptofx@proton.me"
+            href="mailto:admin@thedoxs.com"
             data-testid="footer-email"
             className="text-white hover:text-[hsl(var(--gold))] text-sm mt-2 inline-block"
           >
-            deptofx@proton.me
+            admin@thedoxs.com
           </a>
         </div>
         <div className="md:col-span-3">
