@@ -38,9 +38,10 @@ export default function Footer() {
         <div className="md:col-span-2">
           <div className="label-kicker">Legal</div>
           <ul className="mt-4 space-y-2 text-sm text-white/70">
-            <li><Link to="/legal/terms-of-service" className="hover:text-white">Terms of Service</Link></li>
-            <li><Link to="/legal/privacy-policy" className="hover:text-white">Privacy Policy</Link></li>
-            <li><Link to="/legal/refund-cancellation-policy" className="hover:text-white">Refund Policy</Link></li>
+            <li><Link to="/legal/terms" className="hover:text-white">Terms of Service</Link></li>
+            <li><Link to="/legal/privacy" className="hover:text-white">Privacy Policy</Link></li>
+            <li><Link to="/legal/refunds-cancellation-fulfillment" className="hover:text-white">Refunds &amp; Cancellation</Link></li>
+            <li><Link to="/legal/accessibility" className="hover:text-white">Accessibility</Link></li>
             <li>
               <Link
                 to="/legal"

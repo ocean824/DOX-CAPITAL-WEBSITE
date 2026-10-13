@@ -9,7 +9,7 @@ export const LEGAL_EFFECTIVE_DATE = "June 2026";
 
 export const LEGAL_DOCS = [
   {
-    slug: "terms-of-service",
+    slug: "terms",
     docId: "DOX-LEGAL-01",
     title: "Terms of Service & User Agreement",
     summary:
@@ -114,7 +114,7 @@ Nothing in this document excludes, restricts, or modifies a warranty, remedy, ri
 For questions about these Terms, contact D.O.X Capital at deptofx@proton.me. Do not use a support channel for emergencies.`,
   },
   {
-    slug: "privacy-policy",
+    slug: "privacy",
     docId: "DOX-LEGAL-02",
     title: "Privacy Policy & Privacy Notice",
     summary:
@@ -219,7 +219,7 @@ Third-party links and integrations are governed by the third party's own terms a
 Questions about this Policy, our privacy practices, or a privacy request may be directed to D.O.X Capital at deptofx@proton.me.`,
   },
   {
-    slug: "refund-cancellation-policy",
+    slug: "refunds-cancellation-fulfillment",
     docId: "DOX-LEGAL-03",
     title: "Refund, Cancellation & Fulfillment Policy",
     summary:
@@ -272,7 +272,7 @@ Before the final payment action, we display the total price, the one-time or rec
 For order, cancellation, fulfillment, or refund questions, contact D.O.X Capital at deptofx@proton.me. Do not use a support channel for emergencies.`,
   },
   {
-    slug: "membership-agreement",
+    slug: "membership",
     docId: "DOX-LEGAL-04",
     title: "Membership Agreement",
     summary:
@@ -330,7 +330,7 @@ At enrollment you confirm: "I apply for membership in the D.O.X Capital membersh
 For membership questions or notices, contact D.O.X Capital at deptofx@proton.me. Do not use a support channel for emergencies.`,
   },
   {
-    slug: "subscription-renewal-terms",
+    slug: "subscription-renewal",
     docId: "DOX-LEGAL-05",
     title: "Subscription & Automatic Renewal Terms",
     summary:
@@ -383,7 +383,7 @@ Nothing in this document excludes, restricts, or modifies a right or remedy that
 For subscription, renewal, billing, or cancellation questions, contact D.O.X Capital at deptofx@proton.me. Do not use a support channel for emergencies.`,
   },
   {
-    slug: "non-affiliation-disclosure",
+    slug: "non-affiliation-data-sources",
     docId: "DOX-LEGAL-06",
     title: "Non-Affiliation & Data Source Disclosure",
     summary:
@@ -443,7 +443,7 @@ D.O.X Capital may revise this Disclosure when its Services, sources, relationshi
 Questions about this Disclosure, a third-party reference, an attribution, or a suspected error may be directed to D.O.X Capital at deptofx@proton.me.`,
   },
   {
-    slug: "legal-advice-disclaimer",
+    slug: "no-legal-professional-advice",
     docId: "DOX-LEGAL-07",
     title: "Legal & Professional Advice Disclaimer",
     summary:
@@ -484,7 +484,7 @@ D.O.X Capital's description of a membership arrangement does not create a genera
 For questions about the scope of consulting information, contact D.O.X Capital at deptofx@proton.me. Do not use a support channel for emergencies.`,
   },
   {
-    slug: "financial-disclaimer",
+    slug: "financial-funding-disclaimer",
     docId: "DOX-LEGAL-08",
     title: "Financial, Securities & Tax Disclaimer; No Guarantee",
     summary:
@@ -528,7 +528,7 @@ D.O.X Capital's description of a membership arrangement does not create a genera
 For financial, funding, securities, or tax scope questions, contact D.O.X Capital at deptofx@proton.me. Do not use a support channel for emergencies.`,
   },
   {
-    slug: "document-upload-notice",
+    slug: "document-upload",
     docId: "DOX-LEGAL-09",
     title: "Document Upload & Processing Notice",
     summary:
@@ -592,7 +592,7 @@ We may revise this Notice to reflect changes in law, services, vendors, or proce
 Questions about an upload, privacy of an upload, or a security concern may be directed to D.O.X Capital at deptofx@proton.me. Do not use a support channel for emergencies.`,
   },
   {
-    slug: "cookie-policy",
+    slug: "cookies",
     docId: "DOX-LEGAL-10",
     title: "Cookie & Tracking Technologies Policy",
     summary:
@@ -639,7 +639,7 @@ We update this Policy when technologies or purposes materially change and reques
 For cookie, tracking, or preference questions, contact D.O.X Capital at deptofx@proton.me. Do not use a support channel for emergencies.`,
   },
   {
-    slug: "accessibility-statement",
+    slug: "accessibility",
     docId: "DOX-LEGAL-11",
     title: "Accessibility Statement",
     summary:
@@ -680,7 +680,7 @@ Unresolved accessibility concerns may be escalated by contacting deptofx@proton.
 For accessibility feedback or accommodation requests, contact D.O.X Capital at deptofx@proton.me. Do not use a support channel for emergencies.`,
   },
   {
-    slug: "business-identity",
+    slug: "contact-business-support",
     docId: "DOX-LEGAL-12",
     title: "Contact, Business Identity & Customer Support Disclosure",
     summary:
@@ -724,7 +724,7 @@ Support is not an emergency, law-enforcement, medical, crisis, or time-critical 
 For business identity, support, complaints, or formal notices, contact D.O.X Capital at deptofx@proton.me. Do not use a support channel for emergencies.`,
   },
   {
-    slug: "ip-notice",
+    slug: "intellectual-property",
     docId: "DOX-LEGAL-13",
     title: "Copyright, Trademark & Intellectual Property Notice",
     summary:
@@ -765,7 +765,7 @@ We may remove or restrict material, preserve evidence, contact the uploader, or 
 For intellectual-property questions or notices, contact D.O.X Capital at deptofx@proton.me. Do not use a support channel for emergencies.`,
   },
   {
-    slug: "age-policy",
+    slug: "age-minors",
     docId: "DOX-LEGAL-14",
     title: "Age Eligibility & Minors Policy",
     summary:
@@ -806,7 +806,7 @@ If we learn that we collected information from an ineligible minor without a law
 For age eligibility, parental requests, or minor-data concerns, contact D.O.X Capital at deptofx@proton.me. Do not use a support channel for emergencies.`,
   },
   {
-    slug: "ai-processing-disclosure",
+    slug: "ai-assisted-processing",
     docId: "DOX-LEGAL-15",
     title: "Automated Document Processing & AI-Assisted Review Disclosure",
     summary:
@@ -854,6 +854,180 @@ Before sending files to an AI vendor where a notice or consent is appropriate, w
 
 ## Contact
 For AI, automated-processing, correction, or human-review requests, contact D.O.X Capital at deptofx@proton.me. Do not use a support channel for emergencies.`,
+  },
+  {
+    slug: "privacy-choices",
+    docId: "DOX-LEGAL-16",
+    title: "Privacy Choices & Consumer Rights Notice",
+    summary:
+      "The privacy rights you may have, how to submit a request, and how we respond.",
+    body: `This Notice describes how to exercise privacy choices and consumer rights. Statutory rights depend on your residence, D.O.X Capital's role, applicable thresholds and exemptions, the data, the purpose, and the transaction.
+
+## 1. How to submit a request
+Submit a request by emailing deptofx@proton.me. You do not need to create an account to submit a request where law requires open intake. Provide your name or contact information, the request type, your state or country of residence, your relationship to D.O.X Capital, and enough information to locate your records. Do not send passwords or unnecessary sensitive documents.
+
+## 2. Potential rights
+Depending on applicable law, your rights may include confirmation of processing; access or knowledge; correction; deletion; portability; withdrawal of consent; restriction; objection; opting out of sale, sharing, targeted advertising, or qualifying profiling or automated decision-making; limiting the use of sensitive data; and appeal. Our response will state whether a right is statutory, voluntarily extended, or unavailable and why.
+
+## 3. Authentication
+We use risk-proportionate verification based on the request type and data sensitivity. We may match existing information, confirm control of an email or account, or request other reasonable proof. We will not ask for an account password. If we cannot verify identity, we will explain what additional information is reasonably needed or how the request can be narrowed.
+
+## 4. Authorized agents
+Where law permits, an authorized agent may submit a request with evidence of authority. We may verify you directly or request a valid power of attorney as applicable. A device-level opt-out signal does not require identity verification when the law requires action without it.
+
+## 5. Parents and guardians
+A request involving a minor follows the Age Eligibility & Minors Policy. We verify adult identity, relationship, and authority proportionately and avoid collecting more information than necessary.
+
+## 6. Sale, sharing, advertising, and profiling
+D.O.X Capital does not sell personal information for money and does not share it for cross-context behavioral advertising. If a covered activity begins, our Privacy Policy and point-of-collection notices will describe it and provide any required opt-out. We do not label an ordinary service-provider transfer a "non-sale" without analyzing the statutory definition and our contracts.
+
+## 7. Universal opt-out mechanisms
+Where required, we process a legally valid universal opt-out preference signal, including a recognized Global Privacy Control signal, within the jurisdiction's required browser, device, account, or profile scope. A preference center will not reverse a valid signal without a clear, valid later choice.
+
+## 8. Sensitive information and consent
+Where consent is required for sensitive-data processing, we request it separately and specifically, identify the categories and purposes, and provide a withdrawal method. A general Terms checkbox is not substituted for a legally required sensitive-data consent.
+
+## 9. Timing, extensions, and response
+Acknowledgment, response, and extension periods are calculated from the rules of your applicable jurisdiction, not from one universal deadline. We will confirm receipt, state any verification needs, provide the response securely, and explain any lawful extension. If we deny or limit a request, we will identify the reason and any available appeal.
+
+## 10. Appeals
+If applicable law provides an appeal right, you may appeal a decision by replying to our response or emailing deptofx@proton.me. Where practicable, a person not involved in the initial decision will review it, and the appeal response will include any required route to the relevant attorney general or regulator.
+
+## 11. Exceptions
+Rights may be limited by identity verification, legal privilege, security, fraud prevention, another person's rights, recordkeeping duties, a litigation hold, completion of a requested transaction, or another statutory exception. We apply exceptions narrowly and document the legal basis; we do not use them as a blanket refusal.
+
+## 12. Non-discrimination
+We will not unlawfully discriminate against you for exercising privacy rights, and we do not use dark patterns or asymmetrical choices to defeat a request. Any permitted loyalty or incentive program requires separate disclosure and is reasonably related to the value of the data where law requires.
+
+## 13. Request records
+We retain a case record sufficient to demonstrate receipt, verification, searches, system and vendor tasks, exceptions, response, appeal, and completion under the applicable schedule. Verification artifacts are retained for a shorter period where possible, and the request record is protected with logged access.
+
+## Contact
+For privacy choices, requests, appeals, or authorized-agent submissions, contact D.O.X Capital at deptofx@proton.me. Do not use a support channel for emergencies.`,
+  },
+  {
+    slug: "data-retention",
+    docId: "DOX-LEGAL-17",
+    title: "Data Retention & Deletion Policy",
+    summary:
+      "How long we keep different categories of information and how deletion works.",
+    body: `This Policy describes how D.O.X Capital retains and deletes personal information. It is generated from, and kept consistent with, our internal retention schedule.
+
+## 1. Principles
+We retain personal information only for a documented business or legal purpose and no longer than reasonably necessary for that purpose, subject to legal holds and lawful exceptions. Retention is category- and purpose-specific; this Policy does not claim one universal period.
+
+## 2. Retention criteria
+Periods consider the service or account lifecycle, contract and payment records, user expectations, sensitivity, security and fraud risk, legal and regulatory duties, statutes of limitation, dispute and audit needs, vendor capability, backup architecture, and whether data can be deidentified.
+
+## 3. Account, membership, and contact data
+Account, identity, membership, application, contact, preference, and support data are retained for the life of the account or membership and for a reasonable period afterward to meet payment, security, dispute, and legal-hold needs. Dormant or closed accounts are restricted or deleted according to the schedule.
+
+## 4. Orders, payments, and consent evidence
+Order, invoice, tax, payment-token reference, refund, chargeback, subscription, checkout, and acceptance evidence are retained for the period required by applicable financial, tax, and consumer-protection law and to resolve disputes. We do not store full payment-card data; our payment processors maintain their own records under their policies.
+
+## 5. Consulting files and deliverables
+Client inputs, working papers, communications, and deliverables are retained for a reasonable period after completion, considering follow-up work, contract proof, and sensitivity. At completion, we remove unnecessary duplicates and staging copies.
+
+## 6. Uploads
+Original files, extracted content, temporary processing copies, malware quarantine, and generated outputs use distinct periods appropriate to each. A deletion request propagates to active copies and vendors where required, while quarantine or security evidence is retained only as justified.
+
+## 7. AI records
+Prompts, transcripts, files, embeddings, outputs, quality samples, safety logs, and provider copies are retained only as long as needed for the service, security, and compliance, consistent with the Automated Document Processing & AI-Assisted Review Disclosure. We do not promise deletion from a model or backup beyond what the provider contract and architecture support.
+
+## 8. Cookies, marketing, and privacy choices
+Cookie-consent records, universal opt-out handling, marketing consent, unsubscribes, suppression lists, and privacy-request records are retained as needed to honor your choices and demonstrate compliance. A suppression record may be retained to honor an opt-out without resuming marketing.
+
+## 9. Children and sensitive data
+Child, health, biometric, precise-location, financial-account, government-identifier, and other sensitive data receive shorter, purpose-limited periods and heightened deletion review. When consent is withdrawn, we stop future processing and delete as required unless a narrow lawful exception applies.
+
+## 10. Security and incident records
+Security logs and incident records are retained to investigate, notify, remediate, and defend claims, with minimized raw identifiers and restricted access. Incident response does not justify indefinite retention of unaffected data.
+
+## 11. Backups and disaster recovery
+Deleted data may remain in encrypted, access-restricted backups until the backup expires or is securely overwritten. Backups are not restored into ordinary use without reapplying deletion and suppression records, and a backup exception is not permission for active processing.
+
+## 12. Legal holds and exceptions
+We may suspend deletion for a reasonably anticipated dispute, subpoena, investigation, audit, fraud matter, or other legal duty. A hold identifies scope, owner, basis, start, review cadence, and release. Once released, ordinary deletion resumes. Exceptions are documented, narrow, and access-restricted.
+
+## 13. Deletion, deidentification, and disposal
+At period end, data is deleted, overwritten, destroyed, or deidentified using a method appropriate to the medium and risk. Deidentified data is subject to technical and contractual controls against reidentification where required, and disposal creates evidence without exposing the deleted contents.
+
+## 14. Vendors and transfers
+Our contracts require processors to apply our instructions, retention limits, deletion or return, subprocessor controls, incident notice, and verification. Deletion requests are tracked across our vendors. Cross-border storage and transfers use appropriate safeguards that match our actual practice.
+
+## 15. User requests and account closure
+You may request deletion or closure by emailing deptofx@proton.me. We authenticate proportionately, explain applicable exceptions, propagate approved requests, and confirm completion or the expected schedule. Closure does not guarantee immediate erasure from backups or records lawfully retained.
+
+## 16. Governance and changes
+Each category has a business owner and a legal owner. We review the schedule periodically and when services, vendors, law, incidents, or data uses change, and we test deletion and backup restoration. We do not make a public retention promise we cannot operationally enforce.
+
+## Contact
+For retention, deletion, account closure, or legal-hold questions, contact D.O.X Capital at deptofx@proton.me. Do not use a support channel for emergencies.`,
+  },
+  {
+    slug: "services-deliverables",
+    docId: "DOX-LEGAL-18",
+    title: "Consulting Services Description & Deliverables",
+    summary:
+      "The general framework for D.O.X Capital engagements, paired with your written order or statement of work.",
+    body: `This document is the general service framework for D.O.X Capital engagements. It is paired with an order, proposal, or statement of work that states the exact scope, deliverables, fees, dependencies, timing, revisions, and acceptance criteria.
+
+## 1. Service description
+D.O.X Capital offers capital-structuring and business-funding advisory and document-packaging services, including entity structuring, diligence and document preparation, underwriting coordination, and introductions to independent lenders and funding partners. A service begins only when D.O.X Capital accepts an order or signs a statement of work. General website language, exploratory calls, or marketing do not create a duty to provide an unlisted deliverable.
+
+## 2. Deliverables
+The specific deliverables, their format, and the delivery method are identified in your order, which also states objective completion and acceptance criteria. Examples and templates are illustrative unless included in the order. A lender approval, regulatory decision, tax result, or other third-party action is not a deliverable under our control.
+
+## 3. Exclusions
+Unless a verified, separately licensed engagement expressly provides otherwise, our services exclude legal opinions, tax returns or tax advice, audits, securities placement, investment advice, lender underwriting, loan brokering, credit repair, debt relief, insurance, custody of funds, government representation, and guarantees. A requested activity outside scope requires review and may be declined.
+
+## 4. Client responsibilities
+You must provide accurate and complete information, timely decisions, authorized access, and lawful materials. You review and approve final representations and remain responsible for filings, applications, contracts, taxes, compliance, and third-party decisions. We may rely on your information unless the order requires verification.
+
+## 5. Timing and milestones
+Estimated timing and milestones are set out in your order. Timing begins after payment, required assent, and complete inputs. Client delay, a scope change, third-party response, force majeure, or a newly discovered risk may adjust the schedule with notice. A deadline is guaranteed only if expressly identified as such.
+
+## 6. Fees and expenses
+Fees are stated in your order, which distinguishes fixed fees, deposits, milestone fees, hourly charges, recurring charges, reimbursable expenses, taxes, and third-party costs. We do not charge a contingency, success, lender-paid, or transaction-based fee for arranging financing. Payment and refund terms match checkout.
+
+## 7. Revisions and acceptance
+Included revisions and the review period are stated in your order. You should review promptly and describe any material failure against the written criteria. Silence is acceptance only if the order clearly and lawfully says so. Correction, re-performance, or other remedies follow the order and the Refund, Cancellation & Fulfillment Policy.
+
+## 8. Change orders
+A change to scope, deliverables, assumptions, fee, timeline, or acceptance criteria requires a written change order describing the difference and effect. Work outside scope need not begin until accepted. A general website-policy amendment cannot unilaterally change a purchased service.
+
+## 9. Funding, lender, and referral role
+D.O.X Capital acts as an advisory and document-packaging firm. It is not a lender, loan broker, or securities dealer, and it does not collect transaction-based or success-based compensation for arranging financing. Any lender or funding partner decides independently and applies its own criteria, and any referral compensation is disclosed where material.
+
+## 10. No guarantee
+We do not guarantee funding, approval, an introduction, amount, rate, term, credit result, entity protection, tax treatment, savings, revenue, profitability, or another result. A consulting deliverable may identify options or risks without causing a third party to act. Any objective advertising claim is substantiated before use.
+
+## 11. Professional boundaries
+Unless a separate licensed engagement expressly says otherwise, the service is general business consulting and does not create an attorney-client, accountant-client, investment-adviser, broker-client, lender-borrower, fiduciary, or tax-adviser relationship. The Legal & Professional Advice Disclaimer and the Financial, Securities & Tax Disclaimer apply.
+
+## 12. Communications and confidentiality
+The parties protect confidential information using reasonable care and use it for the engagement, subject to law, vendors, and the Privacy Policy. No absolute secrecy or privilege is promised. Do not use insecure channels for unnecessary sensitive data.
+
+## 13. Data, uploads, and AI
+If uploads or AI-assisted review are used, the Document Upload & Processing Notice and the Automated Document Processing & AI-Assisted Review Disclosure apply, and you may not assume human review, no training, or immediate deletion unless those facts are stated and verified.
+
+## 14. Intellectual property
+Pre-existing materials remain with their owner, and client-specific ownership or license terms are set out in your order. D.O.X Capital retains general knowledge, methods, tools, and reusable elements that do not disclose your confidential information, subject to the order. Third-party materials remain under their licenses.
+
+## 15. Subcontractors and third parties
+We may use subcontractors only within the agreed scope and with appropriate confidentiality, privacy, security, and licensing controls. Lenders, lawyers, accountants, vendors, and referral parties are independent unless expressly stated, and their decisions and services are governed by separate terms.
+
+## 16. Conflicts and refusal
+We disclose known material conflicts and referral compensation and may decline or pause work that appears unlawful, deceptive, outside our competence, unsafe, or dependent on missing authority. A refusal does not waive a required refund for unperformed work.
+
+## 17. Cancellation and completion
+Cancellation and refund are governed by your order and the Refund, Cancellation & Fulfillment Policy. On completion or termination, we deliver completed paid work as required, return or delete materials according to the retention policy, invoice lawful amounts, and identify open dependencies. Continuing support requires a new or extended order.
+
+## 18. Order precedence
+Your signed order controls a direct conflict about a specific engagement. These service terms, the Terms of Service, the Privacy Policy, and applicable special notices then apply.
+
+## Contact
+For service scope, deliverables, or change-order questions, contact D.O.X Capital at deptofx@proton.me. Do not use a support channel for emergencies.`,
   },
 ];
 
