@@ -679,6 +679,182 @@ Unresolved accessibility concerns may be escalated by contacting deptofx@proton.
 ## Contact
 For accessibility feedback or accommodation requests, contact D.O.X Capital at deptofx@proton.me. Do not use a support channel for emergencies.`,
   },
+  {
+    slug: "business-identity",
+    docId: "DOX-LEGAL-12",
+    title: "Contact, Business Identity & Customer Support Disclosure",
+    summary:
+      "Who D.O.X Capital is, our official channels, and how to reach support or send formal notices.",
+    body: `This Disclosure identifies D.O.X Capital and the channels through which we provide customer support and receive formal notices.
+
+## 1. Legal identity
+D.O.X Capital is the public brand used to operate https://www.thedoxs.com. Our formal legal entity name, entity type, state of formation, and registered address are set out in your written engagement agreement and are available on request. We do not publish a virtual or registered-agent address as an operating location.
+
+## 2. Website and brand control
+Our canonical website is https://www.thedoxs.com. A similar name, profile, message, or domain is not official unless we confirm it. Report suspected impersonation, spoofing, or fraud to deptofx@proton.me.
+
+## 3. Registrations and licenses
+D.O.X Capital is an advisory and document-packaging firm and does not hold professional licenses reserved to law, accounting, securities, or insurance. The absence of a published license number does not imply exemption, and a business filing is not a professional license.
+
+## 4. Customer support
+Our monitored support channel is deptofx@proton.me. Email is the fastest way to reach us; we do not currently publish a general support telephone line. Expected response times are service targets, not guarantees, unless a contract states otherwise.
+
+## 5. Billing identity
+Where a paid engagement is processed, the merchant of record, payment processor, and billing descriptor are shown at checkout, on your receipt, and on your statement in a manner designed to avoid confusion. You may report a billing issue through support without waiving any legal right.
+
+## 6. Formal notices and service
+Contractual legal notices should be sent to deptofx@proton.me using the method required by the applicable agreement. This support channel does not authorize service of process by ordinary email unless governing law and a written agreement permit it.
+
+## 7. Privacy, accessibility, and security contacts
+Privacy requests, accessibility requests, and security reports may all be directed to deptofx@proton.me. These channels are monitored and assigned to responsible owners.
+
+## 8. Complaints and escalation
+Submit a complaint with the relevant order or account identifier, a concise description, dates, the resolution you are requesting, and non-sensitive supporting material. We may authenticate the requester and investigate. Internal review does not limit a nonwaivable regulator, payment, arbitration, or court right.
+
+## 9. Records and confirmations
+Support issues a request identifier and retains communications under the applicable schedule, and confirms cancellations, refunds, membership actions, privacy requests, and material resolutions in durable form. We do not log passwords, full payment-card data, or unnecessary sensitive documents.
+
+## 10. Third-party channels and scams
+A referral source, lender, consultant, social platform, or messaging provider is not authorized to change our terms, collect fees, or make guarantees unless written authorization says so. D.O.X Capital will not request passwords or full payment-card numbers through unsolicited messages. Verify any unusual request using a listed official channel.
+
+## 11. No emergency service
+Support is not an emergency, law-enforcement, medical, crisis, or time-critical legal service. Contact the appropriate public authority or licensed professional for urgent matters, and do not rely on a response target to protect a filing, payment, appeal, or limitations deadline.
+
+## Contact
+For business identity, support, complaints, or formal notices, contact D.O.X Capital at deptofx@proton.me. Do not use a support channel for emergencies.`,
+  },
+  {
+    slug: "ip-notice",
+    docId: "DOX-LEGAL-13",
+    title: "Copyright, Trademark & Intellectual Property Notice",
+    summary:
+      "Ownership of site content and marks, the limited license you receive, and how to report infringement.",
+    body: `This Notice applies to original site content, consulting materials, user submissions, third-party materials, and marks.
+
+## 1. Ownership
+Except for user materials and third-party content, original website text, layout, graphics, workflows, compilations, templates, training materials, and deliverables are owned by or licensed to D.O.X Capital and protected by applicable intellectual-property law. A copyright notice does not claim ownership of public-domain facts, law, third-party works, or material we do not own.
+
+## 2. Trademarks
+"D.O.X Capital" and the D.O.X Capital logo and related marks are trademarks of D.O.X Capital. We use the registered symbol only for a mark and jurisdiction supported by an actual registration. Third-party names and marks belong to their owners; reference to them is nominative or descriptive and does not imply affiliation or endorsement unless a verified agreement states otherwise.
+
+## 3. Limited license
+Subject to the Terms, you receive a limited, revocable, nonexclusive, nontransferable license to access the site and use purchased deliverables for the lawful internal or personal purpose stated in your order. No right to resell, sublicense, publish, train a competing model, remove attribution, create a misleading derivative, or extract a database is granted unless expressly written.
+
+## 4. Prohibited use
+Do not copy, distribute, publicly display, republish, scrape, reverse engineer, remove notices, bypass controls, or create derivative commercial materials beyond applicable law or a written license. This restriction does not prohibit fair use, lawful criticism, accessibility adaptation, or another right that cannot be waived.
+
+## 5. User materials
+You retain rights you lawfully possess in submitted material. You grant us and our processors a limited license to host, copy, convert, transmit, analyze, and use it only as reasonably necessary to provide, secure, support, document, and enforce the requested service; comply with law; and resolve disputes. You represent that you have the authority needed for that use.
+
+## 6. Feedback
+If you voluntarily provide product feedback, you grant D.O.X Capital a nonexclusive, worldwide, perpetual, irrevocable, royalty-free license to use and incorporate it without identifying you or disclosing confidential material. Do not submit third-party confidential information as feedback. This clause does not transfer ownership of a separately commissioned deliverable.
+
+## 7. Third-party content and data
+Third-party sources, datasets, marks, and materials remain subject to their owners' rights and license terms. A service deliverable does not transfer a license in an underlying proprietary database. You must follow source restrictions and independently obtain rights for republication or commercial use.
+
+## 8. Links and framing
+Ordinary links to public pages are permitted if they are lawful and do not imply endorsement. Do not frame the site, obscure source identity, or use marks in a way likely to confuse. We may request removal of a misleading link, subject to applicable law.
+
+## 9. Reporting infringement
+Send a good-faith notice to deptofx@proton.me identifying the copyrighted work, the allegedly infringing material and its location, your contact information, a good-faith statement, a statement of accuracy and authority, and your signature. We may request clarification and may forward the notice to the affected user. Knowingly material misrepresentations may create liability.
+
+## 10. Enforcement and mistakes
+We may remove or restrict material, preserve evidence, contact the uploader, or seek relief where reasonably necessary. Removal is not an admission and may be reversed after a valid counter-notice or review. We will not use this policy to suppress lawful criticism or competition.
+
+## Contact
+For intellectual-property questions or notices, contact D.O.X Capital at deptofx@proton.me. Do not use a support channel for emergencies.`,
+  },
+  {
+    slug: "age-policy",
+    docId: "DOX-LEGAL-14",
+    title: "Age Eligibility & Minors Policy",
+    summary:
+      "The Services are intended for adults; how we handle age screening and information about minors.",
+    body: `The D.O.X Capital Services are intended for adults. The minimum age is 18.
+
+## 1. Adult eligibility
+Accounts, memberships, purchases, uploads, and consultations are intended for persons at least 18 years of age who can enter a binding contract. A younger person may not independently use them unless a verified and lawful parent or guardian flow expressly permits the activity.
+
+## 2. Not directed to children
+The Services are not directed to children under 13, and we do not operate a child-directed program. An age statement does not eliminate duties if a service were child-directed or if D.O.X Capital had actual knowledge that it collected personal information from a child.
+
+## 3. Neutral age screening
+Where age screening is appropriate, we request the minimum information needed, such as an age band rather than a full birth date, unless a verified need justifies more. Any screen is neutral and does not encourage a person to misstate age, and we retain age evidence only for the documented period.
+
+## 4. Parent or guardian authority
+An adult submitting information about a minor represents that the adult has lawful authority and that the submission is necessary for the stated purpose. We may require proportionate verification. An adult's authority does not waive the child's rights or permit processing that law prohibits.
+
+## 5. Teens and state privacy rights
+Some states provide special rules for sale, sharing, targeted advertising, profiling, sensitive data, or consent involving users under 16, 18, or another age. We do not treat any single statute as the only minor law and do not assume parental consent cures every practice.
+
+## 6. Uploads and third-party minor data
+Where uploads are enabled, we instruct users not to submit a child's data unless the service specifically requests it and the user has lawful authority, and we apply heightened access, minimization, vendor, and retention controls. Health, education, biometric, precise-location, financial, and identity data require separate review.
+
+## 7. AI and automated processing
+We do not expose children or teens to an AI tool, profiling, emotional-dependence design, behavioral advertising, or consequential recommendation without age-appropriate design, safety review, disclosures, consent where required, and human escalation.
+
+## 8. Marketing and design
+We do not use manipulative prompts, urgency, rewards, or confusing defaults to obtain a minor's data or consent, and we do not condition a child's participation on collecting more information than reasonably necessary. Advertisements and endorsements are recognizable and age appropriate.
+
+## 9. Parental and minor requests
+A parent, guardian, or eligible minor may contact deptofx@proton.me to ask about access, deletion, correction, withdrawal, or account closure. We authenticate identity and authority proportionately and apply the rights available under the applicable jurisdiction without collecting unnecessary additional data.
+
+## 10. Discovery of ineligible use
+If we learn that we collected information from an ineligible minor without a lawful basis, we will restrict access, investigate, notify as required, and delete or otherwise remediate the information subject to legal holds and lawful exceptions. Report concerns to deptofx@proton.me.
+
+## Contact
+For age eligibility, parental requests, or minor-data concerns, contact D.O.X Capital at deptofx@proton.me. Do not use a support channel for emergencies.`,
+  },
+  {
+    slug: "ai-processing-disclosure",
+    docId: "DOX-LEGAL-15",
+    title: "Automated Document Processing & AI-Assisted Review Disclosure",
+    summary:
+      "How D.O.X Capital uses AI to assist document review, its limits, and your right to human assistance.",
+    body: `This Disclosure explains how D.O.X Capital uses artificial intelligence and automated processing to assist its services.
+
+## 1. Purpose and tools
+D.O.X Capital uses a third-party large-language-model provider to assist our team with document review, extraction, classification, summarization, drafting, comparison, search, and quality checks within the workspace. The tool is not a human and is identified at the interaction or processing point where appropriate.
+
+## 2. Data inputs and sources
+Inputs are the documents, messages, and deal information you or your authorized representative provide, together with our own records. Do not submit passwords, payment-card data, Social Security numbers, health, biometric, precise-location, child, or other sensitive information unless the workflow expressly requests it and applicable controls and consent are present. Minimize and redact before processing.
+
+## 3. Vendor use, training, and geography
+We instruct our AI provider to process your content only to perform the requested task, and we do not authorize the provider to use your prompts, files, or outputs to train general-purpose models beyond what is necessary to deliver the service; the provider's own terms also apply. We do not promise "no training" or "no human review" beyond what our configuration and contracts support.
+
+## 4. Limitations
+Automated systems may fabricate, omit, misclassify, misunderstand, reproduce bias, or rely on incomplete or outdated information. Performance may vary by language, disability, document quality, or demographic. Output is not authenticated merely because it appears confident or cites a source.
+
+## 5. Human review
+A member of the D.O.X Capital team reviews AI-assisted output before it is used to inform a decision about your engagement; we describe review as occurring only where a trained person actually reviews the relevant input and output. You may request correction or human assistance by contacting deptofx@proton.me.
+
+## 6. No professional advice or sole reliance
+AI output is not legal, tax, accounting, investment, lending, credit, medical, employment, or other professional advice and should not be the sole basis for a consequential decision. Verify material facts and consult qualified professionals. A disclaimer does not cure regulated or discriminatory automated conduct.
+
+## 7. Consequential decisions
+We do not use AI output as the sole automated basis for a decision that produces a legal or similarly significant effect on you — such as credit, employment, housing, insurance, education, healthcare, or benefits — without the role, factors, human decision-maker, correction route, explanation, appeal, and any opt-out or alternative that applicable law requires.
+
+## 8. Profiling and privacy rights
+Where privacy law applies, you may have access, correction, deletion, opt-out, consent-withdrawal, profiling, explanation, or appeal rights, as described in the Privacy Policy and configured by jurisdiction.
+
+## 9. Fairness, testing, and monitoring
+We test and monitor AI-assisted workflows for validity, reliability, security, accessibility, and performance, document their limitations and intended use, and monitor for drift, complaints, overrides, and disparate outcomes. We do not claim the system is "unbiased," "objective," or error-free.
+
+## 10. Manual alternative
+Where AI assistance is optional or where law requires, you may ask that a D.O.X Capital team member handle your matter without AI assistance by contacting deptofx@proton.me. Declining optional AI processing does not cause you to lose unrelated service access.
+
+## 11. Children and teens
+We do not enable child- or teen-facing AI, and we do not design any tool to cultivate emotional dependence or to misrepresent it as a person.
+
+## 12. Security, retention, and incidents
+We apply access control, encryption in transit, vendor review, logging, and incident response appropriate to the risk, and retain prompts, files, outputs, and logs only according to the Data Retention & Deletion Policy, including backup and legal-hold rules. No security control guarantees prevention.
+
+## 13. Point-of-use notice and consent
+Before sending files to an AI vendor where a notice or consent is appropriate, we provide a concise notice identifying the AI role, purpose, major limits, data treatment, and human-review status, obtain separate consent where law or optional processing requires it, and preserve the versioned notice, action, timestamp, and any withdrawal.
+
+## Contact
+For AI, automated-processing, correction, or human-review requests, contact D.O.X Capital at deptofx@proton.me. Do not use a support channel for emergencies.`,
+  },
 ];
 
 export const getLegalDoc = (slug) => LEGAL_DOCS.find((d) => d.slug === slug);
