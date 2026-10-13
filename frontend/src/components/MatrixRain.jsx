@@ -45,10 +45,10 @@ export default function MatrixRain({ className = "" }) {
         const x = i * fontSize;
         const y = drops[i] * fontSize;
         // bright leading glyph
-        ctx.fillStyle = "rgba(255,225,150,0.95)";
+        ctx.fillStyle = "rgba(201,160,255,0.95)";
         ctx.fillText(text, x, y);
-        // trailing glyph, dimmer gold
-        ctx.fillStyle = "rgba(201,151,43,0.55)";
+        // trailing glyph, dimmer purple
+        ctx.fillStyle = "rgba(124,77,196,0.55)";
         ctx.fillText(chars[Math.floor(Math.random() * chars.length)], x, y - fontSize);
         if (y > h && Math.random() > 0.975) drops[i] = Math.random() * -20;
         drops[i] += 1;
