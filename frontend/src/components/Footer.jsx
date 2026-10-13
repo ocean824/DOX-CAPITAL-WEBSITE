@@ -2,9 +2,9 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { LEGAL_DOCS } from "../legal/legalContent";
 
-function AnimatedLetter({ char, to, testid }) {
+function AnimatedLetter({ char, to, testid, label, tilt = -6, onClick }) {
   return (
-    <Link to={to} data-testid={testid} className="inline-block" aria-label={char === "A" ? "Admin" : "Underwriter"}>
+    <Link to={to} data-testid={testid} onClick={onClick} className="inline-block" aria-label={label}>
       <motion.span
         className="font-display text-3xl leading-none inline-block"
         style={{ color: "hsl(var(--gold))" }}
@@ -17,7 +17,7 @@ function AnimatedLetter({ char, to, testid }) {
           ],
         }}
         transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
-        whileHover={{ scale: 1.35, rotate: char === "A" ? -6 : 6, color: "#ffffff" }}
+        whileHover={{ scale: 1.35, rotate: tilt, color: "#ffffff" }}
       >
         {char}
       </motion.span>
@@ -65,8 +65,9 @@ export default function Footer() {
         <div className="md:col-span-2">
           <div className="label-kicker" aria-hidden="true">&nbsp;</div>
           <ul className="mt-4 flex flex-col items-start gap-3 text-sm text-white/70">
-            <li><AnimatedLetter char="A" to="/auth?as=admin" testid="footer-admin-signin" /></li>
-            <li><AnimatedLetter char="U" to="/auth?as=underwriter" testid="footer-underwriter-signin" /></li>
+            <li><AnimatedLetter char="D" to="/auth?as=admin" testid="footer-admin-signin" label="Admin" tilt={-6} /></li>
+            <li><AnimatedLetter char="O" to="/auth?as=underwriter" testid="footer-underwriter-signin" label="Underwriter" tilt={6} /></li>
+            <li><AnimatedLetter char="X" to="/" testid="footer-home-top" label="Back to top" tilt={-6} onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} /></li>
           </ul>
         </div>
         <div className="md:col-span-2">
