@@ -207,6 +207,13 @@ async def require_partner(user: dict = Depends(require_approved)) -> dict:
     raise HTTPException(status_code=403, detail="Partner access required")
 
 
+async def require_referrer(user: dict = Depends(require_approved)) -> dict:
+    """Admin, partner or underwriter — anyone who can refer & manage their own clients."""
+    if user.get("role") == "admin" or user.get("account_type") in ("partner", "underwriter"):
+        return user
+    raise HTTPException(status_code=403, detail="Partner or underwriter access required")
+
+
 # ---------------------------------------------------------------------------
 # Helpers — Email (Resend) with MOCK fallback
 # ---------------------------------------------------------------------------
@@ -523,7 +530,8 @@ async def register(payload: RegisterIn, request: Request, response: Response):
     partner_id = None
     if payload.referral_code:
         ref = await db.users.find_one(
-            {"referral_code": payload.referral_code.strip().upper(), "account_type": "partner"},
+            {"referral_code": payload.referral_code.strip().upper(),
+             "account_type": {"$in": ["partner", "underwriter"]}},
             {"_id": 0, "id": 1},
         )
         if ref:
@@ -1059,13 +1067,19 @@ async def admin_assign_partner(user_id: str, payload: PartnerAssignIn, admin: di
 
 # ---- Partner: my referral code + my assigned client deals ----------------
 @api.get("/partner/me")
-async def partner_me(user: dict = Depends(require_partner)):
+async def partner_me(user: dict = Depends(require_referrer)):
     me = await db.users.find_one({"id": user["id"]}, {"_id": 0, "password_hash": 0})
+    # lazily mint a referral code for approved partners/underwriters that don't have one yet
+    if not me.get("referral_code") and me.get("account_type") in ("partner", "underwriter") \
+            and me.get("status") == "approved":
+        code = f"DOX{secrets.token_hex(3).upper()}"
+        await db.users.update_one({"id": user["id"]}, {"$set": {"referral_code": code}})
+        me["referral_code"] = code
     return {"referral_code": me.get("referral_code"), "name": me.get("name"), "email": me.get("email")}
 
 
 @api.get("/partner/clients")
-async def partner_clients(user: dict = Depends(require_partner)):
+async def partner_clients(user: dict = Depends(require_referrer)):
     q = {"account_type": "client", "status": "approved"}
     if user.get("role") != "admin":
         q["partner_id"] = user["id"]
@@ -1609,8 +1623,8 @@ async def admin_approve(user_id: str, admin: dict = Depends(require_admin)):
         raise HTTPException(status_code=404, detail="User not found")
     await db.users.update_one({"id": user_id}, {"$set": {"status": "approved",
                                                           "approved_at": datetime.now(timezone.utc).isoformat()}})
-    # partners get a referral code on approval so they can invite clients
-    if user.get("account_type") == "partner" and not user.get("referral_code"):
+    # partners & underwriters get a referral code on approval so they can invite clients
+    if user.get("account_type") in ("partner", "underwriter") and not user.get("referral_code"):
         code = f"DOX{secrets.token_hex(3).upper()}"
         await db.users.update_one({"id": user_id}, {"$set": {"referral_code": code}})
     # give partners/underwriters their <handle>@thedoxs.com inbox on approval
