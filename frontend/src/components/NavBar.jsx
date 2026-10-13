@@ -21,11 +21,13 @@ export default function NavBar() {
         </Link>
         <nav className="hidden lg:flex items-center gap-8"></nav>
         <div className="flex items-center gap-2">
-          <Link to="/book">
-            <Button data-testid="nav-book-call" variant="outline" className="rounded-none border-white/20 hover:bg-white hover:text-black">
-              Book Discovery Call
-            </Button>
-          </Link>
+          {!(user && user !== false) && (
+            <Link to="/book">
+              <Button data-testid="nav-book-call" variant="outline" className="rounded-none border-white/20 hover:bg-white hover:text-black">
+                Book Discovery Call
+              </Button>
+            </Link>
+          )}
           {user && user !== false ? (
             <>
               {(user.role === "admin" || (user.status === "approved" && user.account_type === "partner")) && (
