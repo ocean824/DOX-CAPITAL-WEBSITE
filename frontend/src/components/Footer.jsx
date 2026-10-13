@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { LEGAL_DOCS } from "../legal/legalContent";
+import MatrixRain from "./MatrixRain";
 
 function AnimatedLetter({ char, to, testid, label, tilt = -6, onClick }) {
   return (
@@ -27,8 +28,9 @@ function AnimatedLetter({ char, to, testid, label, tilt = -6, onClick }) {
 
 export default function Footer() {
   return (
-    <footer data-testid="site-footer" className="border-t border-white/10 mt-32">
-      <div className="mx-auto max-w-7xl px-6 lg:px-12 py-16 grid md:grid-cols-12 gap-10">
+    <footer data-testid="site-footer" className="relative overflow-hidden border-t border-white/10 mt-32">
+      <MatrixRain className="absolute inset-0 w-full h-full opacity-25 pointer-events-none" />
+      <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-12 py-16 grid md:grid-cols-12 gap-10">
         <div className="md:col-span-4">
           <div className="font-display text-3xl">D.O.X Capital</div>
           <p className="text-white/60 text-sm mt-3 max-w-sm">
@@ -79,7 +81,7 @@ export default function Footer() {
           </p>
         </div>
       </div>
-      <div className="border-t border-white/10 py-6 text-center text-xs text-white/40">
+      <div className="relative z-10 border-t border-white/10 py-6 text-center text-xs text-white/40">
         © {new Date().getFullYear()} D.O.X Capital — All rights reserved.
       </div>
     </footer>
