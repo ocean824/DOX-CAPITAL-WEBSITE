@@ -71,6 +71,7 @@ class TransactionIn(Model):
     title: str = Field(min_length=3,max_length=160)
     location: str = Field(default='',max_length=160)
     value: float = Field(ge=0,le=10000000000)
+    amount_needed: float = Field(default=0,ge=0,le=10000000000)
     deal_type: str = Field(default='Underwriting',min_length=2,max_length=60)
     stage_id: str = 'lead'
     counterparty_id: Optional[str] = None
