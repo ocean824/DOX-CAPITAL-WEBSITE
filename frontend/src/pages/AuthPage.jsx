@@ -182,18 +182,6 @@ export default function AuthPage() {
                 {copy.bullets.map((b) => <Row key={b} icon={ShieldCheck} text={b} />)}
               </div>
               <p className="text-xs text-white/35 mt-10">{copy.footnote}</p>
-              {audience === "partner" && (
-                <div className="mt-6 space-y-2">
-                  <button data-testid="admin-access-link" onClick={() => switchAudience("admin")}
-                    className="block text-xs text-white/40 hover:text-[hsl(var(--gold))] underline underline-offset-4">
-                    Administrator sign in
-                  </button>
-                  <button data-testid="underwriter-access-link" onClick={() => switchAudience("underwriter")}
-                    className="block text-xs text-white/40 hover:text-[hsl(var(--gold))] underline underline-offset-4">
-                    Underwriter sign in
-                  </button>
-                </div>
-              )}
               {(audience === "admin" || audience === "underwriter") && (
                 <button data-testid="back-to-partner-link" onClick={() => switchAudience("partner")}
                   className="mt-6 block text-xs text-white/40 hover:text-white underline underline-offset-4">
