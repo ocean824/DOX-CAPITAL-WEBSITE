@@ -83,6 +83,8 @@ export default function Footer() {
       </div>
       <div className="relative z-10 border-t border-white/10 py-6 text-center text-xs text-white/40">
         © {new Date().getFullYear()} D.O.X Capital — All rights reserved.
+        <span className="mx-2 text-white/20">·</span>
+        <span data-testid="powered-by">Powered by ZAVREX OS</span>
       </div>
     </footer>
   );
