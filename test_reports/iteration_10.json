@@ -1,0 +1,36 @@
+{
+  "summary": "Verified DashboardPage changes for client portal on web: (1) 'Investor Suitability Questionnaire' is removed from Sign Documents tab (backend /api/documents returns only nda/engagement/kyc; frontend grid additionally filters /investor|questionnaire/i as a belt-and-suspenders), (2) Upload Documents tab now exposes a per-row delete control alongside download. All 5 backend pytest cases pass (documents sanity, upload+delete+persist, 404 on unknown id, cross-user 403, owner download) and the full web UI flow (login → sign tab → upload → delete → page reload → sign tab recheck) passes.",
+  "platforms_tested": ["web"],
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "web": {
+      "ui_bugs": [],
+      "integration_issues": [],
+      "design_issues": []
+    }
+  },
+  "parity_issues": [],
+  "test_report_links": [
+    "/app/backend/tests/test_dashboard_docs_uploads.py",
+    "/app/test_reports/pytest/dashboard_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "DashboardPage.jsx:35 — api.delete('/uploads/'+id) is correct; UI deleting state (deletingId) prevents double-click. Good.",
+    "DashboardPage.jsx:272 — client-side belt-and-suspenders filter on /investor|questionnaire/i works even if an admin later re-adds an investor doc via db.sign_documents. If that is intentional defence-in-depth it is fine; otherwise consider dropping the server-side DEFAULT_SIGN_DOCS fallback semantics (currently if any sign_documents row exists it REPLACES the default list — a single stray investor row in Mongo would still be filtered out thanks to the client filter).",
+    "server.py:1559 DELETE /api/uploads/{id} — soft-delete only (sets is_deleted=True). Storage object is NOT deleted. This is fine for audit, but worth noting that disk/object-store usage will grow unbounded. Consider a background cleanup task for is_deleted=True older than N days.",
+    "server.py:1526 /uploads/mine filters is_deleted=False — matches delete semantics. Good.",
+    "server.py:1559 DELETE allows soft-deleting an already-soft-deleted file: find_one filter is {is_deleted: False} so a second DELETE returns 404 — consistent."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_dashboard_docs_uploads.py (new)",
+    "/app/test_reports/pytest/dashboard_results.xml (generated)"
+  ],
+  "success_rate": {"backend": "100% (5/5)", "frontend": "100% (all UI checks pass)"},
+  "test_credentials": "client@thedoxs.com / DoxClient!2026 (approved client, used for both backend and web tests)",
+  "seed_data_creation": "None persisted — every uploaded TEST file is deleted (soft) by the tests before they exit.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Backend regression suite for Dashboard docs/uploads lives at /app/backend/tests/test_dashboard_docs_uploads.py (run: pytest backend/tests/test_dashboard_docs_uploads.py). It uses client@thedoxs.com for the primary account and notrack_1791832437@doxs.dev for the cross-user 403 check. The /api/uploads POST response shape is {ok, id, filename} (not full doc) — tests account for this. The web auth form's submit button is not type=submit; use get_by_role('button', name='Sign In') or match by text. upload-input is a hidden file input — call set_input_files directly (do NOT wait_for_selector visible; use state='attached').",
+  "rca of the issue": "N/A — no bugs found."
+}

@@ -15,7 +15,7 @@ import { PhasePill } from "../lib/deal";
 import { toast } from "sonner";
 import {
   UploadCloud, FileText, Download, ExternalLink, Clock,
-  CheckCircle2, FileSignature, ShieldAlert, LayoutGrid,
+  CheckCircle2, FileSignature, ShieldAlert, LayoutGrid, Trash2,
 } from "lucide-react";
 
 export default function DashboardPage() {
@@ -27,6 +27,20 @@ export default function DashboardPage() {
   const fileRef = useRef(null);
   const [uploading, setUploading] = useState(false);
   const [pickedName, setPickedName] = useState("");
+  const [deletingId, setDeletingId] = useState(null);
+
+  const onDelete = async (id) => {
+    setDeletingId(id);
+    try {
+      await api.delete(`/uploads/${id}`);
+      await refreshUploads();
+      toast.success("Document deleted");
+    } catch (err) {
+      toast.error(formatApiError(err.response?.data?.detail) || err.message);
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   const refreshUploads = useCallback(async () => {
     try {
@@ -220,6 +234,7 @@ export default function DashboardPage() {
                               </div>
                             </div>
                           </div>
+                          <div className="flex items-center gap-4 shrink-0">
                           <a
                             href={`/api/uploads/${u.id}/download`}
                             target="_blank" rel="noreferrer"
@@ -228,6 +243,16 @@ export default function DashboardPage() {
                           >
                             <Download className="h-3 w-3" /> download
                           </a>
+                          <button
+                            type="button"
+                            onClick={() => onDelete(u.id)}
+                            disabled={deletingId === u.id}
+                            data-testid={`delete-${u.id}`}
+                            className="text-xs text-white/50 hover:text-red-400 inline-flex items-center gap-1 disabled:opacity-40"
+                          >
+                            <Trash2 className="h-3 w-3" /> {deletingId === u.id ? "deleting…" : "delete"}
+                          </button>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -244,7 +269,7 @@ export default function DashboardPage() {
                   </p>
 
                   <div className="mt-8 grid sm:grid-cols-2 gap-px bg-white/10">
-                    {signDocs.map((d) => (
+                    {signDocs.filter((d) => !/investor|questionnaire/i.test(`${d.title} ${d.id}`)).map((d) => (
                       <a key={d.id}
                          href={d.external_url}
                          target="_blank" rel="noreferrer"

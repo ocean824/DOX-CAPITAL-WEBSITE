@@ -700,13 +700,6 @@ DEFAULT_SIGN_DOCS = [
         "external_url": "https://www.docusign.com",
         "required": True,
     },
-    {
-        "id": "ppm",
-        "title": "Investor Suitability Questionnaire",
-        "description": "Accredited / institutional investor self-certification.",
-        "external_url": "https://www.docusign.com",
-        "required": False,
-    },
 ]
 
 
@@ -1561,6 +1554,17 @@ async def download_upload(
     data, ct = get_object(doc["storage_path"])
     headers = {"Content-Disposition": f'attachment; filename="{doc["original_filename"]}"'}
     return StreamingResponse(io.BytesIO(data), media_type=doc.get("content_type", ct), headers=headers)
+
+
+@api.delete("/uploads/{upload_id}")
+async def delete_upload(upload_id: str, user: dict = Depends(require_approved)):
+    doc = await db.uploads.find_one({"id": upload_id, "is_deleted": False}, {"_id": 0})
+    if not doc:
+        raise HTTPException(status_code=404, detail="File not found")
+    if user.get("role") != "admin" and doc["user_id"] != user["id"]:
+        raise HTTPException(status_code=403, detail="Not allowed")
+    await db.uploads.update_one({"id": upload_id}, {"$set": {"is_deleted": True}})
+    return {"ok": True}
 
 
 # ---- Admin ---------------------------------------------------------------

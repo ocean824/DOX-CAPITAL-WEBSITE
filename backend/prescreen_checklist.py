@@ -136,6 +136,7 @@ SECTIONS: List[Dict[str, Any]] = [
 # Key numbers the client enters; the red-flag gates below calculate from them.
 METRICS: List[Dict[str, Any]] = [
     {"id": "loan_amount", "label": "Total loan amount requested", "type": "currency", "track": "all"},
+    {"id": "total_project_capex", "label": "Total project CapEx", "type": "currency", "track": "all"},
     {"id": "collateral_value", "label": "Total collateral value", "type": "currency", "track": "all"},
     {"id": "equity_pct", "label": "Equity / down payment available", "type": "percent", "track": "all"},
     {"id": "contingency_pct", "label": "Contingency allocation in the construction budget", "type": "percent", "track": "pre_revenue"},
