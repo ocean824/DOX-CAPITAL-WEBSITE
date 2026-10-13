@@ -483,6 +483,202 @@ D.O.X Capital's description of a membership arrangement does not create a genera
 ## Contact
 For questions about the scope of consulting information, contact D.O.X Capital at deptofx@proton.me. Do not use a support channel for emergencies.`,
   },
+  {
+    slug: "financial-disclaimer",
+    docId: "DOX-LEGAL-08",
+    title: "Financial, Securities & Tax Disclaimer; No Guarantee",
+    summary:
+      "D.O.X Capital provides business consulting only, and guarantees no funding, credit, tax, or investment result.",
+    body: `This Disclaimer applies wherever D.O.X Capital discusses institutional funding, lenders, capital, financial narratives, credit, entity structuring, taxes, securities, projections, or economic results.
+
+## 1. Consulting boundary
+Unless verified licenses and a signed engagement state otherwise, D.O.X Capital provides business consulting only. It is not acting as a bank, lender, loan broker, mortgage broker, securities broker-dealer, placement agent, investment adviser, municipal adviser, tax adviser, accountant, credit-repair organization, debt-relief provider, insurance producer, or fiduciary.
+
+## 2. No offer or solicitation
+Website material and general communications are not an offer to make a loan, sell or buy a security, arrange a securities transaction, provide an investment advisory service, or solicit an investment. Any lawful transaction must be offered by an appropriately authorized party under separate documents and required disclosures.
+
+## 3. No funding or approval guarantee
+D.O.X Capital does not guarantee eligibility, introduction, underwriting, approval, closing, funding amount, interest rate, term, covenant, credit outcome, investor interest, valuation, tax result, or business performance. Lenders, investors, agencies, and other third parties apply independent criteria, may request more information, may change terms, and may decline for reasons outside our control.
+
+## 4. Projections, examples, testimonials, and calculators
+Projections, scenarios, examples, illustrations, testimonials, and calculator outputs are not promises and may rely on assumptions that do not occur. Where used, we identify assumptions, source dates, ranges, fees, and whether a result is typical. Endorsements reflect genuine experience, disclose material connections, and do not convey an unsubstantiated performance claim.
+
+## 5. Credit and financial profile
+Submitting information or following organizational suggestions does not guarantee credit improvement or lender treatment. Do not dispute accurate credit information, create false tradelines, manipulate records, misstate ownership or revenue, or submit a misleading financial narrative. You are responsible for accurate applications and for complying with lender and agency requirements.
+
+## 6. Independent diligence
+Before borrowing, investing, issuing securities, restructuring, taking a tax position, or making a material financial decision, review the transaction with qualified legal, tax, accounting, and financial professionals. Consider total cost, collateral, guarantees, covenants, dilution, default, tax consequences, liquidity, suitability, conflicts, and alternatives. Verify every third-party representation directly.
+
+## 7. Lenders and referral parties
+A lender or capital source is independent unless a verified written agreement says otherwise. An introduction does not mean the third party endorses D.O.X Capital or that D.O.X Capital can bind it. We disclose any referral fee, revenue share, lead fee, or other material conflict before you rely on the recommendation. We do not call a relationship a "partner" where that would imply an inaccurate affiliation.
+
+## 8. Tax and accounting
+Entity formation or restructuring can have legal and tax consequences that vary by jurisdiction and facts. D.O.X Capital does not guarantee tax savings, deductibility, liability protection, filing status, audit treatment, or compliance. General discussions do not replace advice from a qualified tax professional or accountant who reviews complete records.
+
+## 9. Securities and investment information
+No content should be used as a recommendation to buy, sell, hold, or value a security or as personalized investment advice. Past performance is not a guarantee, and forward-looking statements are uncertain.
+
+## 10. No fiduciary or custody relationship
+Unless an applicable signed and lawful engagement expressly provides otherwise, D.O.X Capital does not undertake a fiduciary duty, manage an account, hold client funds, or accept authority to transact. Payment for consulting is not an investment deposit and is processed only through the disclosed merchant.
+
+## 11. Membership and nonwaivable law
+D.O.X Capital's description of a membership arrangement does not create a general exemption from consumer-protection, privacy, accessibility, licensing, tax, advertising, anti-discrimination, criminal, or other applicable law. Nothing in this document excludes, restricts, or modifies a right or remedy that applicable law does not permit the parties to modify.
+
+## Contact
+For financial, funding, securities, or tax scope questions, contact D.O.X Capital at deptofx@proton.me. Do not use a support channel for emergencies.`,
+  },
+  {
+    slug: "document-upload-notice",
+    docId: "DOX-LEGAL-09",
+    title: "Document Upload & Processing Notice",
+    summary:
+      "The terms that apply when you submit documents or files to D.O.X Capital for review or processing.",
+    body: `This Notice explains the terms that apply when you submit a file or its contents to D.O.X Capital through a covered upload feature. "Upload" means any document, image, spreadsheet, statement, form, attachment, extracted text, metadata, or other information you provide through a covered upload channel.
+
+## 1. Purpose and scope
+This Notice supplements the Privacy Policy, Terms of Service, and any service agreement or intake disclosure that applies to the relevant interaction. If a service-specific instruction sets a narrower permitted use than this Notice, the narrower instruction controls for that upload. Nothing in this Notice authorizes a use of personal information that applicable law prohibits.
+
+## 2. When to use the upload feature
+You may use a covered upload feature only for the purpose described next to that feature and only when the requested document is reasonably necessary for that purpose. Permitted file types are PDF, DOCX, JPG, PNG, or TXT, up to 20 MB per file. Submit only the pages, fields, and supporting material that the request calls for. Do not use the feature as general storage, a way to send unsolicited records, or a substitute for an emergency, regulatory, legal-service, health-care, or financial-institution channel. An upload does not by itself create a professional, fiduciary, lender-borrower, broker, attorney-client, accountant-client, employment, or other relationship.
+
+## 3. Your authority to upload
+You may upload a file only if you have the legal right and authority to provide it for the stated purpose. By submitting a file, you represent that:
+
+- the file is yours, or you are authorized by the owner and by each affected person to provide it;
+- the submission does not violate a contract, confidentiality duty, court order, intellectual-property right, privacy right, or other third-party right;
+- any consent, notice, or authorization required for information about another person has been validly obtained;
+- the file is not knowingly false, altered to mislead, unlawfully obtained, or submitted for a fraudulent or abusive purpose; and
+- you have reviewed the file for information that is unnecessary for the stated purpose.
+
+If you no longer have authority to provide a file, notify deptofx@proton.me promptly.
+
+## 4. Do not upload prohibited or unnecessary information
+Unless the upload request expressly identifies a category as required, do not submit highly sensitive, regulated, or unrelated information, including: full Social Security, tax-identification, passport, or driver's-license numbers; complete payment-card or bank-account credentials, passwords, authentication codes, or private keys; medical, genetic, biometric, or health-insurance information; precise geolocation or information about sexual life, religious or political beliefs, union membership, immigration status, or racial or ethnic origin; criminal-history, child-custody, or background-check records; information subject to a protective order, litigation hold, privilege, or nondisclosure duty; information about a minor; trade secrets or third-party files you are not authorized to disclose; or any data not relevant to the specific request shown at the upload point. Do not upload illegal content, malicious code, or material that infringes, defames, harasses, threatens, impersonates, or facilitates fraud.
+
+## 5. Review and redact before submitting
+Open the final file and confirm it is the version you intend to submit. Where the requested purpose does not require a field, redact or remove it before uploading. Visual black boxes are not always permanent redactions — some formats retain selectable text, prior versions, comments, properties, or metadata. Use a reliable redaction method, verify the resulting file, and keep an unmodified copy for your own records.
+
+## 6. Purposes and limits on use
+We process uploads to receive a requested document, verify completeness, extract requested fields, communicate about the request, provide the contracted service, maintain security, detect misuse, comply with a valid legal obligation, or resolve a dispute. An upload is not used for an unrelated purpose merely because the file is technically accessible. We separately evaluate and disclose, and obtain any required consent for, any proposed use for marketing, product development, model training, profiling, eligibility scoring, or a consequential decision. D.O.X Capital does not promise that an upload will be accepted, complete a request, establish identity, prove eligibility, or produce any financing, credit, legal, tax, or other result.
+
+## 7. Service providers and processing
+Uploads may be received or accessed by service providers that perform hosting, security, document management, communications, or professional functions, limited to a lawful and relevant purpose and described in the Privacy Policy where required. Any disclosure to an adviser, auditor, insurer, transaction counterparty, regulator, or court is limited to a lawful and relevant purpose.
+
+## 8. Security, transmission, and malware validation
+We use administrative, technical, and physical safeguards appropriate to the upload workflow. No transmission method, storage system, or security program eliminates all risk; do not upload a document if you are unwilling to accept the residual risk of electronic transmission and processing. We may validate file type, size, and structure and scan files for malware, and may reject, quarantine, restrict, or remove a file when reasonably necessary to protect systems, users, or legal obligations. Use a supported format and do not submit executable files, password-protected archives, macros, scripts, or links the workflow did not request, or attempt to probe, overload, or disable upload safeguards.
+
+## 9. Automated tools and AI-assisted review
+Files may be opened, viewed, organized, transcribed, extracted, compared, or otherwise processed only as disclosed for the workflow, and human access is limited by role and purpose. Where AI-assisted review is used, uploaded content may be processed by an automated system as described in the Automated Document Processing & AI-Assisted Review Disclosure. AI or automated extraction may omit, misread, invent, misclassify, or misinterpret information, especially in low-quality, handwritten, complex, or multilingual files; it is not accurate, complete, or suitable for sole reliance, and no uploaded file is used for an undisclosed consequential decision.
+
+## 10. Correcting, replacing, or withdrawing an upload
+If you submitted the wrong file or discover an error, contact deptofx@proton.me and identify the relevant request without sending additional sensitive information in the initial message. You may ask to withdraw an upload or revoke consent where applicable by contacting deptofx@proton.me. Withdrawal ordinarily applies prospectively and may not require us or another recipient to undo processing that was lawful before withdrawal, and may be limited by contractual necessity, recordkeeping duties, fraud prevention, security needs, legal claims, a valid legal hold, or another person's rights.
+
+## 11. Retention, deletion, backups, and legal holds
+We keep upload information only for as long as reasonably necessary for the disclosed purpose and applicable obligations, as described in the Data Retention & Deletion Policy. A deletion request or account closure does not necessarily result in immediate or complete erasure from every system; residual copies may remain temporarily in backups, disaster-recovery systems, or security logs, or may be preserved when required by law, court order, dispute, investigation, or a valid legal hold.
+
+## 12. Keep your own copy
+Unless a service agreement expressly says otherwise, the upload feature is not a records repository, document vault, or backup service. Keep the original or another readable copy, along with any proof of submission the interface provides. A technical confirmation means only that the system recorded the event; it does not establish that the file is accurate, sufficient, accepted for a service, reviewed by a person, or delivered to a third party.
+
+## 13. Third-party rights
+When a file contains another person's information, consider that person's rights before submitting it, and provide any legally required notice and obtain any legally required consent. A person whose information appears in an upload may contact deptofx@proton.me to ask about applicable rights. Nothing in this Notice limits lawful fair use, protected reporting, whistleblowing, or another nonwaivable right.
+
+## 14. Point-of-upload acknowledgment
+Before submission, each covered feature displays a short, purpose-specific notice identifying the requested categories, the purpose, any sensitive-data or third-party-data implications, the AI status, and links to this Notice and the Privacy Policy, and requires an affirmative acknowledgment separate from acceptance of general terms and from marketing or other unrelated consents.
+
+## 15. Changes to this Notice
+We may revise this Notice to reflect changes in law, services, vendors, or processing. No revision retroactively authorizes processing that was unlawful when performed, and this Notice does not limit any right or remedy that cannot be waived under applicable law.
+
+## Contact
+Questions about an upload, privacy of an upload, or a security concern may be directed to D.O.X Capital at deptofx@proton.me. Do not use a support channel for emergencies.`,
+  },
+  {
+    slug: "cookie-policy",
+    docId: "DOX-LEGAL-10",
+    title: "Cookie & Tracking Technologies Policy",
+    summary:
+      "The cookies and similar technologies used on thedoxs.com and how you can control them.",
+    body: `This Policy explains the technologies used by D.O.X Capital on https://www.thedoxs.com and how you can manage them.
+
+## 1. Scope and definitions
+A cookie is a small browser file; similar technologies include local or session storage, pixels, SDKs, device identifiers, fingerprinting signals, tags, and server-side event matching. A detailed inventory of the technologies in use is available in our cookie preference center.
+
+## 2. Strictly necessary
+Necessary technologies support security, authentication, fraud prevention, load balancing, network management, form progress, and consent storage, and other functions you request. They are not padded with analytics or advertising functions. The inventory identifies each technology's name, provider, purpose, duration, and first- or third-party status.
+
+## 3. Functional
+Functional technologies remember optional preferences or enable convenience features such as language, scheduling, media, or chat. In jurisdictions requiring consent, they remain disabled until accepted unless they are necessary for a feature you affirmatively request.
+
+## 4. Analytics
+Analytics technologies may measure visits, device and browser characteristics, page interactions, errors, and aggregated performance. We do not describe analytics as anonymous unless configuration and vendor terms make that accurate. Session replay and keystroke capture are prohibited on password, payment, upload, chat, and other sensitive fields.
+
+## 5. Advertising and social media
+Advertising, cross-context behavioral, conversion, lookalike-audience, and social-media technologies are not deployed without the jurisdiction-specific consent or opt-out flow, vendor contracts, sale/share analysis, and disclosure. A cookie banner is not by itself a consumer privacy-request system.
+
+## 6. Email and communication tracking
+Messages may use pixels or tracked links only as disclosed, and we offer the applicable opt-out. Transactional communications are not conditioned on optional marketing tracking, and we honor unsubscribe and consent withdrawal without disabling required account notices.
+
+## 7. Consent and choice
+In opt-in jurisdictions, nonessential technologies stay off until you act. The first layer presents equally prominent "Accept all," "Reject nonessential," and "Manage choices" controls, without prechecked boxes. In opt-out jurisdictions, we provide the legally required notice and controls, and an unknown region uses the more protective configured mode.
+
+## 8. Withdrawal and preference center
+You may revisit the cookie preference center to change your choices as easily as you accepted them. Withdrawal prevents future nonessential use and triggers vendor propagation where required; it may not remove data already processed lawfully. We preserve a minimal consent record with version, categories, vendors, jurisdiction rule, signal, timestamp, and withdrawal.
+
+## 9. Global Privacy Control and universal signals
+Where applicable law requires it, D.O.X Capital recognizes a legally valid browser or device universal opt-out mechanism such as Global Privacy Control and applies it to sale, sharing, or targeted-advertising processing within the signal's required scope. We do not demand identity verification for a device-level signal when law prohibits it.
+
+## 10. Browser and device controls
+Browsers and devices may block or delete cookies, but generic browser settings may not express every legal opt-out, and blocking necessary technologies may affect authentication or requested features. Browser settings are not the sole choice where a law requires an in-site control.
+
+## 11. Third parties and retention
+Providers are listed in the cookie preference center with links to relevant information. Their independent processing may be governed by their policies, while our selection and configuration responsibilities remain. Retention durations match the inventory and internal schedule; we avoid default indefinite durations.
+
+## 12. Changes and reconciliation
+We update this Policy when technologies or purposes materially change and request renewed consent where required. Automated tag scans, browser storage inspection, and network traces are reconciled against the inventory before each release.
+
+## Contact
+For cookie, tracking, or preference questions, contact D.O.X Capital at deptofx@proton.me. Do not use a support channel for emergencies.`,
+  },
+  {
+    slug: "accessibility-statement",
+    docId: "DOX-LEGAL-11",
+    title: "Accessibility Statement",
+    summary:
+      "Our commitment to accessible digital experiences and how to request assistance.",
+    body: `This Statement applies to the D.O.X Capital public website and digital service surfaces.
+
+## 1. Commitment
+D.O.X Capital is committed to providing meaningful access to its website, information, communications, and services for people with disabilities. Accessibility is an ongoing process involving design, development, content, procurement, testing, support, and remediation.
+
+## 2. Engineering target
+We use the Web Content Accessibility Guidelines (WCAG) 2.2 Level AA as an engineering target. This is a target and does not represent that WCAG 2.2 AA is the universal statutory standard for every private business or that every page is error-free or fully accessible. Applicable legal obligations depend on the entity, service, jurisdiction, and public access.
+
+## 3. Scope
+The accessibility program covers public pages, navigation, registration, authentication, applications, membership, checkout, scheduling, forms, uploads, privacy choices, cancellation, legal pages, emails, downloadable files, and supported third-party tools.
+
+## 4. Measures
+Measures include semantic structure, keyboard operation, visible focus, meaningful names and labels, error identification, color contrast, reflow and zoom, reduced-motion support, captions or transcripts where appropriate, accessible documents, and review of third-party components. Automated checks supplement rather than replace manual keyboard and assistive-technology testing.
+
+## 5. Known limitations
+Some content may have known limitations. For each, we maintain an owner, user impact, workaround, target date, and retest evidence, and we will not hide a critical barrier behind a generic statement. A barrier that prevents an essential flow should block launch until repaired or an effective equivalent route exists.
+
+## 6. Third-party content and PDFs
+Some third-party tools or legacy documents may be outside our direct control, but we evaluate them and seek accessible alternatives or remediation. HTML remains the primary accessible form for legal notices. PDFs should include tagged headings, lists, language, logical reading order, bookmarks, links, embedded fonts, and meaningful descriptions where applicable.
+
+## 7. Requesting assistance
+If you encounter a barrier or need information, a service, or an accommodation in an alternative format, contact deptofx@proton.me. Describe the page or process, the barrier, the format or assistance requested, and the assistive technology if you choose. Do not send passwords or unnecessary sensitive information.
+
+## 8. Response and effective communication
+We aim to acknowledge requests within five (5) business days and will work to provide effective communication or a reasonable alternative. Timing depends on urgency and complexity. Available alternatives may include telephone assistance, accessible documents, captions, interpreter coordination, alternate scheduling or payment routes, or human assistance. This is a process commitment, not a guarantee that every request can be met exactly as proposed.
+
+## 9. Privacy and non-retaliation
+Accessibility-request information is used to evaluate and fulfill the request, improve accessibility, document compliance, and address disputes, under the Privacy Policy and retention schedule. D.O.X Capital will not retaliate or discriminate against a person for requesting an accommodation or reporting a barrier.
+
+## 10. Feedback and escalation
+Unresolved accessibility concerns may be escalated by contacting deptofx@proton.me. We track the report, severity, reproduction steps, platform, owner, workaround, resolution date, and retest, and update this Statement when the scope, contacts, standards target, or significant limitations change.
+
+## Contact
+For accessibility feedback or accommodation requests, contact D.O.X Capital at deptofx@proton.me. Do not use a support channel for emergencies.`,
+  },
 ];
 
 export const getLegalDoc = (slug) => LEGAL_DOCS.find((d) => d.slug === slug);
