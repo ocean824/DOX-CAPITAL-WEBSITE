@@ -10,7 +10,7 @@ import { DealThread } from "../components/DealThread";
 import { PhasePill, PHASE_LABELS } from "../lib/deal";
 import { toast } from "sonner";
 import {
-  ChevronDown, ChevronRight, CheckCircle2, AlertTriangle, Download, MessageSquare, CalendarClock, Copy, Users,
+  ChevronDown, ChevronRight, CheckCircle2, AlertTriangle, Download, MessageSquare, CalendarClock, Copy, Users, Eye,
 } from "lucide-react";
 
 const STATUS_OPTIONS = [
@@ -226,21 +226,30 @@ export default function UnderwriterPage() {
                                             </a>
                                           ))}
                                         </div>
-                                        <div className="relative shrink-0">
-                                          <Button data-testid={`uw-cycle-${r.user.id}-${i.id}`} variant="outline" onClick={() => setMenu(menu === `${r.user.id}-${i.id}` ? "" : `${r.user.id}-${i.id}`)}
-                                            className={`rounded-none bg-transparent h-7 px-3 text-[10px] tracking-widest uppercase ${CHIP[i.status]}`}>
-                                            {i.status} <ChevronDown className="h-3 w-3 ml-1 opacity-60" />
-                                          </Button>
-                                          {menu === `${r.user.id}-${i.id}` && (
-                                            <div className="absolute right-0 mt-1 z-20 bg-[#0d0d12] border border-white/15 min-w-[150px] py-1 shadow-xl">
-                                              {STATUS_OPTIONS.map((s) => (
-                                                <button key={s.key} data-testid={`uw-status-${r.user.id}-${i.id}-${s.key}`} onClick={() => setItemStatus(r.user.id, i, s.key)}
-                                                  className={`w-full text-left px-3 py-2 text-[10px] tracking-widest uppercase hover:bg-white/5 ${i.status === s.key ? "text-white" : "text-white/50"}`}>
-                                                  {s.label}
-                                                </button>
-                                              ))}
-                                            </div>
+                                        <div className="flex items-center gap-2 shrink-0">
+                                          {i.uploads?.length > 0 && (
+                                            <button data-testid={`uw-preview-${r.user.id}-${i.id}`} title="Preview document"
+                                              onClick={() => window.open(`/api/uploads/${i.uploads[0].id}/download?inline=1`, "_blank", "noopener")}
+                                              className="h-7 w-7 inline-flex items-center justify-center border border-white/15 text-white/50 hover:text-[hsl(var(--gold))] hover:border-[hsl(var(--gold))]/40">
+                                              <Eye className="h-3.5 w-3.5" />
+                                            </button>
                                           )}
+                                          <div className="relative">
+                                            <Button data-testid={`uw-cycle-${r.user.id}-${i.id}`} variant="outline" onClick={() => setMenu(menu === `${r.user.id}-${i.id}` ? "" : `${r.user.id}-${i.id}`)}
+                                              className={`rounded-none bg-transparent h-7 px-3 text-[10px] tracking-widest uppercase ${CHIP[i.status]}`}>
+                                              {i.status} <ChevronDown className="h-3 w-3 ml-1 opacity-60" />
+                                            </Button>
+                                            {menu === `${r.user.id}-${i.id}` && (
+                                              <div className="absolute right-0 mt-1 z-20 bg-[#0d0d12] border border-white/15 min-w-[150px] py-1 shadow-xl">
+                                                {STATUS_OPTIONS.map((s) => (
+                                                  <button key={s.key} data-testid={`uw-status-${r.user.id}-${i.id}-${s.key}`} onClick={() => setItemStatus(r.user.id, i, s.key)}
+                                                    className={`w-full text-left px-3 py-2 text-[10px] tracking-widest uppercase hover:bg-white/5 ${i.status === s.key ? "text-white" : "text-white/50"}`}>
+                                                    {s.label}
+                                                  </button>
+                                                ))}
+                                              </div>
+                                            )}
+                                          </div>
                                         </div>
                                       </div>
                                     ))}

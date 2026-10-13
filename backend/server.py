@@ -1574,6 +1574,7 @@ async def download_upload(
     upload_id: str,
     request: Request,
     auth: Optional[str] = Query(default=None),
+    inline: Optional[str] = Query(default=None),
 ):
     # auth: cookie OR bearer header OR ?auth= query
     token = _extract_token(request) or auth
@@ -1595,7 +1596,8 @@ async def download_upload(
         # admin & underwriters may open any deal's files; partners may open their referred clients' files
         await _require_deal_access(requester, doc["user_id"])
     data, ct = get_object(doc["storage_path"])
-    headers = {"Content-Disposition": f'attachment; filename="{doc["original_filename"]}"'}
+    disposition = "inline" if inline else "attachment"
+    headers = {"Content-Disposition": f'{disposition}; filename="{doc["original_filename"]}"'}
     return StreamingResponse(io.BytesIO(data), media_type=doc.get("content_type", ct), headers=headers)
 
 
