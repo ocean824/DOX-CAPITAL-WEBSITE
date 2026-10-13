@@ -1494,7 +1494,7 @@ async def assistant_history(session_id: str, user: dict = Depends(require_underw
 
 
 # ---- Uploads (user docs) -------------------------------------------------
-MAX_UPLOAD_BYTES = 25 * 1024 * 1024  # 25MB
+MAX_UPLOAD_BYTES = 200 * 1024 * 1024  # 200MB
 
 
 @api.post("/uploads")
@@ -1507,7 +1507,7 @@ async def upload_doc(
     if not data:
         raise HTTPException(status_code=400, detail="Empty file")
     if len(data) > MAX_UPLOAD_BYTES:
-        raise HTTPException(status_code=413, detail="File exceeds 25MB limit")
+        raise HTTPException(status_code=413, detail="File exceeds 200MB limit")
     ext = (file.filename or "bin").rsplit(".", 1)[-1].lower()
     safe_id = str(uuid.uuid4())
     path = f"{APP_NAME}/uploads/{user['id']}/{safe_id}.{ext}"

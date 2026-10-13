@@ -184,7 +184,7 @@ export default function DashboardPage() {
                   <div className="lg:col-span-5">
                     <h2 className="font-display text-2xl">Submit diligence files.</h2>
                     <p className="text-white/60 text-sm mt-3 max-w-md">
-                      PDF, images, spreadsheets. 25MB per file. All uploads are encrypted and routed
+                      PDF, images, spreadsheets. 200MB per file. All uploads are encrypted and routed
                       to the D.O.X review team.
                     </p>
                     <label
@@ -195,7 +195,7 @@ export default function DashboardPage() {
                              data-testid="upload-input" />
                       <UploadCloud className="h-6 w-6 text-[hsl(var(--gold))]" strokeWidth={1.25} />
                       <div className="font-display text-xl mt-4">{uploading ? `Uploading ${pickedName}…` : "Click to upload"}</div>
-                      <p className="text-white/45 text-xs mt-2">PDF, PNG, JPG, XLSX · max 25MB</p>
+                      <p className="text-white/45 text-xs mt-2">PDF, PNG, JPG, XLSX · max 200MB</p>
                     </label>
                   </div>
                   <div className="lg:col-span-7">

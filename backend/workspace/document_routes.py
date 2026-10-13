@@ -44,8 +44,8 @@ async def upload(id:str,file:UploadFile=File(...),visibility:str=Form('internal'
     if category not in tx['required_documents']+['Other']: raise HTTPException(422,'Invalid document category')
     ext=Path(file.filename or '').suffix.lower().lstrip('.')
     if ext not in ALLOWED: raise HTTPException(415,'Supported files: PDF, DOCX, PNG, JPG, TXT')
-    content=await file.read(20*1024*1024+1)
-    if not content or len(content)>20*1024*1024: raise HTTPException(413,'File must be between 1 byte and 20 MB')
+    content=await file.read(200*1024*1024+1)
+    if not content or len(content)>200*1024*1024: raise HTTPException(413,'File must be between 1 byte and 200 MB')
     signatures={'pdf':b'%PDF','png':b'\x89PNG','jpg':b'\xff\xd8','jpeg':b'\xff\xd8','docx':b'PK'}
     if ext in signatures and not content.startswith(signatures[ext]): raise HTTPException(415,'File contents do not match its extension')
     path=f'dox-workspace/uploads/{user["id"]}/{uid()}.{ext}'
