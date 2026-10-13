@@ -93,6 +93,8 @@ class TransactionPatch(Model):
     stage_id: Optional[str] = None
     assigned_ids: Optional[list[str]] = None
     client_ids: Optional[list[str]] = None
+    engagement_date: Optional[str] = Field(default=None,pattern=r'^\d{4}-\d{2}-\d{2}$')
+    diligence_date: Optional[str] = Field(default=None,pattern=r'^\d{4}-\d{2}-\d{2}$')
     close_date: Optional[str] = Field(default=None,pattern=r'^\d{4}-\d{2}-\d{2}$')
 class TaskOut(Model):
     id: str
