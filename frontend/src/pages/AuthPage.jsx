@@ -69,7 +69,7 @@ const COPY = {
     kicker: "Underwriter Access",
     heading: "Underwrite prepared deals.",
     body:
-      "Underwriters see every file that has reached the Ready-to-Underwrite phase. Review the pre-screening checklist, clear the red-flag gates, move the deal through underwriting and schedule calls — all from one console.",
+      "Welcome, and thank you for lending your expertise to D.O.X. Your judgment is the backbone of every deal we close. Sign in to a console built to keep you focused — everything you need to review, decide and move forward, in one calm, productive place.",
     bullets: [
       "See all deals prepared for underwriting",
       "Review documents and clear underwriting gates",
