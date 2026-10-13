@@ -1095,6 +1095,14 @@ async def create_deal_meeting(client_id: str, payload: DealMeetingIn, user: dict
     if snapshot["phase"] not in SCHEDULABLE_PHASES:
         raise HTTPException(status_code=400,
                             detail="This deal must be prepared (Ready to Underwrite) before scheduling.")
+    # A client may only book once our team has approved (verified) ALL required documents.
+    is_client_self = user["id"] == client_id and user.get("role") != "admin" \
+        and user.get("account_type") not in ("partner", "underwriter")
+    score = snapshot.get("score", {})
+    docs_approved = score.get("required_total", 0) > 0 and score.get("verified", 0) >= score.get("required_total", 0)
+    if is_client_self and not docs_approved:
+        raise HTTPException(status_code=403,
+                            detail="Scheduling unlocks once our team has approved all of your requested documents.")
     room = _jitsi_room(client.get("name") or "dox")
     meet_link = f"https://meet.jit.si/{room}"
     when = f"{payload.preferred_date} at {payload.preferred_time} ({payload.timezone or 'UTC'})"

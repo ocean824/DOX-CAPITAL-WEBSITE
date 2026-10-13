@@ -287,8 +287,9 @@ export default function DashboardPage() {
                 <div className="max-w-4xl">
                   <h2 className="font-display text-2xl">Schedule your underwriting call.</h2>
                   <p className="text-white/60 text-sm mt-3 mb-6 max-w-2xl">
-                    Once your file is prepared (Ready to Underwrite), book a video call with an
-                    underwriter or our team.
+                    Access to booking an underwriting call is granted only once you have
+                    successfully provided every requested document and our team has approved each
+                    item. Complete the Document Readiness tab first.
                   </p>
                   <DealScheduler clientId={user.id} phase={phase} />
                 </div>

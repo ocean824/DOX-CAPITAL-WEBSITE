@@ -5,21 +5,27 @@ import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { toast } from "sonner";
 import { Video, CalendarPlus, Lock } from "lucide-react";
-import { SCHEDULABLE } from "../lib/deal";
 
-/** Readiness-gated Jitsi scheduling with an underwriter or admin. */
+/** Scheduling is unlocked only once our team has verified ALL required documents. */
 export function DealScheduler({ clientId, phase }) {
-  const gated = !SCHEDULABLE.includes(phase);
+  const [docs, setDocs] = useState(null); // {verified, required_total}
+  const docsApproved = !!docs && docs.required_total > 0 && docs.verified >= docs.required_total;
+  const gated = !docsApproved;
   const [meetings, setMeetings] = useState([]);
   const [form, setForm] = useState({ with_role: "underwriter", preferred_date: "", preferred_time: "", notes: "" });
   const [busy, setBusy] = useState(false);
 
   const load = useCallback(async () => {
     try {
-      const { data } = await api.get(`/deals/${clientId}/meetings`);
-      setMeetings(data);
+      const [mtg, pre] = await Promise.all([
+        api.get(`/deals/${clientId}/meetings`),
+        api.get(`/prescreen/me`),
+      ]);
+      setMeetings(mtg.data);
+      setDocs(pre.data?.score || { verified: 0, required_total: 0 });
     } catch (e) {
       console.error("[scheduler] load failed", e);
+      setDocs({ verified: 0, required_total: 0 });
     }
   }, [clientId]);
 
@@ -42,13 +48,22 @@ export function DealScheduler({ clientId, phase }) {
   };
 
   if (gated) {
+    const n = docs || { verified: 0, required_total: 0 };
     return (
       <div data-testid="scheduler-gated" className="border border-white/10 p-6 bg-[#0a0a0a] flex items-start gap-3">
         <Lock className="h-4 w-4 text-white/40 mt-1" strokeWidth={1.25} />
-        <p className="text-sm text-white/55 max-w-md">
-          Scheduling unlocks once this deal is <span className="text-white">prepared (Ready to Underwrite)</span>.
-          Complete the Document Readiness checklist first.
-        </p>
+        <div className="max-w-xl">
+          <p className="text-sm text-white/70">
+            Access to the underwriting call is granted only to applicants who have successfully
+            provided <span className="text-white">all requested documentation</span> and had every
+            item approved by our team.
+          </p>
+          <p className="text-xs text-white/45 mt-3">
+            {n.required_total > 0
+              ? `${n.verified} of ${n.required_total} required documents approved. Complete the Document Readiness tab and wait for our team to verify each item.`
+              : "Your document checklist is being prepared — complete the Document Readiness tab to begin."}
+          </p>
+        </div>
       </div>
     );
   }
