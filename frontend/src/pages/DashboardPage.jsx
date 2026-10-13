@@ -9,7 +9,6 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "../components/ui/tabs"
 import { Badge } from "../components/ui/badge";
 import { ReadinessTab } from "../components/ReadinessTab";
 import { DealThread } from "../components/DealThread";
-import { DealAssistant } from "../components/DealAssistant";
 import { DealScheduler } from "../components/DealScheduler";
 import { PhasePill, DealTimeline } from "../lib/deal";
 import { toast } from "sonner";
@@ -178,10 +177,6 @@ export default function DashboardPage() {
                   className="rounded-none data-[state=active]:bg-transparent data-[state=active]:text-white data-[state=active]:border-b data-[state=active]:border-white px-0 pb-3 text-white/60">
                   Messages
                 </TabsTrigger>
-                <TabsTrigger data-testid="tab-assistant" value="assistant"
-                  className="rounded-none data-[state=active]:bg-transparent data-[state=active]:text-white data-[state=active]:border-b data-[state=active]:border-white px-0 pb-3 text-white/60">
-                  Assistant
-                </TabsTrigger>
               </TabsList>
 
               <TabsContent value="uploads" className="mt-8">
@@ -300,10 +295,6 @@ export default function DashboardPage() {
                   <h2 className="font-display text-2xl mb-6">Your deal conversation.</h2>
                   <DealThread clientId={user.id} />
                 </div>
-              </TabsContent>
-
-              <TabsContent value="assistant" className="mt-8">
-                <DealAssistant />
               </TabsContent>
             </Tabs>
           )}

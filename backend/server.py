@@ -1437,7 +1437,7 @@ class AssistantIn(BaseModel):
 
 
 @api.post("/assistant/chat")
-async def assistant_chat(payload: AssistantIn, user: dict = Depends(require_approved)):
+async def assistant_chat(payload: AssistantIn, user: dict = Depends(require_underwriter)):
     from emergentintegrations.llm.chat import LlmChat, UserMessage
 
     key = os.environ.get("EMERGENT_LLM_KEY")
@@ -1469,7 +1469,7 @@ async def assistant_chat(payload: AssistantIn, user: dict = Depends(require_appr
 
 
 @api.get("/assistant/history")
-async def assistant_history(session_id: str, user: dict = Depends(require_approved)):
+async def assistant_history(session_id: str, user: dict = Depends(require_underwriter)):
     msgs = await db.assistant_messages.find(
         {"user_id": user["id"], "session_id": session_id}, {"_id": 0}
     ).sort("created_at", 1).to_list(200)

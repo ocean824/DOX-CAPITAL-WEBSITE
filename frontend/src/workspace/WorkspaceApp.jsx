@@ -44,6 +44,10 @@ const Owner = ({ children }) => {
   const { user } = useAuth();
   return user.role === 'OWNER' ? children : <Navigate to="/workspace" replace />;
 };
+const Intel = ({ children }) => {
+  const { user } = useAuth();
+  return (user.role === 'OWNER' || user.role === 'UNDERWRITER') ? children : <Navigate to="/workspace" replace />;
+};
 
 export default function WorkspaceApp() {
   return (
@@ -58,7 +62,7 @@ export default function WorkspaceApp() {
           <Route path="reviews" element={<Staff><Reviews /></Staff>} />
           <Route path="messages" element={<Messages />} />
           <Route path="inbox" element={<Staff><Inbox /></Staff>} />
-          <Route path="assistant" element={<Staff><Assistant /></Staff>} />
+          <Route path="assistant" element={<Intel><Assistant /></Intel>} />
           <Route path="knowledge" element={<Staff><Knowledge /></Staff>} />
           <Route path="calendar" element={<Calendar />} />
           <Route path="settings" element={<Settings />} />

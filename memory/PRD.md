@@ -96,3 +96,7 @@ Admins flip Client/Staff per user in the admin console (`POST /api/admin/users/{
 - [ ] Refactor the long marketing components (`LandingPage`, `BookPage`, `DashboardPage`, `AdminPage`) and add type coverage.
 - [ ] Migrate the site's `@app.on_event` hooks to a lifespan context manager.
 - [ ] SEO/OpenGraph, sitemap, cookie banner, privacy/terms pages.
+
+
+## Changelog
+- **2026-06 (this session):** Restricted AI assistant access to **Admin (OWNER) + Underwriter only**. Removed `ai` permission from PARTNER and TEAM_MEMBER in `workspace/core.py`; gated `/api/assistant/chat` + `/api/assistant/history` behind `require_underwriter`. Frontend: removed the "Assistant" tab from the client portal (`DashboardPage.jsx`), hid the AI-assistant nav item for non-intel roles (`Shell.js`), and guarded the `/workspace/assistant` route with an `Intel` wrapper (OWNER/UNDERWRITER only). Verified via curl: Client/Partner → 403, Underwriter/Admin → 200.

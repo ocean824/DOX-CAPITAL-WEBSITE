@@ -24,8 +24,8 @@ UW_STAGES = ['underwriting', 'package_submitted', 'closed_funded']
 PERMS = {
     'OWNER': {'read','write','delete','manage','review','ai','message','internal'},
     'UNDERWRITER': {'read','write','review','ai','message','internal'},
-    'TEAM_MEMBER': {'read','write','ai','message','internal'},
-    'PARTNER': {'read','write','ai','message'},
+    'TEAM_MEMBER': {'read','write','message','internal'},
+    'PARTNER': {'read','write','message'},
     'CLIENT': {'read'},
 }
 async def authorize(user, action, resource=None):
