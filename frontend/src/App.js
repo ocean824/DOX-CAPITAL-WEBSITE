@@ -14,6 +14,8 @@ import UnderwriterPage from "@/pages/UnderwriterPage";
 import PartnerPage from "@/pages/PartnerPage";
 import WorkspaceApp from "@/workspace/WorkspaceApp";
 import SiteGate from "@/components/SiteGate";
+import LegalPage from "@/pages/LegalPage";
+import LegalDocPage from "@/pages/LegalDocPage";
 
 const TOAST_OPTIONS = {
   style: {
@@ -42,6 +44,8 @@ function App() {
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/underwriter" element={<UnderwriterPage />} />
             <Route path="/partner" element={<PartnerPage />} />
+            <Route path="/legal" element={<LegalPage />} />
+            <Route path="/legal/:slug" element={<LegalDocPage />} />
             <Route path="/workspace/*" element={<WorkspaceApp />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

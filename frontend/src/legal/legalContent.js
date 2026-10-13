@@ -271,6 +271,218 @@ Before the final payment action, we display the total price, the one-time or rec
 ## Contact
 For order, cancellation, fulfillment, or refund questions, contact D.O.X Capital at deptofx@proton.me. Do not use a support channel for emergencies.`,
   },
+  {
+    slug: "membership-agreement",
+    docId: "DOX-LEGAL-04",
+    title: "Membership Agreement",
+    summary:
+      "The terms governing admission to and participation in the D.O.X Capital membership program.",
+    body: `This Agreement governs an application for membership in the D.O.X Capital membership program (the "Association"), operated by D.O.X Capital. A visitor, lead, account holder, or purchaser is not automatically a member.
+
+## 1. Association and operator
+This Agreement governs membership in the D.O.X Capital membership program, operated under the D.O.X Capital brand. The program's purpose is to provide members with access to capital-structuring education, advisory consultations, the member portal, and introductions to independent funding partners. Governance materials, where they exist, are available from D.O.X Capital on request.
+
+## 2. No immunity or unlawful waiver
+D.O.X Capital's description of a membership arrangement does not create a general exemption from consumer-protection, privacy, accessibility, licensing, tax, advertising, anti-discrimination, criminal, or other applicable law. No provision in this document waives a right or duty that applicable law does not permit the parties to waive.
+
+Membership is a contractual relationship. It does not convert public commercial conduct into exempt private conduct, immunize unlicensed activity, or authorize fraud, discrimination, unlawful data processing, tax evasion, or other prohibited conduct.
+
+## 3. Application and admission
+An applicant must satisfy D.O.X Capital's eligibility criteria, complete the application and approval process (including identity and eligibility review), accept this Agreement separately from the general Terms, pay any fee disclosed before enrollment, and receive written admission. D.O.X Capital applies lawful, genuine, and consistently administered admission standards and will not represent that admission occurred merely because an account was created or payment was taken.
+
+## 4. Eligibility and authority
+Applicants must be at least 18 years of age, legally capable of contracting, and provide accurate information. A representative applying for an organization must have authority. D.O.X Capital may request verification reasonably related to the criteria and may deny an application for failure to satisfy them, fraud, security risk, or unlawful purpose, subject to applicable anti-discrimination and consumer law.
+
+## 5. Membership term, fees, and benefits
+The membership term and any fees are as stated at enrollment. Benefits are limited to those described at enrollment — such as access to the member portal, advisory consultations, and eligible introductions — and may be subject to capacity, scheduling, separate service fees, or order terms disclosed before enrollment. No benefit includes a guaranteed financing result, government recognition, legal protection, confidential privilege, or licensed professional service.
+
+## 6. Renewal and cancellation
+Membership renews only where recurring billing is enabled, the renewal terms are displayed before billing, and the member separately consents under the Subscription & Automatic Renewal Terms; otherwise it expires at the end of its stated term. To cancel, email deptofx@proton.me. Cancellation affects future renewal and does not automatically refund completed or already-provided benefits.
+
+## 7. Member conduct
+Members must act lawfully, protect credentials, respect other persons' rights and privacy, submit only authorized materials, comply with reasonable security and community rules, and avoid harassment, fraud, impersonation, unlawful solicitation, misrepresentation of membership status, or use of program materials to mislead a lender, regulator, court, or consumer.
+
+## 8. Confidentiality and member information
+A member must not disclose another member's nonpublic information or genuinely confidential program material obtained through membership, except with authorization or as law permits. This obligation does not prohibit lawful reporting to regulators, law enforcement, counsel, or protected whistleblowing, or discussion of one's own experience. D.O.X Capital's handling of member data is governed by the Privacy Policy.
+
+## 9. Services and professional boundaries
+Membership may provide access to consultations or purchasing opportunities, but each service has a defined scope and may require a separate order. Membership does not create an attorney-client, fiduciary, investment-adviser, broker-client, lender-borrower, tax-adviser, credit-repair, or accounting relationship. No disclaimer permits D.O.X Capital to perform activity requiring a license it does not possess.
+
+## 10. Third parties and referrals
+Any lender, referral source, professional, vendor, or other third party is independent unless a written agreement says otherwise. Any referral compensation is disclosed where material. D.O.X Capital does not control third-party eligibility, underwriting, pricing, availability, or decisions and does not guarantee an introduction or outcome.
+
+## 11. Ownership and permitted use
+Membership does not transfer ownership of the website, D.O.X Capital marks, original resources, third-party data, or other intellectual property. A member receives a limited right to use member resources for the lawful internal or personal purpose stated with the resource. Member-created material remains subject to the Terms and any separate contribution license.
+
+## 12. Suspension, termination, and appeal
+D.O.X Capital may suspend or terminate membership for material breach, fraud, nonpayment, unlawful conduct, harassment, security risk, or a threat to others. Except where immediate action is reasonably necessary, it will give notice and an opportunity to cure a curable breach. A member may request review by emailing deptofx@proton.me. Records may be retained for lawful dispute, security, refund, or legal-hold purposes.
+
+## 13. Governance and changes
+Material changes to fees, renewal, core benefits, dispute terms, or member obligations apply prospectively with notice and fresh assent where required. A website posting alone will not be treated as assent when law requires more.
+
+## 14. Disputes and governing documents
+The Terms of Service, Privacy Policy, Refund Policy, any applicable Subscription Terms, and any service-specific order are incorporated. This Agreement controls a direct conflict about membership-specific duties, subject to nonwaivable law. Governing law and venue are the state of D.O.X Capital's principal place of business, as confirmed in your written engagement agreement.
+
+## 15. Membership acceptance
+At enrollment you confirm: "I apply for membership in the D.O.X Capital membership program, agree to this Membership Agreement, and understand that membership does not create legal immunity or guarantee any service or result." D.O.X Capital stores the exact text, version, timestamp, applicant, admission decision, fee, and confirmation.
+
+## Contact
+For membership questions or notices, contact D.O.X Capital at deptofx@proton.me. Do not use a support channel for emergencies.`,
+  },
+  {
+    slug: "subscription-renewal-terms",
+    docId: "DOX-LEGAL-05",
+    title: "Subscription & Automatic Renewal Terms",
+    summary:
+      "Terms that apply where a D.O.X Capital plan or membership renews automatically.",
+    body: `These Terms apply where D.O.X Capital offers a plan, membership, or service package that automatically renews. If you are not enrolled in a recurring plan, these Terms do not apply to you.
+
+## 1. Separate recurring-billing agreement
+These Terms supplement the Terms of Service for a plan that automatically renews. Before obtaining billing information, D.O.X Capital clearly displays the recurring price, currency, cadence, initial term, renewal term, any trial or promotional period, conversion price, renewal date or the method for determining it, cancellation deadline and method, material refund terms, and any price-change process. Acceptance of the general Terms alone is not recurring-billing consent.
+
+## 2. Plan terms
+The plan, price, and billing cadence are those shown on the pricing page and at checkout before you enroll, and they match the receipt, your account page, and the processor configuration. Benefits are those described for the plan you select.
+
+## 3. Express informed consent
+Enrollment requires a separate affirmative control adjacent to the material terms authorizing D.O.X Capital to charge the displayed amount on the displayed cadence beginning on the displayed date until you cancel, and confirming that you understand the cancellation method and deadline and agree to these Terms. D.O.X Capital preserves the exact notice, version, terms, timestamp, and affirmative action.
+
+## 4. Renewal authorization
+Subject to applicable law, you authorize the merchant of record to charge the payment method on file at each renewal until cancellation becomes effective. Authorization covers only the amount and cadence disclosed or a validly accepted change. We will not use a card updater or retry process in a way that contradicts a cancellation, applicable law, or processor rules.
+
+## 5. Trials and promotions
+Where a trial or promotion is offered, we disclose before enrollment the trial length, any amount charged now, the conversion date, the post-trial price and cadence, eligibility restrictions, the cancellation deadline, and whether unused time expires. We do not describe a trial as "free" if a charge or unavoidable cost applies, and we obtain fresh consent if a material conversion term changes.
+
+## 6. Renewal notices
+Renewal reminders and confirmations follow the schedule required for your jurisdiction and identify the plan, renewal date, amount or calculation, cancellation deadline, and a direct cancellation route.
+
+## 7. Simple cancellation
+You may cancel by emailing deptofx@proton.me, and where you enrolled online a practical online cancellation route is provided. Cancellation does not require creating an account for a guest and does not add retention offers, surveys, chat, or phone steps that make cancellation materially harder than enrollment. We record the request time and provide durable confirmation stating the effective date, final charge, remaining access, and any refund.
+
+## 8. Effect of cancellation
+Unless law or the checkout terms say otherwise, cancellation stops future renewals and access continues through the already-paid period. Cancellation does not by itself refund a valid prior charge. If received before the disclosed deadline, it prevents the next charge. A system outage will not erase a timely attempt; contact deptofx@proton.me and we will honor the timestamp.
+
+## 9. Price or plan changes
+We give legally sufficient advance notice of a price, cadence, renewal-term, cancellation, or material benefit change. If law or the original agreement requires fresh consent, the change will not take effect without it. A refusal may result in expiration at the end of the paid term, with an export or transition path where applicable. We will not rely solely on silent website edits for a material change.
+
+## 10. Payment failure
+If a charge fails, we may provide notice and a reasonable opportunity to update the payment method, and we may suspend future access after any disclosed grace period. We will not represent repeated retries as new consent or charge after effective cancellation. Any reinstatement that changes price or cadence requires clear disclosure and authorization.
+
+## 11. Refunds and disputes
+Refunds are governed by the Refund, Cancellation & Fulfillment Policy and nonwaivable law. Report duplicate, unauthorized, or incorrectly timed charges to deptofx@proton.me. Contacting us is not a waiver of payment-card, electronic-transfer, regulator, or court remedies.
+
+## 12. Legal posture
+Covered online negative-option transactions satisfy the Restore Online Shoppers' Confidence Act: we disclose material terms before billing information, obtain express informed consent before charging, and provide a simple cancellation mechanism. State laws may impose stricter disclosures, acknowledgments, reminders, retention, and cancellation requirements, which we configure by customer jurisdiction.
+
+## 13. Records and evidence
+We retain, under the lawful retention schedule, the versioned checkout, material-terms snapshot, consent event, order, receipt, reminders, changes, charges, cancellation attempts, confirmation, refund, and complaints.
+
+## 14. Nonwaivable rights
+Nothing in this document excludes, restricts, or modifies a right or remedy that applicable law does not permit the parties to modify. If a jurisdiction grants a cancellation, reminder, refund, renewal, or enforcement right more protective than these Terms, that rule controls.
+
+## Contact
+For subscription, renewal, billing, or cancellation questions, contact D.O.X Capital at deptofx@proton.me. Do not use a support channel for emergencies.`,
+  },
+  {
+    slug: "non-affiliation-disclosure",
+    docId: "DOX-LEGAL-06",
+    title: "Non-Affiliation & Data Source Disclosure",
+    summary:
+      "How D.O.X Capital refers to independent third parties and external information, and the limits of those references.",
+    body: `This Disclosure explains how D.O.X Capital ("D.O.X Capital," "we," "us," or "our") refers to independent third parties and external information in connection with https://www.thedoxs.com, related pages that link to this Disclosure, and services or deliverables that expressly incorporate it. It helps users distinguish D.O.X Capital's own identity, statements, and services from those of others.
+
+## 1. Purpose and scope
+This Disclosure supplements, and does not replace, the Terms of Service, Privacy Policy, Intellectual Property Notice, any service-specific agreement, or any disclosure shown at the point of an introduction, referral, comparison, data display, or purchase. If a service-specific document accurately describes a verified relationship or data license in greater detail, that description controls for that service to the extent of a conflict. No document should be read to create a relationship or right that the parties have not actually established in a written agreement.
+
+## 2. D.O.X Capital's identity
+D.O.X Capital is an advisory and document-packaging brand. Unless a page or written service agreement expressly and accurately states otherwise, D.O.X Capital is not the third party whose name, product, service, mark, link, content, or data may appear through the Services. Users should look to the applicable third party's own terms, privacy notice, disclosures, and communications. Nothing in any membership description establishes an affiliation with a government, regulator, lender, financial institution, professional association, data owner, or other third party.
+
+## 3. No implied affiliation, endorsement, sponsorship, or approval
+Unless D.O.X Capital makes a clear, specific statement based on a verified and current written relationship, a reference to a third party does not mean that:
+
+- the third party owns, controls, sponsors, endorses, certifies, licenses, supervises, approves, or is affiliated with D.O.X Capital;
+- D.O.X Capital owns, controls, sponsors, endorses, certifies, supervises, or approves the third party;
+- either party is the employee, agent, partner, joint venturer, fiduciary, franchisee, representative, or exclusive provider of the other;
+- the third party has reviewed or approved D.O.X Capital's statements, methods, results, website, or deliverables;
+- D.O.X Capital is authorized to speak for the third party or bind it; or
+- the third party will offer, approve, price, fund, insure, underwrite, purchase, or otherwise provide any product, service, or transaction to a user.
+
+A commercial relationship, technology integration, referral arrangement, subscription, ordinary vendor relationship, or permission to display specified materials is not broader approval of D.O.X Capital or its Services.
+
+## 4. Third-party names, logos, marks, products, and links
+Third-party names, trade names, logos, product names, service names, domain names, and other marks belong to their respective owners. D.O.X Capital may refer to them solely for truthful identification, description, comparison, interoperability, attribution, commentary, or direction to an external resource, as permitted by applicable law. Their appearance does not transfer ownership to D.O.X Capital or grant a user permission to use them.
+
+Links to external websites are provided for convenience or context. D.O.X Capital does not control an external site merely by linking to it and is not responsible for the site's availability, content, security, accessibility, privacy practices, or later changes. A link is not a recommendation unless it is clearly labeled as one and any material connection is disclosed.
+
+## 5. Data sources and permission basis
+Information presented through the Services may come from sources such as information supplied by a user or the user's authorized representative; government or other public records; information made publicly available by its publisher; D.O.X Capital's own records and observations; licensed datasets; independent service providers; or counterparties involved in a user-requested transaction. "Publicly available" does not necessarily mean free of copyright, privacy, confidentiality, contractual, database, publicity, or reuse restrictions.
+
+## 6. Source-specific restraint
+D.O.X Capital does not characterize information as "official," "authorized," "certified," "verified," "proprietary," "licensed," "real time," "complete," or "exclusive" unless the characterization is supported for that exact information, use, and date. D.O.X Capital makes no representation that it uses, licenses, distributes, is affiliated with, or is authorized to provide CUSIP, QSIP, or any similarly named or branded identifier data.
+
+## 7. Independent lenders, capital providers, and vendors
+Any lender, bank, credit union, capital provider, broker, marketplace, referral recipient, professional, payment provider, technology provider, or other vendor identified through the Services is an independent third party unless a verified written agreement expressly provides otherwise. Its products, eligibility rules, underwriting standards, prices, fees, disclosures, timelines, availability, and decisions are its own. D.O.X Capital acts as an advisory and document-packaging firm and is not a lender, bank, broker-dealer, or registered investment adviser; it does not control and does not promise a third party's approval, funding decision, amount, rate, term, credit determination, service quality, or timing. Any referral compensation is disclosed where material and at the point where it can affect a user's decision.
+
+A user's decision to contact or transact with a referred party is voluntary. The third party may reject a request, apply its own criteria, require additional information, conduct checks, or change or withdraw an offer. Users should review the third party's final documents and direct questions about its product or decision to that third party.
+
+## 8. Accuracy, currency, and source limitations
+D.O.X Capital seeks to present external information usefully, but information can be delayed, incomplete, inconsistent, incorrectly matched, reformatted, summarized, estimated, or changed at the source without notice. Dates labeled "as of," "updated," or "retrieved" refer only to the stated event. Unless a display expressly states and substantiates otherwise, information is not real-time. To the maximum extent permitted by applicable law, third-party information is made available without a promise that it is accurate, complete, timely, available, authentic, fit for a particular purpose, or free from third-party rights. This limitation does not disclaim obligations that cannot lawfully be disclaimed.
+
+## 9. User verification and responsible reliance
+Users are responsible for reviewing information in context and checking material facts with the original source, an authorized representative of the relevant third party, and an appropriately qualified professional before acting. Users should not treat a summary, comparison, preliminary result, introduction, data display, or automated output as a final offer, approval, legal conclusion, title report, credit report, valuation, professional opinion, or guarantee of an outcome unless it is expressly identified as such and lawfully provided. Nothing in this Disclosure restricts a user's nonwaivable right to challenge information, seek a correction, or make a legally protected report.
+
+## 10. No transfer of data or intellectual-property licenses
+Access to information through the Services does not sell, assign, or transfer to a user any ownership interest or broader license in the underlying data, compilation, database, source material, mark, or methodology. Without permission from the applicable rights holder, a user may not scrape, harvest, systematically download, create a substitute database from, sell, sublicense, publish, redistribute, disclose, reverse engineer, remove attribution from, or use the information to train or evaluate an artificial-intelligence model where that activity would violate law, contract, technical restrictions, or third-party rights.
+
+## 11. Attribution and corrections
+Source credits, copyright notices, legends, timestamps, links, disclaimers, and other attributions shown with information form part of the disclosure and must not be obscured or removed. Requests to correct D.O.X Capital's presentation of external information may be sent using the contact information below; we may need to confirm the requester's identity, authority, and supporting evidence, and where the claimed error originates with a third party we may direct the requester to that source.
+
+## 12. Changes and relationship to other rights
+D.O.X Capital may revise this Disclosure when its Services, sources, relationships, or legal obligations change. Nothing in this Disclosure expands D.O.X Capital's rights in third-party information, limits a rights holder's ownership, authorizes an unlawful use, or waives rights or remedies that cannot lawfully be waived.
+
+## Contact
+Questions about this Disclosure, a third-party reference, an attribution, or a suspected error may be directed to D.O.X Capital at deptofx@proton.me.`,
+  },
+  {
+    slug: "legal-advice-disclaimer",
+    docId: "DOX-LEGAL-07",
+    title: "Legal & Professional Advice Disclaimer",
+    summary:
+      "D.O.X Capital provides general business consulting, not licensed legal, tax, accounting, or other professional advice.",
+    body: `This Disclaimer applies wherever general consulting, educational material, entity-structure discussion, templates, or referrals could be mistaken for licensed legal, accounting, tax, compliance, or other professional advice.
+
+## 1. General informational scope
+D.O.X Capital provides capital-structuring and business-funding advisory and document-packaging services. Unless a separately signed engagement with a properly licensed professional expressly states otherwise, website material, consultations, templates, checklists, examples, automated output, and deliverables are general business information and consulting support, not a legal opinion or regulated professional advice.
+
+## 2. No professional relationship
+Use of the website or purchase of a consulting service does not create an attorney-client, accountant-client, tax-adviser, fiduciary, investment-adviser, broker-client, lender-borrower, insurance, medical, mental-health, engineering, or other licensed professional relationship. No communication is protected by attorney-client privilege merely because it is confidential or sent through the website.
+
+## 3. Licensing gate
+D.O.X Capital is an advisory and document-packaging firm and does not hold legal, accounting, tax, securities, or insurance licenses; its personnel do not perform services reserved to those professions. A disclaimer cannot cure unauthorized practice, unlicensed brokerage, or conduct that is regulated based on substance rather than label.
+
+## 4. Jurisdiction and fact dependence
+Law, tax treatment, accounting standards, filing duties, licensing, and professional obligations vary by jurisdiction and change over time. General material may omit facts essential to your circumstances. You should retain qualified counsel and other professionals licensed in the relevant jurisdiction before forming or restructuring an entity, signing documents, filing with an agency, taking a tax position, raising capital, or relying on a legal conclusion.
+
+## 5. No document filing or representation
+Unless the order specifically identifies a lawful filing service, D.O.X Capital does not file documents, appear before a court or agency, negotiate as legal representative, give a legal opinion, or ensure that a document is complete, enforceable, or appropriate. Providing a form or administrative assistance does not mean we drafted it as counsel.
+
+## 6. No emergency or deadline monitoring
+The website and support channels are not monitored for emergencies and do not accept service of process. D.O.X Capital does not calendar legal, tax, regulatory, appeal, limitation, or filing deadlines for you unless a signed order expressly includes that task and law permits it. Seek immediate help from the appropriate professional or public authority.
+
+## 7. Independent review and reliance
+You remain responsible for decisions, signatures, submissions, representations, and compliance. Verify facts and obtain professional review before relying on material that could affect rights, taxes, ownership, liability, credit, financing, securities, employees, or third parties. A consultation or deliverable is not a substitute for reviewing source documents and current law.
+
+## 8. Referrals and third-party professionals
+A referral or introduction does not make the third party our agent, employee, or partner and is not an endorsement or guarantee. Any referral compensation is disclosed where material. You should evaluate credentials, conflicts, scope, fees, and engagement terms independently.
+
+## 9. No guarantee and conflicting marketing
+No disclaimer can cure a misleading principal claim. Marketing, sales, checkout, and personnel communications must not promise legal protection, tax savings, regulatory approval, immunity, or a professional outcome inconsistent with this Disclaimer. Any specific guarantee is valid only if lawful, written, and supported by the exact terms presented before purchase.
+
+## 10. Membership status
+D.O.X Capital's description of a membership arrangement does not create a general exemption from consumer-protection, privacy, accessibility, licensing, tax, advertising, anti-discrimination, criminal, or other applicable law. Calling a consultation "private" or limiting it to members does not transform regulated professional conduct into unregulated activity.
+
+## Contact
+For questions about the scope of consulting information, contact D.O.X Capital at deptofx@proton.me. Do not use a support channel for emergencies.`,
+  },
 ];
 
 export const getLegalDoc = (slug) => LEGAL_DOCS.find((d) => d.slug === slug);

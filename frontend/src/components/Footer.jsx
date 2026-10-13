@@ -1,10 +1,11 @@
 import { Link } from "react-router-dom";
+import { LEGAL_DOCS } from "../legal/legalContent";
 
 export default function Footer() {
   return (
     <footer data-testid="site-footer" className="border-t border-white/10 mt-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-12 py-16 grid md:grid-cols-12 gap-10">
-        <div className="md:col-span-5">
+        <div className="md:col-span-4">
           <div className="font-display text-3xl">D.O.X Capital</div>
           <p className="text-white/60 text-sm mt-3 max-w-sm">
             We engineer corporate structures for institutional funding. Business funding
@@ -34,7 +35,24 @@ export default function Footer() {
             <li><Link to="/auth?as=client" className="hover:text-white">Client Sign In</Link></li>
           </ul>
         </div>
-        <div className="md:col-span-3">
+        <div className="md:col-span-2">
+          <div className="label-kicker">Legal</div>
+          <ul className="mt-4 space-y-2 text-sm text-white/70">
+            <li><Link to="/legal/terms-of-service" className="hover:text-white">Terms of Service</Link></li>
+            <li><Link to="/legal/privacy-policy" className="hover:text-white">Privacy Policy</Link></li>
+            <li><Link to="/legal/refund-cancellation-policy" className="hover:text-white">Refund Policy</Link></li>
+            <li>
+              <Link
+                to="/legal"
+                data-testid="footer-legal-all"
+                className="hover:text-white text-[hsl(var(--gold))]"
+              >
+                All policies ({LEGAL_DOCS.length})
+              </Link>
+            </li>
+          </ul>
+        </div>
+        <div className="md:col-span-2">
           <div className="label-kicker">Disclosure</div>
           <p className="text-xs text-white/40 mt-4 leading-relaxed">
             D.O.X Capital is an advisory and packaging firm. We are not a lender,
