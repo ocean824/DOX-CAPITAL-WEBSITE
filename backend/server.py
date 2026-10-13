@@ -968,6 +968,10 @@ class DealMessageIn(BaseModel):
     body: str = Field(min_length=1, max_length=5000)
 
 
+class ClientAccessIn(BaseModel):
+    assigned_ids: list[str] = Field(default_factory=list)
+
+
 async def _get_client_user(client_id: str) -> dict:
     client = await db.users.find_one({"id": client_id}, {"_id": 0, "password_hash": 0})
     if not client:
@@ -981,6 +985,8 @@ async def _require_deal_access(user: dict, client_id: str) -> dict:
     if user.get("role") == "admin" or _is_underwriter(user):
         return client
     if user.get("account_type") == "partner" and client.get("partner_id") == user["id"]:
+        return client
+    if user["id"] in (client.get("assigned_ids") or []):
         return client
     if user["id"] == client_id:
         return client
@@ -1000,6 +1006,10 @@ async def _deal_recipients(client: dict) -> list[dict]:
         uw = await db.users.find_one({"id": uw_id}, {"_id": 0, "password_hash": 0})
         if uw:
             people.append(uw)
+    for aid in (client.get("assigned_ids") or []):
+        a = await db.users.find_one({"id": aid}, {"_id": 0, "password_hash": 0})
+        if a:
+            people.append(a)
     seen, out = set(), []
     for person in people:
         if person and person["id"] not in seen:
@@ -1693,6 +1703,22 @@ async def admin_set_workspace_role(user_id: str, payload: WorkspaceRoleIn,
     await db.users.update_one({"id": user_id}, {"$set": {"workspace_role": payload.workspace_role}})
     await sync_workspace_users()
     return {"ok": True, "workspace_role": payload.workspace_role}
+
+
+@api.put("/admin/users/{client_id}/access")
+async def admin_set_client_access(client_id: str, payload: ClientAccessIn,
+                                  admin: dict = Depends(require_admin)):
+    client = await db.users.find_one({"id": client_id}, {"_id": 0, "password_hash": 0})
+    if not client:
+        raise HTTPException(status_code=404, detail="Client not found")
+    valid = await db.users.find(
+        {"id": {"$in": payload.assigned_ids},
+         "account_type": {"$in": ["partner", "underwriter"]}},
+        {"_id": 0, "id": 1},
+    ).to_list(200)
+    valid_ids = [u["id"] for u in valid]
+    await db.users.update_one({"id": client_id}, {"$set": {"assigned_ids": valid_ids}})
+    return {"ok": True, "assigned_ids": valid_ids}
 
 
 @api.get("/admin/assistant-usage")

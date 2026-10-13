@@ -9,7 +9,9 @@ import { Badge } from "../components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../components/ui/tabs";
 import { AdminReadiness } from "../components/AdminReadiness";
 import { toast } from "sonner";
-import { Check, X, Download, Calendar as CalIcon, User as UserIcon, FileText, Video } from "lucide-react";
+import { Check, X, Download, Calendar as CalIcon, User as UserIcon, FileText, Video, Users as UsersIcon } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "../components/ui/dialog";
+import { Checkbox } from "../components/ui/checkbox";
 
 export default function AdminPage() {
   const { user } = useAuth();
@@ -72,8 +74,22 @@ export default function AdminPage() {
   const pending = users.filter((u) => u.status === "pending");  const everyone = users.filter((u) => u.role !== "admin");
   const clients = everyone.filter((u) => u.account_type !== "partner" && u.account_type !== "underwriter");
   const partners = everyone.filter((u) => u.account_type === "partner");
+  const staffMembers = everyone.filter((u) => (u.account_type === "partner" || u.account_type === "underwriter") && u.status === "approved");
 
-  const usersList = (list) => (
+  const [accessClient, setAccessClient] = useState(null);
+  const [accessIds, setAccessIds] = useState([]);
+  const openAccess = (u) => { setAccessClient(u); setAccessIds(u.assigned_ids || []); };
+  const toggleAccessId = (id) => setAccessIds((ids) => (ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]));
+  const saveAccess = async () => {
+    try {
+      await api.put(`/admin/users/${accessClient.id}/access`, { assigned_ids: accessIds });
+      toast.success("Client access updated");
+      setAccessClient(null);
+      loadAll();
+    } catch (e) { toast.error(formatApiError(e.response?.data?.detail) || e.message); }
+  };
+
+  const usersList = (list, onAccess) => (
     list.length === 0 ? <Empty text="No users in this group yet." /> : (
       <div className="border-y border-white/10 divide-y divide-white/10">
         {list.map((u) => (
@@ -89,7 +105,12 @@ export default function AdminPage() {
               </div>
             </div>
             <div className="md:col-span-3 text-sm text-white/60">{u.company || "—"}</div>
-            <div className="md:col-span-3 text-xs text-white/40">{new Date(u.created_at).toLocaleString()}</div>
+            <div className="md:col-span-3 text-xs text-white/40">
+              {new Date(u.created_at).toLocaleString()}
+              {onAccess && u.status === "approved" && (u.assigned_ids?.length > 0) && (
+                <div className="text-[10px] text-[hsl(var(--gold))] mt-1">{u.assigned_ids.length} team member(s) with access</div>
+              )}
+            </div>
             <div className="md:col-span-2 flex flex-col items-end gap-2">
               <StatusBadge status={u.status} />
               {u.status === "approved" && (
@@ -99,6 +120,12 @@ export default function AdminPage() {
                   <button data-testid={`ws-role-staff-${u.id}`} onClick={() => setWorkspaceRole(u.id, "staff")}
                     className={`text-[10px] tracking-widest uppercase border px-2 py-1 ${u.workspace_role === "staff" ? "border-[hsl(var(--gold))] text-[hsl(var(--gold))]" : "border-white/15 text-white/40 hover:text-white"}`}>Staff</button>
                 </div>
+              )}
+              {onAccess && u.status === "approved" && (
+                <button data-testid={`manage-access-${u.id}`} onClick={() => onAccess(u)}
+                  className="text-[10px] tracking-widest uppercase border border-[hsl(var(--gold))]/40 text-[hsl(var(--gold))] px-2 py-1 hover:bg-[hsl(var(--gold))]/10 flex items-center gap-1">
+                  <UsersIcon className="h-3 w-3" /> Manage access
+                </button>
               )}
             </div>
           </div>
@@ -212,7 +239,7 @@ export default function AdminPage() {
             </TabsContent>
 
             <TabsContent value="clients" className="mt-8" data-testid="adm-clients-list">
-              {usersList(clients)}
+              {usersList(clients, openAccess)}
             </TabsContent>
 
             <TabsContent value="partners" className="mt-8" data-testid="adm-partners-list">
@@ -281,6 +308,40 @@ export default function AdminPage() {
           </Tabs>
         </div>
       </section>
+
+      <Dialog open={!!accessClient} onOpenChange={(o) => { if (!o) setAccessClient(null); }}>
+        <DialogContent data-testid="client-access-modal" className="bg-[#0b0b10] border-white/15 text-white">
+          <DialogHeader>
+            <DialogTitle className="font-display font-light">Client access</DialogTitle>
+            <DialogDescription className="text-white/55">
+              Choose which partners and underwriters can view {accessClient?.name}'s file and conversations.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="max-h-[50vh] overflow-y-auto divide-y divide-white/10 border-y border-white/10">
+            {staffMembers.length === 0 ? (
+              <p className="py-6 text-sm text-white/50">No approved partners or underwriters yet.</p>
+            ) : staffMembers.map((s) => (
+              <label key={s.id} data-testid={`access-option-${s.id}`}
+                className="flex items-center gap-3 py-3 cursor-pointer">
+                <Checkbox checked={accessIds.includes(s.id)} onCheckedChange={() => toggleAccessId(s.id)}
+                  data-testid={`access-check-${s.id}`} className="border-white/30 data-[state=checked]:bg-[hsl(var(--gold))] data-[state=checked]:border-[hsl(var(--gold))]" />
+                <span className="flex-1">
+                  <span className="block text-sm">{s.name}</span>
+                  <span className="block text-xs text-white/45">{s.email}</span>
+                </span>
+                <span className="label-kicker text-[10px] text-white/40">{s.account_type === "partner" ? "Partner" : "Underwriter"}</span>
+              </label>
+            ))}
+          </div>
+          <p className="text-[11px] text-white/35">Underwriters already have firm-wide review access; adding them here also includes them on this deal's conversation and notifications.</p>
+          <DialogFooter>
+            <Button data-testid="cancel-client-access" variant="outline" onClick={() => setAccessClient(null)}
+              className="rounded-none border-white/20 hover:bg-white/10">Cancel</Button>
+            <Button data-testid="save-client-access" onClick={saveAccess}
+              className="rounded-none bg-white text-black hover:bg-white/90">Save access</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Footer />
     </div>
