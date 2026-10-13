@@ -12,7 +12,7 @@ const mail=axios.create({baseURL:`${BASE}/api`,withCredentials:true});
 
 export default function Inbox(){
  const {user}=useAuth();
- const isAdmin=user.role==='OWNER';
+ const canSeeAll=user.role==='OWNER'||user.role==='UNDERWRITER';
  const [scope,setScope]=useState('mine');
  const [data,setData]=useState({business_email:'',unread:0,messages:[]});
  const [loading,setLoading]=useState(true);
@@ -24,10 +24,10 @@ export default function Inbox(){
 
  const load=useCallback(async()=>{
   setLoading(true);
-  try{const r=await mail.get('/inbox',{params:isAdmin&&scope==='all'?{scope:'all'}:{}});setData(r.data);}
+  try{const r=await mail.get('/inbox',{params:canSeeAll&&scope==='all'?{scope:'all'}:{}});setData(r.data);}
   catch(e){toast.error(errorText(e));}
   finally{setLoading(false);}
- },[isAdmin,scope]);
+ },[canSeeAll,scope]);
  useEffect(()=>{load();},[load]);
 
  const open=async(m)=>{
@@ -46,12 +46,12 @@ export default function Inbox(){
  };
 
  return <><PageHeader eyebrow="EMAIL, INSIDE THE WORKSPACE" title="Inbox" subtitle={data.business_email?`Mail to ${data.business_email}`:'Your business inbox'}>
-   {isAdmin&&<Btn id="inbox-scope-toggle" secondary onClick={()=>setScope(s=>s==='mine'?'all':'mine')}>{scope==='mine'?'All firm mail':'My inbox'}</Btn>}
+   {canSeeAll&&<Btn id="inbox-scope-toggle" secondary onClick={()=>setScope(s=>s==='mine'?'all':'mine')}>{scope==='mine'?'All firm mail':'My inbox'}</Btn>}
    <Btn id="inbox-refresh" secondary onClick={load}><RefreshCw size={15}/>Refresh</Btn>
  </PageHeader>
  {loading?<Loading/>:<div className={`messages-layout ${selected?'has-selection':''}`}>
   <aside className="thread-list">
-   <div className="thread-list-title"><strong>{isAdmin&&scope==='all'?'All firm mail':'Received'}</strong><Badge color="neutral">{data.messages.length}</Badge></div>
+   <div className="thread-list-title"><strong>{canSeeAll&&scope==='all'?'All firm mail':'Received'}</strong><Badge color="neutral">{data.messages.length}</Badge></div>
    {data.messages.length?data.messages.map(m=><button data-testid={`inbox-item-${m.id}`} key={m.id} className={`thread-item ${selected?.id===m.id?'active':''} ${m.read?'':'unread'}`} onClick={()=>open(m)}>
      <Avatar name={m.from_raw||m.from_email}/>
      <div className="thread-info"><strong>{!m.read&&<span className="unread-dot"/>}{m.from_email||'Unknown sender'}</strong><p>{m.subject}</p><small>{m.snippet}</small></div>

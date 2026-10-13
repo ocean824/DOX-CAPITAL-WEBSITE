@@ -1379,7 +1379,7 @@ def _inbox_card(m: dict) -> dict:
 @api.get("/inbox")
 async def list_inbox(scope: Optional[str] = None, user: dict = Depends(_require_inbox_user)):
     be = user.get("business_email")
-    if user.get("role") == "admin" and scope == "all":
+    if (user.get("role") == "admin" or _is_underwriter(user)) and scope == "all":
         q: dict = {}
     else:
         q = {"owner_user_id": user["id"]}
@@ -1392,7 +1392,7 @@ async def _owned_message(message_id: str, user: dict) -> dict:
     m = await db.inbox.find_one({"id": message_id}, {"_id": 0})
     if not m:
         raise HTTPException(status_code=404, detail="Message not found")
-    if user.get("role") != "admin" and m.get("owner_user_id") != user["id"]:
+    if user.get("role") != "admin" and not _is_underwriter(user) and m.get("owner_user_id") != user["id"]:
         raise HTTPException(status_code=403, detail="Not your message")
     return m
 
@@ -1589,7 +1589,11 @@ async def download_upload(
     if not doc:
         raise HTTPException(status_code=404, detail="File not found")
     if role != "admin" and doc["user_id"] != user_id:
-        raise HTTPException(status_code=403, detail="Not allowed")
+        requester = await db.users.find_one({"id": user_id}, {"_id": 0, "password_hash": 0})
+        if not requester:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        # admin & underwriters may open any deal's files; partners may open their referred clients' files
+        await _require_deal_access(requester, doc["user_id"])
     data, ct = get_object(doc["storage_path"])
     headers = {"Content-Disposition": f'attachment; filename="{doc["original_filename"]}"'}
     return StreamingResponse(io.BytesIO(data), media_type=doc.get("content_type", ct), headers=headers)
