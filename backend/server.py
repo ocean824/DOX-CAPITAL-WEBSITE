@@ -2209,6 +2209,241 @@ MCP_TOOLS = [
     {"name": "assistant_usage", "description": "Summary of AI assistant usage over the last 30 days.",
      "inputSchema": {"type": "object", "properties": {}}, "handler": _mcp_assistant_usage},
 ]
+# -- Expanded tool set: site admin + full workspace (CRM) control ----------
+from workspace.schemas import (  # noqa: E402
+    TransactionIn, TransactionPatch, ContactIn, TaskIn, TaskPatch, DecisionIn, SettingsIn,
+)
+
+
+async def _mcp_owner() -> dict:
+    """Build an OWNER workspace principal (from the key's admin) for workspace tools."""
+    key = await _mcp_active_key()
+    admin = None
+    if key and key.get("created_by"):
+        admin = await db.users.find_one({"email": key["created_by"]}, {"_id": 0, "password_hash": 0})
+    if not admin:
+        admin = await db.users.find_one({"role": "admin"}, {"_id": 0, "password_hash": 0})
+    if not admin:
+        raise ValueError("No admin/owner account is available")
+    await db.ws_users.update_one(
+        {"id": admin["id"]},
+        {"$set": {"name": admin.get("name") or admin["email"], "email": admin["email"], "role": "OWNER", "active": True},
+         "$setOnInsert": {"notification_preferences": {"messages": True, "tasks": True, "mentions": True},
+                          "created_at": datetime.now(timezone.utc).isoformat()}},
+        upsert=True,
+    )
+    return {"id": admin["id"], "name": admin.get("name") or admin["email"], "email": admin["email"],
+            "role": "OWNER", "active": True}
+
+
+# ---- additional site-level handlers --------------------------------------
+async def _mcp_get_user(args: dict):
+    u = await db.users.find_one({"id": args["user_id"]}, {"_id": 0, "password_hash": 0})
+    if not u:
+        raise ValueError("User not found")
+    return u
+
+
+async def _mcp_get_deal(args: dict):
+    client = await _get_client_user(args["client_id"])
+    return await _prescreen_payload(client)
+
+
+async def _mcp_list_partners(args: dict):
+    rows = await db.users.find({"account_type": "partner"}, {"_id": 0, "password_hash": 0}).to_list(500)
+    return [{"id": r["id"], "name": r.get("name"), "email": r.get("email"), "status": r.get("status"),
+             "referral_code": r.get("referral_code")} for r in rows]
+
+
+async def _mcp_list_underwriters(args: dict):
+    rows = await db.users.find({"account_type": "underwriter"}, {"_id": 0, "password_hash": 0}).to_list(500)
+    return [{"id": r["id"], "name": r.get("name"), "email": r.get("email"), "status": r.get("status")} for r in rows]
+
+
+async def _mcp_assign_partner(args: dict):
+    client = await _get_client_user(args["client_id"])
+    partner_id = args.get("partner_id")
+    if partner_id and not await db.users.find_one({"id": partner_id, "account_type": "partner"}, {"_id": 0}):
+        raise ValueError("Partner not found")
+    await db.users.update_one({"id": client["id"]}, {"$set": {"partner_id": partner_id}})
+    return {"ok": True, "client_id": client["id"], "partner_id": partner_id}
+
+
+async def _mcp_compose_email(args: dict):
+    to = (args.get("to") or "").strip()
+    subject = (args.get("subject") or "").strip()
+    body = (args.get("body") or "").strip()
+    if not (to and subject and body):
+        raise ValueError("to, subject and body are all required")
+    await send_email(to, subject, email_shell(subject, f"<p>{escape_html(body).replace(chr(10), '<br>')}</p>"))
+    return {"ok": True, "to": to}
+
+
+async def _mcp_list_inbox(args: dict):
+    rows = await db.inbox.find({}, {"_id": 0, "id": 1, "from_email": 1, "subject": 1, "received_at": 1,
+                                    "owner_user_id": 1}).sort("received_at", -1).to_list(int(args.get("limit", 50)))
+    return rows
+
+
+# ---- workspace (CRM) handlers via OWNER principal ------------------------
+async def _mcp_ws_list_transactions(args: dict):
+    from workspace.crm_routes import transactions as h
+    return await h(user=await _mcp_owner())
+
+
+async def _mcp_ws_get_transaction(args: dict):
+    from workspace.crm_routes import get_transaction as h
+    return await h(args["id"], user=await _mcp_owner())
+
+
+async def _mcp_ws_create_transaction(args: dict):
+    from workspace.crm_routes import create_transaction as h
+    return await h(TransactionIn(**(args.get("data") or {})), await _mcp_owner())
+
+
+async def _mcp_ws_update_transaction(args: dict):
+    from workspace.crm_routes import update_transaction as h
+    return await h(args["id"], TransactionPatch(**(args.get("data") or {})), await _mcp_owner())
+
+
+async def _mcp_ws_list_contacts(args: dict):
+    from workspace.crm_routes import contacts as h
+    return await h(user=await _mcp_owner())
+
+
+async def _mcp_ws_create_contact(args: dict):
+    from workspace.crm_routes import create_contact as h
+    return await h(ContactIn(**(args.get("data") or {})), await _mcp_owner())
+
+
+async def _mcp_ws_update_contact(args: dict):
+    from workspace.crm_routes import update_contact as h
+    return await h(args["id"], ContactIn(**(args.get("data") or {})), await _mcp_owner())
+
+
+async def _mcp_ws_list_tasks(args: dict):
+    from workspace.crm_routes import tasks as h
+    return await h(user=await _mcp_owner())
+
+
+async def _mcp_ws_add_task(args: dict):
+    from workspace.crm_routes import add_task as h
+    return await h(args["transaction_id"], TaskIn(**(args.get("data") or {})), await _mcp_owner())
+
+
+async def _mcp_ws_update_task(args: dict):
+    from workspace.crm_routes import update_task as h
+    return await h(args["id"], TaskPatch(**(args.get("data") or {})), await _mcp_owner())
+
+
+async def _mcp_ws_list_pipeline_stages(args: dict):
+    from workspace.crm_routes import stages as h
+    return await h(user=await _mcp_owner())
+
+
+async def _mcp_ws_list_reviews(args: dict):
+    from workspace.review_routes import reviews as h
+    return await h(user=await _mcp_owner())
+
+
+async def _mcp_ws_get_review(args: dict):
+    from workspace.review_routes import get_review as h
+    return await h(args["id"], user=await _mcp_owner())
+
+
+async def _mcp_ws_decide_review(args: dict):
+    from workspace.review_routes import decision as h
+    return await h(args["id"], DecisionIn(decision=args["decision"], note=args.get("note", "")), await _mcp_owner())
+
+
+async def _mcp_ws_list_activity(args: dict):
+    from workspace.crm_routes import feed as h
+    return await h(user=await _mcp_owner())
+
+
+async def _mcp_ws_list_users(args: dict):
+    from workspace.crm_routes import users as h
+    return await h(user=await _mcp_owner())
+
+
+async def _mcp_ws_get_settings(args: dict):
+    from workspace.crm_routes import get_settings as h
+    return await h(user=await _mcp_owner())
+
+
+async def _mcp_ws_update_settings(args: dict):
+    from workspace.crm_routes import put_settings as h
+    return await h(SettingsIn(**(args.get("data") or {})), await _mcp_owner())
+
+
+def _model_body(model, extra: Optional[dict] = None, required_extra: Optional[list] = None) -> dict:
+    props = {"data": model.model_json_schema()}
+    req = ["data"]
+    if extra:
+        props.update(extra)
+        req = (required_extra or []) + req
+    return {"type": "object", "properties": props, "required": req}
+
+
+MCP_TOOLS.extend([
+    {"name": "get_user", "description": "Fetch a single user's full profile by user_id.",
+     "inputSchema": {"type": "object", "properties": {"user_id": {"type": "string"}}, "required": ["user_id"]},
+     "handler": _mcp_get_user},
+    {"name": "get_deal", "description": "Fetch the full pre-screen/readiness payload for a client's deal by client_id (phase, track, score, checklist items, gates).",
+     "inputSchema": {"type": "object", "properties": {"client_id": {"type": "string"}}, "required": ["client_id"]},
+     "handler": _mcp_get_deal},
+    {"name": "list_partners", "description": "List all partner (referral) accounts with referral codes.",
+     "inputSchema": {"type": "object", "properties": {}}, "handler": _mcp_list_partners},
+    {"name": "list_underwriters", "description": "List all underwriter accounts.",
+     "inputSchema": {"type": "object", "properties": {}}, "handler": _mcp_list_underwriters},
+    {"name": "assign_partner", "description": "Attach (or detach) a referring partner to a client. Pass partner_id=null to detach.",
+     "inputSchema": {"type": "object", "properties": {"client_id": {"type": "string"}, "partner_id": {"type": ["string", "null"]}}, "required": ["client_id"]},
+     "handler": _mcp_assign_partner},
+    {"name": "compose_email", "description": "Send a one-off email from D.O.X Capital to any address (to, subject, body).",
+     "inputSchema": {"type": "object", "properties": {"to": {"type": "string"}, "subject": {"type": "string"}, "body": {"type": "string"}}, "required": ["to", "subject", "body"]},
+     "handler": _mcp_compose_email},
+    {"name": "list_inbox", "description": "List recent inbound (Resend) emails received into the shared inbox. Optional limit.",
+     "inputSchema": {"type": "object", "properties": {"limit": {"type": "integer"}}}, "handler": _mcp_list_inbox},
+    {"name": "ws_list_transactions", "description": "Workspace CRM: list all deal transactions in the pipeline.",
+     "inputSchema": {"type": "object", "properties": {}}, "handler": _mcp_ws_list_transactions},
+    {"name": "ws_get_transaction", "description": "Workspace CRM: get one transaction by id.",
+     "inputSchema": {"type": "object", "properties": {"id": {"type": "string"}}, "required": ["id"]},
+     "handler": _mcp_ws_get_transaction},
+    {"name": "ws_create_transaction", "description": "Workspace CRM: open a new deal transaction. 'data' must match the transaction schema (title, deal_type, stage_id, engagement_date, diligence_date, close_date, client_ids, assigned_ids...).",
+     "inputSchema": _model_body(TransactionIn), "handler": _mcp_ws_create_transaction},
+    {"name": "ws_update_transaction", "description": "Workspace CRM: patch a transaction by id (stage, dates, amounts, assignments...). Provide id and a partial 'data'.",
+     "inputSchema": _model_body(TransactionPatch, {"id": {"type": "string"}}, ["id"]), "handler": _mcp_ws_update_transaction},
+    {"name": "ws_list_contacts", "description": "Workspace CRM: list all contacts.",
+     "inputSchema": {"type": "object", "properties": {}}, "handler": _mcp_ws_list_contacts},
+    {"name": "ws_create_contact", "description": "Workspace CRM: create a contact. 'data' matches the contact schema (name, email, company, role, assigned_ids...).",
+     "inputSchema": _model_body(ContactIn), "handler": _mcp_ws_create_contact},
+    {"name": "ws_update_contact", "description": "Workspace CRM: update a contact by id. Provide id and full 'data'.",
+     "inputSchema": _model_body(ContactIn, {"id": {"type": "string"}}, ["id"]), "handler": _mcp_ws_update_contact},
+    {"name": "ws_list_tasks", "description": "Workspace CRM: list all deal tasks across transactions.",
+     "inputSchema": {"type": "object", "properties": {}}, "handler": _mcp_ws_list_tasks},
+    {"name": "ws_add_task", "description": "Workspace CRM: add a task to a transaction. Provide transaction_id and 'data' (title, due_date, assignee_id).",
+     "inputSchema": _model_body(TaskIn, {"transaction_id": {"type": "string"}}, ["transaction_id"]), "handler": _mcp_ws_add_task},
+    {"name": "ws_update_task", "description": "Workspace CRM: update a task by id (mark completed, reassign, reschedule). Provide id and partial 'data'.",
+     "inputSchema": _model_body(TaskPatch, {"id": {"type": "string"}}, ["id"]), "handler": _mcp_ws_update_task},
+    {"name": "ws_list_pipeline_stages", "description": "Workspace CRM: list pipeline stages in order.",
+     "inputSchema": {"type": "object", "properties": {}}, "handler": _mcp_ws_list_pipeline_stages},
+    {"name": "ws_list_reviews", "description": "Workspace CRM: list all transaction review submissions.",
+     "inputSchema": {"type": "object", "properties": {}}, "handler": _mcp_ws_list_reviews},
+    {"name": "ws_get_review", "description": "Workspace CRM: get one review by id.",
+     "inputSchema": {"type": "object", "properties": {"id": {"type": "string"}}, "required": ["id"]},
+     "handler": _mcp_ws_get_review},
+    {"name": "ws_decide_review", "description": "Workspace CRM: approve, reject or request revision on a review. decision in (approved|rejected|revision_requested); note required unless approving.",
+     "inputSchema": {"type": "object", "properties": {"id": {"type": "string"}, "decision": {"type": "string", "enum": ["approved", "rejected", "revision_requested"]}, "note": {"type": "string"}}, "required": ["id", "decision"]},
+     "handler": _mcp_ws_decide_review},
+    {"name": "ws_list_activity", "description": "Workspace CRM: recent activity feed (last 40 events).",
+     "inputSchema": {"type": "object", "properties": {}}, "handler": _mcp_ws_list_activity},
+    {"name": "ws_list_users", "description": "Workspace CRM: list all workspace members (owner/team/underwriter/partner/client) with roles.",
+     "inputSchema": {"type": "object", "properties": {}}, "handler": _mcp_ws_list_users},
+    {"name": "ws_get_settings", "description": "Workspace CRM: get workspace settings (assistant limits, approval policy, deal types, checklist, required documents).",
+     "inputSchema": {"type": "object", "properties": {}}, "handler": _mcp_ws_get_settings},
+    {"name": "ws_update_settings", "description": "Workspace CRM: update workspace settings. 'data' matches the settings schema.",
+     "inputSchema": _model_body(SettingsIn), "handler": _mcp_ws_update_settings},
+])
 MCP_TOOL_MAP = {t["name"]: t for t in MCP_TOOLS}
 
 

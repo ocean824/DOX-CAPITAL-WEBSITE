@@ -422,6 +422,53 @@ function McpPanel() {
     },
   }, null, 2);
 
+  const keyLine = newKey || "dox_mcp_YOUR_KEY_HERE";
+  const toolLines = (info?.tools || []).map((t) => `- ${t.name}: ${t.description}`).join("\n");
+  const guideText = `# Connecting Hermes to D.O.X Capital (MCP)
+
+## 1. Get your key (Admin only)
+Admin -> Hermes MCP tab -> Generate key. The key (dox_mcp_...) is shown ONCE — copy and store it.
+Rotating or revoking instantly invalidates the old key.
+
+## 2. Connection
+Transport : HTTP, JSON-RPC 2.0 (MCP protocol 2024-11-05)
+Endpoint  : ${endpoint}
+Auth      : header  Authorization: Bearer ${keyLine}
+
+## 3a. MCP client (Claude Desktop / Cursor) — add to your config:
+${clientConfig}
+
+## 3b. Direct JSON-RPC (Hermes / custom agent):
+# handshake
+curl -s ${endpoint} -H "Authorization: Bearer ${keyLine}" -H "Content-Type: application/json" \\
+  -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}'
+# discover tools (each returns its JSON-Schema inputSchema)
+curl -s ${endpoint} -H "Authorization: Bearer ${keyLine}" -H "Content-Type: application/json" \\
+  -d '{"jsonrpc":"2.0","id":2,"method":"tools/list"}'
+# call a tool
+curl -s ${endpoint} -H "Authorization: Bearer ${keyLine}" -H "Content-Type: application/json" \\
+  -d '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"list_deals","arguments":{}}}'
+
+Tool results come back as result.content[0].text (a JSON string). Errors set result.isError=true.
+For ws_* tools that take a "data" object, call tools/list first to get the exact field schema.
+
+## 4. Available tools (${(info?.tools || []).length})
+${toolLines}
+
+## 5. Security
+One active key at a time. Rotate = new key + old killed. Revoke = disable all access.
+Key is stored hashed and cannot be re-displayed — save it on generation.
+All actions run with Admin/Owner authority and are logged in the activity feed.
+`;
+
+  const downloadGuide = () => {
+    const blob = new Blob([guideText], { type: "text/markdown" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = "HERMES_SETUP.md"; a.click();
+    URL.revokeObjectURL(url);
+  };
+
   if (loading) return <Empty text="Loading connection…" />;
 
   const connected = info?.connected;
@@ -498,6 +545,20 @@ function McpPanel() {
         </div>
         <p className="text-white/45 text-xs mt-3">Paste into your MCP client (e.g. Claude Desktop). Replace the key with the one above.</p>
         <pre data-testid="mcp-client-config" className="mt-4 text-xs text-white/70 bg-black/40 border border-white/10 p-4 overflow-x-auto">{clientConfig}</pre>
+      </div>
+
+      <div className="border border-white/10 p-6 lg:p-8">
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex items-center gap-2"><FileText className="h-4 w-4 text-white/50" /> <h3 className="font-display text-lg font-light">Setup guide for Hermes</h3></div>
+          <div className="flex items-center gap-2">
+            <Button data-testid="mcp-copy-guide" onClick={() => copy(guideText, "Guide copied")} variant="outline"
+              className="rounded-none border-white/20 hover:bg-white/10"><Copy className="h-4 w-4 mr-2" /> Copy guide</Button>
+            <Button data-testid="mcp-download-guide" onClick={downloadGuide} variant="outline"
+              className="rounded-none border-white/20 hover:bg-white/10"><Download className="h-4 w-4 mr-2" /> Download .md</Button>
+          </div>
+        </div>
+        <p className="text-white/45 text-xs mt-3">A ready-to-hand guide (endpoint, auth, config, tools). It embeds your freshly generated key if one is shown above — otherwise a placeholder.</p>
+        <pre data-testid="mcp-guide" className="mt-4 text-xs text-white/70 bg-black/40 border border-white/10 p-4 overflow-x-auto max-h-96">{guideText}</pre>
       </div>
 
       <div className="border border-white/10 p-6 lg:p-8">
