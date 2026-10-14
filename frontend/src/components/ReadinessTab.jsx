@@ -44,6 +44,28 @@ export const ReadinessTab = () => {
     } finally { setBusyItem(""); }
   };
 
+  const uploadMany = async (files, itemId) => {
+    const list = Array.from(files || []);
+    if (!list.length) return;
+    if (list.length === 1) return upload(list[0], itemId);
+    setBusyItem(itemId);
+    let ok = 0;
+    try {
+      for (const file of list) {
+        const fd = new FormData();
+        fd.append("file", file);
+        fd.append("category", `prescreen:${itemId}`);
+        await api.post("/uploads", fd, { headers: { "Content-Type": "multipart/form-data" } });
+        ok += 1;
+      }
+      await load();
+      toast.success(`Uploaded ${ok} files`);
+    } catch (e) {
+      await load();
+      toast.error(`${formatApiError(e.response?.data?.detail) || e.message}${ok ? ` — ${ok} uploaded before the error` : ""}`);
+    } finally { setBusyItem(""); }
+  };
+
   const saveMetrics = async () => {
     setSaving(true);
     try {
@@ -200,10 +222,10 @@ export const ReadinessTab = () => {
                   </div>
                   <div className="md:col-span-3 md:text-right">
                     <label className="inline-flex items-center gap-2 text-xs text-white/70 hover:text-white cursor-pointer">
-                      <input type="file" className="hidden" data-testid={`upload-${i.id}`}
-                        onChange={(e) => e.target.files?.[0] && upload(e.target.files[0], i.id)} />
+                      <input type="file" className="hidden" multiple data-testid={`upload-${i.id}`}
+                        onChange={(e) => { if (e.target.files?.length) uploadMany(e.target.files, i.id); e.target.value = ""; }} />
                       <UploadCloud className="h-4 w-4" strokeWidth={1.25} />
-                      {busyItem === i.id ? "Uploading…" : i.uploads?.length ? "Replace" : "Upload"}
+                      {busyItem === i.id ? "Uploading…" : i.uploads?.length ? "Replace / add" : "Upload"}
                     </label>
                   </div>
                 </div>
@@ -216,14 +238,14 @@ export const ReadinessTab = () => {
       <div>
         <div className="label-kicker text-xs">Not sure where it goes?</div>
         <label data-testid="bulk-upload" className="mt-4 block border border-dashed border-white/20 p-8 cursor-pointer hover:bg-white/[0.02] transition max-w-xl">
-          <input ref={bulkRef} type="file" className="hidden" data-testid="bulk-upload-input"
-            onChange={(e) => e.target.files?.[0] && upload(e.target.files[0], "unassigned")} />
+          <input ref={bulkRef} type="file" className="hidden" multiple data-testid="bulk-upload-input"
+            onChange={(e) => { if (e.target.files?.length) uploadMany(e.target.files, "unassigned"); e.target.value = ""; }} />
           <UploadCloud className="h-6 w-6 text-[hsl(var(--gold))]" strokeWidth={1.25} />
           <div className="font-display text-xl mt-4">
-            {busyItem === "unassigned" ? "Uploading…" : "Drop any supporting file here"}
+            {busyItem === "unassigned" ? "Uploading…" : "Drop any supporting files here"}
           </div>
           <p className="text-white/45 text-xs mt-2">
-            Our team files it against the right checklist item · PDF, PNG, JPG, XLSX · max 25MB
+            Select several at once — our team files each against the right checklist item · PDF, PNG, JPG, XLSX · max 200MB each
           </p>
         </label>
         {data.unassigned?.length > 0 && (

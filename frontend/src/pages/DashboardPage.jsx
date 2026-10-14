@@ -76,19 +76,24 @@ export default function DashboardPage() {
   const status = user.status || "pending";
 
   const onUpload = async (e) => {
-    const f = e.target.files?.[0];
-    if (!f) return;
-    setPickedName(f.name);
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
     setUploading(true);
+    let ok = 0;
     try {
-      const fd = new FormData();
-      fd.append("file", f);
-      fd.append("category", "general");
-      await api.post("/uploads", fd, { headers: { "Content-Type": "multipart/form-data" } });
+      for (const f of files) {
+        setPickedName(files.length > 1 ? `${f.name} (${ok + 1}/${files.length})` : f.name);
+        const fd = new FormData();
+        fd.append("file", f);
+        fd.append("category", "general");
+        await api.post("/uploads", fd, { headers: { "Content-Type": "multipart/form-data" } });
+        ok += 1;
+      }
       await refreshUploads();
-      toast.success("Document uploaded");
+      toast.success(files.length > 1 ? `${ok} documents uploaded` : "Document uploaded");
     } catch (err) {
-      toast.error(formatApiError(err.response?.data?.detail) || err.message);
+      await refreshUploads();
+      toast.error(`${formatApiError(err.response?.data?.detail) || err.message}${ok ? ` — ${ok} uploaded before the error` : ""}`);
     } finally {
       setUploading(false);
       setPickedName("");
@@ -191,11 +196,11 @@ export default function DashboardPage() {
                       data-testid="upload-dropzone"
                       className="mt-6 block border border-dashed border-white/20 p-8 cursor-pointer hover:bg-white/[0.02] transition"
                     >
-                      <input ref={fileRef} type="file" className="hidden" onChange={onUpload}
+                      <input ref={fileRef} type="file" className="hidden" multiple onChange={onUpload}
                              data-testid="upload-input" />
                       <UploadCloud className="h-6 w-6 text-[hsl(var(--gold))]" strokeWidth={1.25} />
                       <div className="font-display text-xl mt-4">{uploading ? `Uploading ${pickedName}…` : "Click to upload"}</div>
-                      <p className="text-white/45 text-xs mt-2">PDF, PNG, JPG, XLSX · max 200MB</p>
+                      <p className="text-white/45 text-xs mt-2">Select several at once · PDF, PNG, JPG, XLSX · 200MB each</p>
                     </label>
                   </div>
                   <div className="lg:col-span-7">
