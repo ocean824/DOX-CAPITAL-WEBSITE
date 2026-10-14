@@ -481,8 +481,8 @@ SITE_CONFIG_KEY = "site"
 async def site_is_locked() -> bool:
     cfg = await db.site_config.find_one({"key": SITE_CONFIG_KEY}, {"_id": 0})
     if not cfg:
-        return True  # pre-launch by default
-    return bool(cfg.get("locked", True))
+        return False  # public by default
+    return bool(cfg.get("locked", False))
 
 
 class SiteLockIn(BaseModel):
