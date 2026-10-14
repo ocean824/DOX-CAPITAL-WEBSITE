@@ -100,7 +100,7 @@ export default function AuthPage() {
 
   const [rg, setRg] = useState({
     name: "", email: "", password: "", company: "",
-    role_requested: "", message: "", referral_code: "",
+    role_requested: "", message: "", referral_code: "", accepted_legal: false,
   });
   const [rgErr, setRgErr] = useState("");
   const [rgBusy, setRgBusy] = useState(false);
@@ -132,6 +132,10 @@ export default function AuthPage() {
 
   const doRegister = async (e) => {
     e.preventDefault();
+    if (!rg.accepted_legal) {
+      setRgErr("You must accept the Terms of Service and Privacy Policy to continue.");
+      return;
+    }
     setRgBusy(true); setRgErr("");
     try {
       await api.post("/auth/register", {
@@ -283,10 +287,22 @@ export default function AuthPage() {
                           className="rounded-none bg-black/40 border-white/15"
                           placeholder={copy.messagePlaceholder} />
                       </Field>
+                      <label data-testid="reg-legal-label" className="sm:col-span-2 flex items-start gap-3 cursor-pointer select-none border border-white/10 bg-black/20 p-4">
+                        <input data-testid="reg-legal-checkbox" type="checkbox" required checked={rg.accepted_legal}
+                          onChange={(e) => setRg((s) => ({ ...s, accepted_legal: e.target.checked }))}
+                          className="mt-0.5 h-4 w-4 shrink-0 accent-[hsl(var(--gold))]" />
+                        <span className="text-xs text-white/60 leading-relaxed">
+                          I have read and agree to the{" "}
+                          <Link to="/legal/terms" target="_blank" rel="noreferrer" data-testid="reg-legal-terms-link" className="text-white underline underline-offset-4">Terms of Service</Link>
+                          {" "}and{" "}
+                          <Link to="/legal/privacy" target="_blank" rel="noreferrer" data-testid="reg-legal-privacy-link" className="text-white underline underline-offset-4">Privacy Policy</Link>
+                          {" "}(version June 2026). I understand my acceptance is an electronic signature and will be recorded with a timestamp and my IP address.
+                        </span>
+                      </label>
                       {rgErr && <p data-testid="register-error" className="sm:col-span-2 text-red-400 text-sm">{rgErr}</p>}
                       <div className="sm:col-span-2">
-                        <Button data-testid="reg-submit" disabled={rgBusy}
-                          className="rounded-none bg-white text-black hover:bg-white/90 h-11 px-6 btn-shimmer">
+                        <Button data-testid="reg-submit" disabled={rgBusy || !rg.accepted_legal}
+                          className="rounded-none bg-white text-black hover:bg-white/90 h-11 px-6 btn-shimmer disabled:opacity-40">
                           {rgBusy ? "Submitting…" : copy.cta} <ArrowUpRight className="ml-2 h-4 w-4" strokeWidth={1.25} />
                         </Button>
                       </div>
