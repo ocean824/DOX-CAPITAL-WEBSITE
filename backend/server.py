@@ -392,6 +392,7 @@ async def on_startup():
         await db.google_pending.create_index("token", unique=True)
         await db.google_pending.create_index("expires_at", expireAfterSeconds=0)
         await db.mcp_keys.create_index("hash", unique=True)
+        await db.mcp_activity.create_index([("created_at", -1)])
     except Exception as exc:
         logger.warning("index setup: %s", exc)
     # keep the pre-screening checklist in the workspace vault as an SOP
@@ -2212,6 +2213,8 @@ MCP_TOOLS = [
 # -- Expanded tool set: site admin + full workspace (CRM) control ----------
 from workspace.schemas import (  # noqa: E402
     TransactionIn, TransactionPatch, ContactIn, TaskIn, TaskPatch, DecisionIn, SettingsIn,
+    StageIn, StageReorderIn, ReviewIn, CommentIn, MeetingIn, MeetingPatch, RespondIn,
+    ThreadIn, MessageIn, GrantIn, KnowledgeItemPatch,
 )
 
 
@@ -2447,11 +2450,290 @@ MCP_TOOLS.extend([
 MCP_TOOL_MAP = {t["name"]: t for t in MCP_TOOLS}
 
 
+# -- Batch 2: deal-advance, more site control, and deep workspace control --
+_ADVANCE_NEXT = {"ready_to_underwrite": "in_underwriting", "in_underwriting": "approved"}
+
+
+async def _mcp_advance_deal(args: dict):
+    client = await _get_client_user(args["client_id"])
+    payload = await _prescreen_payload(client)
+    to = args.get("to_phase")
+    if to:
+        if to not in ("in_underwriting", "approved", "declined"):
+            raise ValueError("to_phase must be in_underwriting, approved or declined")
+        nxt = to
+    else:
+        nxt = _ADVANCE_NEXT.get(payload["phase"])
+        if not nxt:
+            raise ValueError(
+                f"Deal is at '{payload['phase_label']}' and cannot be auto-advanced. "
+                "It must be 'Ready to Underwrite' or 'In Underwriting', or pass an explicit to_phase.")
+    patch = {"phase": nxt, "phase_updated_at": datetime.now(timezone.utc).isoformat()}
+    if nxt in ("approved", "declined"):
+        patch["decided_by"] = "hermes-mcp"
+        patch["decided_at"] = datetime.now(timezone.utc).isoformat()
+    await db.prescreen.update_one({"user_id": client["id"]}, {"$set": patch}, upsert=True)
+    label = PHASE_LABELS[nxt]
+    note = args.get("note")
+    await _notify_deal(client, ADMIN_NOTIFY_EMAIL, f"[D.O.X] Your deal is now: {label}",
+                       f"<p>Your file has moved to <strong>{label}</strong>.</p>"
+                       f"{('<p>' + escape_html(note) + '</p>') if note else ''}")
+    return await _prescreen_payload(client)
+
+
+async def _mcp_set_deal_track(args: dict):
+    return await admin_set_track(args["client_id"], TrackIn(track=args["track"]),
+                                 {"email": "hermes-mcp", "id": "hermes-mcp", "role": "admin"})
+
+
+async def _mcp_set_readiness_item(args: dict):
+    return await admin_review_item(args["client_id"], args["item_id"],
+                                   ItemReviewIn(status=args["status"], note=args.get("note")),
+                                   {"email": "hermes-mcp", "id": "hermes-mcp", "role": "admin"})
+
+
+async def _mcp_grant_client_access(args: dict):
+    client = await _get_client_user(args["client_id"])
+    assigned = args.get("assigned_ids") or []
+    await db.users.update_one({"id": client["id"]}, {"$set": {"assigned_ids": assigned}})
+    return {"ok": True, "client_id": client["id"], "assigned_ids": assigned}
+
+
+async def _mcp_get_upload(args: dict):
+    u = await db.uploads.find_one({"id": args["upload_id"]},
+                                  {"_id": 0, "storage_path": 0}) or None
+    if not u:
+        raise ValueError("Upload not found")
+    u["download_path"] = f"/api/uploads/{u['id']}/download"
+    return u
+
+
+# -- workspace deep handlers (OWNER principal; reuse real route handlers) --
+async def _mcp_ws_list_documents(args: dict):
+    from workspace.document_routes import documents as h
+    return await h(args["transaction_id"], user=await _mcp_owner())
+
+
+async def _mcp_ws_create_stage(args: dict):
+    from workspace.crm_routes import create_stage as h
+    return await h(StageIn(**(args.get("data") or {})), await _mcp_owner())
+
+
+async def _mcp_ws_reorder_stages(args: dict):
+    from workspace.crm_routes import reorder_stages as h
+    return await h(StageReorderIn(ids=args["ids"]), await _mcp_owner())
+
+
+async def _mcp_ws_update_stage(args: dict):
+    from workspace.crm_routes import update_stage as h
+    return await h(args["id"], StageIn(**(args.get("data") or {})), await _mcp_owner())
+
+
+async def _mcp_ws_submit_review(args: dict):
+    from workspace.review_routes import submit as h
+    return await h(args["transaction_id"], ReviewIn(note=args.get("note", "")), await _mcp_owner())
+
+
+async def _mcp_ws_review_comments(args: dict):
+    from workspace.review_routes import comments as h
+    return await h(args["review_id"], user=await _mcp_owner())
+
+
+async def _mcp_ws_add_review_comment(args: dict):
+    from workspace.review_routes import comment as h
+    return await h(args["review_id"], CommentIn(body=args["body"]), await _mcp_owner())
+
+
+async def _mcp_ws_directory(args: dict):
+    from workspace.crm_routes import directory as h
+    return await h(user=await _mcp_owner())
+
+
+async def _mcp_ws_deal_config(args: dict):
+    from workspace.crm_routes import read_deal_config as h
+    return await h(user=await _mcp_owner())
+
+
+async def _mcp_ws_list_meetings(args: dict):
+    from workspace.calendar_routes import meetings as h
+    return await h(user=await _mcp_owner())
+
+
+async def _mcp_ws_create_meeting(args: dict):
+    from workspace.calendar_routes import create_meeting as h
+    return await h(MeetingIn(**(args.get("data") or {})), await _mcp_owner())
+
+
+async def _mcp_ws_update_meeting(args: dict):
+    from workspace.calendar_routes import update_meeting as h
+    return await h(args["id"], MeetingPatch(**(args.get("data") or {})), await _mcp_owner())
+
+
+async def _mcp_ws_respond_meeting(args: dict):
+    from workspace.calendar_routes import respond as h
+    return await h(args["id"], RespondIn(response=args["response"]), await _mcp_owner())
+
+
+async def _mcp_ws_cancel_meeting(args: dict):
+    from workspace.calendar_routes import cancel_meeting as h
+    return await h(args["id"], user=await _mcp_owner())
+
+
+async def _mcp_ws_list_threads(args: dict):
+    from workspace.message_routes import threads as h
+    return await h(user=await _mcp_owner())
+
+
+async def _mcp_ws_create_thread(args: dict):
+    from workspace.message_routes import create_thread as h
+    return await h(ThreadIn(**(args.get("data") or {})), await _mcp_owner())
+
+
+async def _mcp_ws_thread_messages(args: dict):
+    from workspace.message_routes import messages as h
+    return await h(args["id"], user=await _mcp_owner())
+
+
+async def _mcp_ws_post_thread_message(args: dict):
+    from workspace.message_routes import send_message as h
+    return await h(args["id"], MessageIn(**(args.get("data") or {})), await _mcp_owner())
+
+
+async def _mcp_ws_list_notifications(args: dict):
+    from workspace.message_routes import notifications as h
+    return await h(user=await _mcp_owner())
+
+
+async def _mcp_ws_list_knowledge(args: dict):
+    from workspace.knowledge_routes import items as h
+    return await h(user=await _mcp_owner())
+
+
+async def _mcp_ws_knowledge_access(args: dict):
+    from workspace.knowledge_routes import access as h
+    return await h(user=await _mcp_owner())
+
+
+async def _mcp_ws_get_knowledge(args: dict):
+    from workspace.knowledge_routes import item as h
+    return await h(args["id"], user=await _mcp_owner())
+
+
+async def _mcp_ws_update_knowledge(args: dict):
+    from workspace.knowledge_routes import patch_item as h
+    return await h(args["id"], KnowledgeItemPatch(**(args.get("data") or {})), await _mcp_owner())
+
+
+async def _mcp_ws_delete_knowledge(args: dict):
+    from workspace.knowledge_routes import delete_item as h
+    return await h(args["id"], user=await _mcp_owner())
+
+
+async def _mcp_ws_list_grants(args: dict):
+    from workspace.knowledge_routes import grants as h
+    return await h(user=await _mcp_owner())
+
+
+async def _mcp_ws_create_grant(args: dict):
+    from workspace.knowledge_routes import create_grant as h
+    return await h(GrantIn(**(args.get("data") or {})), await _mcp_owner())
+
+
+async def _mcp_ws_revoke_grant(args: dict):
+    from workspace.knowledge_routes import revoke_grant as h
+    return await h(args["id"], user=await _mcp_owner())
+
+
+MCP_TOOLS.extend([
+    {"name": "advance_deal", "description": "Move a client's deal to the NEXT phase automatically (Ready to Underwrite -> In Underwriting -> Approved), or pass to_phase to jump to in_underwriting|approved|declined. Notifies everyone on the deal. Optional note.",
+     "inputSchema": {"type": "object", "properties": {"client_id": {"type": "string"}, "to_phase": {"type": "string", "enum": ["in_underwriting", "approved", "declined"]}, "note": {"type": "string"}}, "required": ["client_id"]},
+     "handler": _mcp_advance_deal},
+    {"name": "set_deal_track", "description": "Assign a client's document-readiness track (classifies which checklist they must complete) and email them.",
+     "inputSchema": {"type": "object", "properties": {"client_id": {"type": "string"}, "track": {"type": "string"}}, "required": ["client_id", "track"]},
+     "handler": _mcp_set_deal_track},
+    {"name": "set_readiness_item", "description": "Review/mark a client's readiness checklist item (status e.g. approved|rejected|pending, optional note).",
+     "inputSchema": {"type": "object", "properties": {"client_id": {"type": "string"}, "item_id": {"type": "string"}, "status": {"type": "string"}, "note": {"type": "string"}}, "required": ["client_id", "item_id", "status"]},
+     "handler": _mcp_set_readiness_item},
+    {"name": "grant_client_access", "description": "Set which staff ids are assigned to a client (controls who can act on their deal).",
+     "inputSchema": {"type": "object", "properties": {"client_id": {"type": "string"}, "assigned_ids": {"type": "array", "items": {"type": "string"}}}, "required": ["client_id", "assigned_ids"]},
+     "handler": _mcp_grant_client_access},
+    {"name": "get_upload", "description": "Get a single client upload's metadata and authenticated download path by upload_id.",
+     "inputSchema": {"type": "object", "properties": {"upload_id": {"type": "string"}}, "required": ["upload_id"]},
+     "handler": _mcp_get_upload},
+    {"name": "ws_list_documents", "description": "Workspace CRM: list documents on a transaction.",
+     "inputSchema": {"type": "object", "properties": {"transaction_id": {"type": "string"}}, "required": ["transaction_id"]},
+     "handler": _mcp_ws_list_documents},
+    {"name": "ws_create_stage", "description": "Workspace CRM: add a pipeline stage. 'data' matches the stage schema (name, color).",
+     "inputSchema": _model_body(StageIn), "handler": _mcp_ws_create_stage},
+    {"name": "ws_reorder_stages", "description": "Workspace CRM: reorder pipeline stages by passing the full ordered list of stage ids.",
+     "inputSchema": {"type": "object", "properties": {"ids": {"type": "array", "items": {"type": "string"}}}, "required": ["ids"]},
+     "handler": _mcp_ws_reorder_stages},
+    {"name": "ws_update_stage", "description": "Workspace CRM: rename/recolor a pipeline stage by id. Provide id and 'data'.",
+     "inputSchema": _model_body(StageIn, {"id": {"type": "string"}}, ["id"]), "handler": _mcp_ws_update_stage},
+    {"name": "ws_submit_review", "description": "Workspace CRM: submit a transaction for compliance review. Provide transaction_id and optional note.",
+     "inputSchema": {"type": "object", "properties": {"transaction_id": {"type": "string"}, "note": {"type": "string"}}, "required": ["transaction_id"]},
+     "handler": _mcp_ws_submit_review},
+    {"name": "ws_review_comments", "description": "Workspace CRM: list comments on a review by review_id.",
+     "inputSchema": {"type": "object", "properties": {"review_id": {"type": "string"}}, "required": ["review_id"]},
+     "handler": _mcp_ws_review_comments},
+    {"name": "ws_add_review_comment", "description": "Workspace CRM: add a comment to a review.",
+     "inputSchema": {"type": "object", "properties": {"review_id": {"type": "string"}, "body": {"type": "string"}}, "required": ["review_id", "body"]},
+     "handler": _mcp_ws_add_review_comment},
+    {"name": "ws_directory", "description": "Workspace CRM: directory of all workspace people visible to the owner.",
+     "inputSchema": {"type": "object", "properties": {}}, "handler": _mcp_ws_directory},
+    {"name": "ws_deal_config", "description": "Workspace CRM: deal types, checklist template and required-document list.",
+     "inputSchema": {"type": "object", "properties": {}}, "handler": _mcp_ws_deal_config},
+    {"name": "ws_list_meetings", "description": "Workspace CRM: list all workspace meetings.",
+     "inputSchema": {"type": "object", "properties": {}}, "handler": _mcp_ws_list_meetings},
+    {"name": "ws_create_meeting", "description": "Workspace CRM: schedule a meeting on a transaction. 'data' matches the meeting schema (transaction_id, title, starts_at, participant_ids...).",
+     "inputSchema": _model_body(MeetingIn), "handler": _mcp_ws_create_meeting},
+    {"name": "ws_update_meeting", "description": "Workspace CRM: reschedule/update a meeting by id. Provide id and partial 'data'.",
+     "inputSchema": _model_body(MeetingPatch, {"id": {"type": "string"}}, ["id"]), "handler": _mcp_ws_update_meeting},
+    {"name": "ws_respond_meeting", "description": "Workspace CRM: respond to a meeting invite (accepted|declined|tentative).",
+     "inputSchema": {"type": "object", "properties": {"id": {"type": "string"}, "response": {"type": "string"}}, "required": ["id", "response"]},
+     "handler": _mcp_ws_respond_meeting},
+    {"name": "ws_cancel_meeting", "description": "Workspace CRM: cancel a meeting by id.",
+     "inputSchema": {"type": "object", "properties": {"id": {"type": "string"}}, "required": ["id"]},
+     "handler": _mcp_ws_cancel_meeting},
+    {"name": "ws_list_threads", "description": "Workspace CRM: list message threads with unread counts.",
+     "inputSchema": {"type": "object", "properties": {}}, "handler": _mcp_ws_list_threads},
+    {"name": "ws_create_thread", "description": "Workspace CRM: start a conversation. 'data' matches the thread schema (title, participant_ids, transaction_id|contact_id).",
+     "inputSchema": _model_body(ThreadIn), "handler": _mcp_ws_create_thread},
+    {"name": "ws_thread_messages", "description": "Workspace CRM: list messages in a thread by id.",
+     "inputSchema": {"type": "object", "properties": {"id": {"type": "string"}}, "required": ["id"]},
+     "handler": _mcp_ws_thread_messages},
+    {"name": "ws_post_thread_message", "description": "Workspace CRM: post a message to a thread. Provide id and 'data' (body, optional mention_ids).",
+     "inputSchema": _model_body(MessageIn, {"id": {"type": "string"}}, ["id"]), "handler": _mcp_ws_post_thread_message},
+    {"name": "ws_list_notifications", "description": "Workspace CRM: the owner's notifications and due tasks.",
+     "inputSchema": {"type": "object", "properties": {}}, "handler": _mcp_ws_list_notifications},
+    {"name": "ws_list_knowledge", "description": "Workspace CRM: list all knowledge vault items (metadata).",
+     "inputSchema": {"type": "object", "properties": {}}, "handler": _mcp_ws_list_knowledge},
+    {"name": "ws_knowledge_access", "description": "Workspace CRM: knowledge access summary (shared/project item counts, grants).",
+     "inputSchema": {"type": "object", "properties": {}}, "handler": _mcp_ws_knowledge_access},
+    {"name": "ws_get_knowledge", "description": "Workspace CRM: get a knowledge item (with content) by id.",
+     "inputSchema": {"type": "object", "properties": {"id": {"type": "string"}}, "required": ["id"]},
+     "handler": _mcp_ws_get_knowledge},
+    {"name": "ws_update_knowledge", "description": "Workspace CRM: update a knowledge item's metadata (scope, deal_type, tags, trust) by id. Provide id and 'data'.",
+     "inputSchema": _model_body(KnowledgeItemPatch, {"id": {"type": "string"}}, ["id"]), "handler": _mcp_ws_update_knowledge},
+    {"name": "ws_delete_knowledge", "description": "Workspace CRM: delete a knowledge item by id.",
+     "inputSchema": {"type": "object", "properties": {"id": {"type": "string"}}, "required": ["id"]},
+     "handler": _mcp_ws_delete_knowledge},
+    {"name": "ws_list_grants", "description": "Workspace CRM: list knowledge-access grants.",
+     "inputSchema": {"type": "object", "properties": {}}, "handler": _mcp_ws_list_grants},
+    {"name": "ws_create_grant", "description": "Workspace CRM: grant a user knowledge access. 'data' matches the grant schema (user_id, scope, deal_types, path_prefix, expires_at).",
+     "inputSchema": _model_body(GrantIn), "handler": _mcp_ws_create_grant},
+    {"name": "ws_revoke_grant", "description": "Workspace CRM: revoke a knowledge-access grant by id.",
+     "inputSchema": {"type": "object", "properties": {"id": {"type": "string"}}, "required": ["id"]},
+     "handler": _mcp_ws_revoke_grant},
+])
+MCP_TOOL_MAP = {t["name"]: t for t in MCP_TOOLS}
+
+
 def _mcp_public_tools() -> list:
     return [{"name": t["name"], "description": t["description"], "inputSchema": t["inputSchema"]} for t in MCP_TOOLS]
 
 
-async def _mcp_dispatch(message: dict):
+async def _mcp_dispatch(message: dict, principal: Optional[dict] = None):
     """Handle a single JSON-RPC message. Returns a response dict, or None for notifications."""
     method = message.get("method")
     mid = message.get("id")
@@ -2474,27 +2756,57 @@ async def _mcp_dispatch(message: dict):
         tool = MCP_TOOL_MAP.get(name)
         if not tool:
             return {"jsonrpc": "2.0", "id": mid, "error": {"code": -32602, "detail": f"Unknown tool: {name}"}}
+        args = params.get("arguments") or {}
         try:
-            data = await tool["handler"](params.get("arguments") or {})
-            result = {"content": [{"type": "text", "text": _json.dumps(data, default=str)}]}
+            data = await tool["handler"](args)
+            text = _json.dumps(data, default=str)
+            result = {"content": [{"type": "text", "text": text}]}
+            await _mcp_log(name, args, "ok", _mcp_summary(data), principal)
         except Exception as exc:
             result = {"content": [{"type": "text", "text": f"Error: {exc}"}], "isError": True}
+            await _mcp_log(name, args, "error", str(exc)[:300], principal)
     else:
         return {"jsonrpc": "2.0", "id": mid, "error": {"code": -32601, "detail": f"Method not found: {method}"}}
     return {"jsonrpc": "2.0", "id": mid, "result": result}
 
 
+def _mcp_summary(data) -> str:
+    if isinstance(data, list):
+        return f"{len(data)} record(s)"
+    if isinstance(data, dict):
+        return _json.dumps(data, default=str)[:200]
+    return str(data)[:200]
+
+
+async def _mcp_log(tool: str, arguments: dict, status: str, summary: str, principal: Optional[dict]):
+    try:
+        args_str = _json.dumps(arguments, default=str)
+        if len(args_str) > 600:
+            args_str = args_str[:600] + "…"
+        await db.mcp_activity.insert_one({
+            "id": str(uuid.uuid4()),
+            "tool": tool,
+            "arguments": args_str,
+            "status": status,
+            "summary": (summary or "")[:300],
+            "key_id": (principal or {}).get("id"),
+            "created_at": datetime.now(timezone.utc).isoformat(),
+        })
+    except Exception:
+        pass
+
+
 @api.post("/mcp")
 async def mcp_endpoint(request: Request):
-    await _mcp_authenticate(request)
+    principal = await _mcp_authenticate(request)
     try:
         body = await request.json()
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid JSON")
     if isinstance(body, list):
-        responses = [r for r in [await _mcp_dispatch(m) for m in body] if r is not None]
+        responses = [r for r in [await _mcp_dispatch(m, principal) for m in body] if r is not None]
         return responses
-    resp = await _mcp_dispatch(body)
+    resp = await _mcp_dispatch(body, principal)
     if resp is None:
         return Response(status_code=202)
     return resp
@@ -2534,6 +2846,12 @@ async def admin_mcp_generate_key(admin: dict = Depends(require_admin)):
 async def admin_mcp_revoke_key(admin: dict = Depends(require_admin)):
     await db.mcp_keys.update_many({}, {"$set": {"active": False}})
     return {"ok": True}
+
+
+@api.get("/admin/mcp/activity")
+async def admin_mcp_activity(limit: int = 50, admin: dict = Depends(require_admin)):
+    rows = await db.mcp_activity.find({}, {"_id": 0}).sort("created_at", -1).to_list(min(max(limit, 1), 200))
+    return rows
 
 
 # ---------------------------------------------------------------------------

@@ -372,6 +372,7 @@ function McpPanel() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [newKey, setNewKey] = useState(null);
+  const [activity, setActivity] = useState([]);
 
   const endpoint = `${process.env.REACT_APP_BACKEND_URL}/api/mcp`;
 
@@ -384,7 +385,19 @@ function McpPanel() {
     } finally { setLoading(false); }
   }, []);
 
+  const loadActivity = useCallback(async () => {
+    try {
+      const { data } = await api.get("/admin/mcp/activity?limit=50");
+      setActivity(data);
+    } catch { /* silent */ }
+  }, []);
+
   useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    loadActivity();
+    const t = setInterval(loadActivity, 5000);
+    return () => clearInterval(t);
+  }, [loadActivity]);
 
   const generate = async () => {
     setBusy(true);
@@ -533,6 +546,37 @@ All actions run with Admin/Owner authority and are logged in the activity feed.
               <Button data-testid="mcp-copy-key" onClick={() => copy(newKey, "Key copied")} variant="outline"
                 className="rounded-none border-white/20 hover:bg-white/10 h-[42px]"><Copy className="h-4 w-4" /></Button>
             </div>
+          </div>
+        )}
+      </div>
+
+      <div className="border border-white/10 p-6 lg:p-8">
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex items-center gap-2"><Sparkles className="h-4 w-4 text-[hsl(var(--gold))]" /> <h3 className="font-display text-lg font-light">Activity — what Hermes is doing</h3></div>
+          <span className="flex items-center gap-2 text-[10px] tracking-widest uppercase text-emerald-300/80">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" /> Live
+          </span>
+        </div>
+        <p className="text-white/45 text-xs mt-3">Every tool call made with this key, newest first (auto-refreshes).</p>
+        {activity.length === 0 ? (
+          <div className="mt-4 text-white/35 text-sm border border-white/10 p-6" data-testid="mcp-activity-empty">No activity yet. Actions appear here the moment Hermes calls a tool.</div>
+        ) : (
+          <div className="mt-4 divide-y divide-white/5 border border-white/10 max-h-96 overflow-y-auto" data-testid="mcp-activity-feed">
+            {activity.map((a) => (
+              <div key={a.id} data-testid="mcp-activity-row" className="flex items-start gap-3 p-3">
+                <span className={`mt-1 h-1.5 w-1.5 shrink-0 rounded-full ${a.status === "ok" ? "bg-emerald-400" : "bg-red-400"}`} />
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <code className="text-xs text-[hsl(var(--gold))]">{a.tool}</code>
+                    <span className="text-[10px] text-white/30">{a.created_at ? new Date(a.created_at).toLocaleString() : ""}</span>
+                  </div>
+                  <p className="text-white/55 text-xs mt-1 truncate">{a.summary}</p>
+                  {a.arguments && a.arguments !== "{}" && (
+                    <p className="text-white/30 text-[11px] mt-0.5 truncate">args: {a.arguments}</p>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>

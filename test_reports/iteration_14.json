@@ -1,0 +1,56 @@
+{
+  "summary": "Backend (71-tool MCP + activity audit + advance_deal + mobile auth): 17/17 pytest cases PASS. Mobile Expo preview: login (invalid+valid), role-based routing, token persistence on reload, logout, assistant AI chat and client messaging ALL WORK. CRITICAL mobile UI bug: every screen using the <Screen> wrapper with the onRefresh prop renders its header but shows an empty body in the Expo web preview. This blocks the pending-approvals list, admin deals list, admin bookings list, client documents (including the upload-button), client overview card and underwriter deals list. Login, Assistant chat, Messages and the Account/Profile screen (which uses <Screen> WITHOUT onRefresh) all render correctly, so core authentication, LLM integration and chat are functional.",
+  "platforms_tested": ["web", "mobile"],
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "web": {
+      "ui_bugs": [],
+      "integration_issues": [],
+      "design_issues": []
+    },
+    "mobile": {
+      "ui_bugs": [
+        {"component": "Screen (src/ui.tsx)", "issue": "When Screen is passed an onRefresh (which attaches a RefreshControl inside the ScrollView), the ScrollView renders zero children on the Expo web preview. Body is completely empty on Admin Approvals, Admin Deals, Admin Bookings, Client Documents, Client Overview and Underwriter Deals. document.querySelectorAll('[data-testid]') returns 0 under the body on those tabs. Reference: /app/mobile/src/ui.tsx:22-39", "testID": "N/A (children never mount)", "priority": "CRITICAL"},
+        {"component": "Client Documents", "issue": "upload-button never renders because of the Screen+onRefresh bug above. GET /api/uploads/mine returns 200 successfully, so this is purely a web-preview rendering problem. Reference: /app/mobile/app/(client)/documents.tsx:44-47", "testID": "upload-button", "priority": "HIGH"},
+        {"component": "Admin Approvals / Admin Deals / Admin Bookings / Underwriter Deals / Client Overview", "issue": "Same root cause as above — list items + action buttons (approve-/reject-/deal-toggle-/deal-approve-/deal-underwrite-/deal-decline-) are never rendered on the Expo web preview. Backend endpoints (/admin/users?status=pending, /admin/prescreen, /admin/bookings, /underwriter/deals, /prescreen/me) all return 200.", "testID": "approve-*, reject-*, deal-toggle-*, deal-approve-*, deal-underwrite-*, deal-decline-*", "priority": "CRITICAL"}
+      ],
+      "integration_issues": [],
+      "design_issues": [],
+      "react_native_issues": [
+        {"component": "ScrollView + RefreshControl (react-native-web)", "issue": "RefreshControl is not fully supported on react-native-web and in this build appears to collapse the ScrollView content to zero. Suggested fix: pass refreshControl only on native platforms, e.g. `refreshControl={Platform.OS !== 'web' && onRefresh ? <RNRefresh ... /> : undefined}`. Reference: /app/mobile/src/ui.tsx:30-34"}
+      ]
+    }
+  },
+  "parity_issues": [
+    {"flow": "Core list screens (deals, approvals, documents)", "platform": "mobile", "issue": "Web portal shows these lists fine; mobile Expo web preview renders only the header. Native iOS/Android may still work, but preview-based QA is blocked.", "expected": "List items and action buttons visible", "actual": "Empty body under header"}
+  ],
+  "test_report_links": [
+    "/app/backend/tests/test_mcp_mobile_iter14.py",
+    "/app/test_reports/pytest/iter14_mcp_mobile.xml"
+  ],
+  "action_items": [
+    "Fix Screen wrapper in /app/mobile/src/ui.tsx so children render on Expo web — gate the RefreshControl behind Platform.OS !== 'web' (or disable it entirely on web).",
+    "After the fix, re-verify Admin Approvals list, Admin Deals (deal-toggle/approve/underwrite/decline), Admin Bookings, Client Documents upload-button, Client Overview card, Underwriter Deals.",
+    "No backend changes needed — all 71 MCP tools, activity log, advance_deal, auth and role routing already pass."
+  ],
+  "critical_code_review_comments": [
+    "src/ui.tsx Screen component mixes RefreshControl with ScrollView without any web guard — this breaks every pull-to-refresh screen in the web preview.",
+    "Each role-tabs screen (admin, client, underwriter) duplicates the load/refresh pattern; consider a shared useListResource hook once the Screen bug is fixed.",
+    "mobile src/api.ts throws a generic Error with no status attached; consider a typed ApiError so UIs can distinguish 401 (re-login) from 5xx (retry)."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_mcp_mobile_iter14.py",
+    "/app/test_reports/iteration_14.json",
+    "/app/test_reports/pytest/iter14_mcp_mobile.xml"
+  ],
+  "success_rate": {"backend": "100% (17/17)", "frontend": "40% — login/assistant/messages/profile pass; all Screen+onRefresh screens blank"},
+  "test_credentials": "Admin deptofx@proton.me / DoxAdmin!2026, Underwriter underwriter@thedoxs.com / DoxUnder!2026, Client client.test@doxs.dev / TestUser!2026 — all verified working against /api/auth/login.",
+  "seed_data_creation": "No seed data created. Backend tests generate+revoke a short-lived dox_mcp_ MCP key per module.",
+  "retest_needed": true,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Backend fully green. Primary remaining mobile risk is Screen+onRefresh rendering. If main agent patches /app/mobile/src/ui.tsx and restarts mobile, re-screenshot each tab (Approvals, Deals, Bookings for admin; Overview, Documents for client; Deals for underwriter) to confirm testIDs render and action buttons are clickable. Login flow, Assistant chat (gpt-6-luna via EMERGENT_LLM_KEY), Messages thread, token persistence and logout are already verified.",
+  "rca of the issue": "RCA: react-native-web's ScrollView does not reliably support RefreshControl. The Screen helper always attaches `<RefreshControl>` when `onRefresh` is provided, which on the Expo web preview appears to short-circuit rendering of the ScrollView's children (verified: document.querySelectorAll on those screens returns zero data-testid elements, while the identical screens render their header). Fix: guard the refreshControl prop with `Platform.OS !== 'web'`, or render a web-only ScrollView without pull-to-refresh. Reproduction: sign in as admin, open the Deals tab, inspect the DOM — only the header is present, no Card/Button children render. Same reproduction for client Documents and underwriter Deals."
+}

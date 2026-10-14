@@ -36,53 +36,42 @@ import { Appearance, StyleSheet, useColorScheme } from "react-native";
 export type ColorScheme = "light" | "dark";
 
 const light = {
-  // ---------------------------------------------------------------------------
-  // Surfaces: backgrounds, from the screen down to small fills.
-  // Each `on` key is the text and icon color for that background.
-  // ---------------------------------------------------------------------------
-  surface: "#FFFFFF", // primary canvas, most of every screen
-  onSurface: "#111827", // text and icons on the canvas
-  surfaceSecondary: "#F9FAFB", // cards, sheets, list rows
-  onSurfaceSecondary: "#374151", // text and icons on cards, sheets, rows
-  surfaceTertiary: "#F3F4F6", // input backgrounds, chips, deepest nesting
-  onSurfaceTertiary: "#4B5563", // text on inputs and chips; also muted text
-  surfaceInverse: "#1F2937", // tooltips, snackbars, anything popping against the theme
-  onSurfaceInverse: "#FFFFFF", // text and icons on the inverse surface
-  muted: "#6B7280", // subdued text on surface: captions, timestamps, placeholders
+  // D.O.X Capital — obsidian/luxury palette (dark brand, applied in all schemes).
+  surface: "#050505",
+  onSurface: "#FFFFFF",
+  surfaceSecondary: "#101013",
+  onSurfaceSecondary: "#FFFFFF",
+  surfaceTertiary: "#17171B",
+  onSurfaceTertiary: "#A1A1AA",
+  surfaceInverse: "#FFFFFF",
+  onSurfaceInverse: "#050505",
+  muted: "#71717A",
 
-  // ---------------------------------------------------------------------------
-  // Brand: the identity color and the fills built from it.
-  // Neutral by default; replace with the design guidelines values.
-  // ---------------------------------------------------------------------------
-  brand: "#111827", // base hue, anchor only; Primary, Secondary, Tertiary are weights of it
-  onBrand: "#FFFFFF", // text and icons placed directly on brand
-  brandPrimary: "#111827", // primary CTA, active tab indicator, selected states
-  onBrandPrimary: "#FFFFFF", // text and icons on brandPrimary
-  brandSecondary: "#E5E7EB", // secondary CTA, less prominent accents
-  onBrandSecondary: "#111827", // text and icons on brandSecondary
-  brandTertiary: "#F3F4F6", // chips, tags, badges, subtle brand moments
-  onBrandTertiary: "#111827", // text and icons on brandTertiary
+  brand: "#FFFFFF",
+  onBrand: "#050505",
+  brandPrimary: "#FFFFFF",
+  onBrandPrimary: "#050505",
+  brandSecondary: "#17171B",
+  onBrandSecondary: "#FFFFFF",
+  brandTertiary: "#101013",
+  onBrandTertiary: "#FFFFFF",
 
-  // ---------------------------------------------------------------------------
-  // Status: semantic only, never decorative. Fill for badges, banners and
-  // toasts; the `on` key is text on that fill. The plain key is also safe as
-  // text on `surface`.
-  // ---------------------------------------------------------------------------
-  success: "#15803D",
-  onSuccess: "#FFFFFF",
-  warning: "#B45309",
-  onWarning: "#FFFFFF",
-  error: "#B91C1C",
-  onError: "#FFFFFF",
-  info: "#1D4ED8",
-  onInfo: "#FFFFFF",
+  // Gold is reserved for value/success metrics ($1M+), never decorative.
+  gold: "#D4AF37",
+  onGold: "#050505",
 
-  // ---------------------------------------------------------------------------
-  // Lines
-  // ---------------------------------------------------------------------------
-  border: "#E5E7EB", // hairline outline, 0.5pt or 1pt max: inputs, cards
-  borderStrong: "#D1D5DB", // focus rings, selected outlines, 1.5pt max
-  divider: "#E5E7EB", // subtle list separators
+  success: "#34D399",
+  onSuccess: "#05140C",
+  warning: "#FBBF24",
+  onWarning: "#1A1203",
+  error: "#F87171",
+  onError: "#1A0606",
+  info: "#93C5FD",
+  onInfo: "#06101A",
+
+  border: "rgba(255,255,255,0.10)",
+  borderStrong: "rgba(255,255,255,0.28)",
+  divider: "rgba(255,255,255,0.07)",
 };
 
 export type ThemeColors = typeof light;
