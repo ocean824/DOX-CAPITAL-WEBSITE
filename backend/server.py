@@ -88,6 +88,7 @@ RESEND_WEBHOOK_SECRET = os.environ.get("RESEND_WEBHOOK_SECRET", "").strip()
 MAIL_DOMAIN = os.environ.get("MAIL_DOMAIN", "thedoxs.com")
 EMERGENT_KEY = os.environ.get("EMERGENT_LLM_KEY", "").strip()
 APP_NAME = os.environ.get("APP_NAME", "doxcapital")
+EMERGENT_AUTH_SESSION_URL = "https://demobackend.emergentagent.com/auth/v1/env/oauth/session-data"
 
 if RESEND_API_KEY:
     resend.api_key = RESEND_API_KEY
@@ -388,6 +389,9 @@ async def on_startup():
         await db.users.create_index("business_handle", unique=True, sparse=True)
         await db.inbox.create_index("id", unique=True)
         await db.inbox.create_index([("owner_user_id", 1), ("received_at", -1)])
+        await db.google_pending.create_index("token", unique=True)
+        await db.google_pending.create_index("expires_at", expireAfterSeconds=0)
+        await db.mcp_keys.create_index("hash", unique=True)
     except Exception as exc:
         logger.warning("index setup: %s", exc)
     # keep the pre-screening checklist in the workspace vault as an SOP
@@ -593,7 +597,7 @@ async def register(payload: RegisterIn, request: Request, response: Response):
 async def login(payload: LoginIn, response: Response):
     email = payload.email.lower()
     user = await db.users.find_one({"email": email})
-    if not user or not verify_password(payload.password, user.get("password_hash", "")):
+    if not user or not user.get("password_hash") or not verify_password(payload.password, user.get("password_hash", "")):
         raise HTTPException(status_code=401, detail="Invalid email or password")
     if user.get("role") != "admin" and await site_is_locked():
         raise HTTPException(status_code=403, detail="D.O.X Capital is in pre-launch. Access is invite-only.")
@@ -633,6 +637,154 @@ async def refresh_token(request: Request, response: Response):
         return {"ok": True}
     except jwt.PyJWTError:
         raise HTTPException(status_code=401, detail="Invalid refresh token")
+
+
+# ---- Google sign-in (Emergent-managed OAuth) -----------------------------
+# Bridges Emergent Google auth into the existing JWT/cookie session so the rest
+# of the app (/auth/me, roles, workspace) keeps working unchanged. New Google
+# users still go through the admin-approval gate (status="pending").
+class GoogleExchangeIn(BaseModel):
+    session_id: str = Field(min_length=8, max_length=400)
+
+
+class GoogleCompleteIn(BaseModel):
+    pending_token: str = Field(min_length=8, max_length=200)
+    account_type: str = Field(default="client", pattern="^(client|partner)$")
+    accepted_legal: bool = False
+
+
+def _fetch_emergent_session(session_id: str) -> dict:
+    r = requests.get(EMERGENT_AUTH_SESSION_URL, headers={"X-Session-ID": session_id}, timeout=30)
+    r.raise_for_status()
+    return r.json()
+
+
+async def _notify_new_signup(name: str, email: str, account_type: str,
+                             company: Optional[str], role_requested: Optional[str],
+                             message: Optional[str]) -> None:
+    await send_email(
+        ADMIN_NOTIFY_EMAIL,
+        f"[D.O.X] New access request — {name}",
+        email_shell("New Access Request", f"""
+            <p><strong>{escape_html(name)}</strong> ({escape_html(email)}) has requested access via Google sign-in.</p>
+            <ul>
+              <li>Account type: <strong>{account_type.title()}</strong></li>
+              <li>Company: {escape_html(company) or '—'}</li>
+              <li>Role: {escape_html(role_requested) or '—'}</li>
+            </ul>
+            <p>Message: {escape_html(message) or '—'}</p>
+            <p>Approve or reject from the admin console.</p>
+        """),
+    )
+    await send_email(
+        email,
+        "We received your D.O.X Capital access request",
+        email_shell("Request Received", f"""
+            <p>{escape_html(name)}, thank you for requesting access to the D.O.X partner portal.</p>
+            <p>Our team reviews every applicant manually. You'll receive a follow-up email
+            once your account is approved (typically within one business day).</p>
+        """),
+    )
+
+
+@api.post("/auth/google/exchange")
+async def google_exchange(payload: GoogleExchangeIn, response: Response):
+    """Step 1: exchange the Emergent session_id. Existing users are logged straight
+    in; brand-new users are stashed and must accept legal terms (step 2)."""
+    try:
+        data = await asyncio.to_thread(_fetch_emergent_session, payload.session_id)
+    except Exception as exc:
+        logger.warning("[GOOGLE] session exchange failed: %s", exc)
+        raise HTTPException(status_code=401, detail="Google sign-in could not be verified. Please try again.")
+    email = (data.get("email") or "").strip().lower()
+    if not email:
+        raise HTTPException(status_code=400, detail="Google did not return an email address.")
+    name = (data.get("name") or email.split("@")[0]).strip()
+    picture = data.get("picture")
+
+    existing = await db.users.find_one({"email": email})
+    if existing:
+        if existing.get("role") != "admin" and await site_is_locked():
+            raise HTTPException(status_code=403, detail="D.O.X Capital is in pre-launch. Access is invite-only.")
+        await db.users.update_one(
+            {"id": existing["id"]},
+            {"$set": {"google_linked": True, "picture": existing.get("picture") or picture}},
+        )
+        access = create_access_token(existing["id"], existing["email"], existing["role"])
+        refresh = create_refresh_token(existing["id"])
+        set_auth_cookies(response, access, refresh)
+        existing.pop("_id", None); existing.pop("password_hash", None)
+        existing["google_linked"] = True
+        return {"status": "ok", "user": existing, "access_token": access}
+
+    pending_token = secrets.token_urlsafe(32)
+    await db.google_pending.insert_one({
+        "token": pending_token,
+        "email": email,
+        "name": name,
+        "picture": picture,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "expires_at": datetime.now(timezone.utc) + timedelta(minutes=15),
+    })
+    return {"status": "needs_legal", "pending_token": pending_token, "email": email, "name": name}
+
+
+@api.post("/auth/google/complete")
+async def google_complete(payload: GoogleCompleteIn, request: Request):
+    """Step 2: a first-time Google user accepts the legal terms; create the
+    pending account (admin approval still required before portal access)."""
+    if not payload.accepted_legal:
+        raise HTTPException(status_code=422, detail="You must accept the Terms of Service and Privacy Policy to continue")
+    pend = await db.google_pending.find_one({"token": payload.pending_token}, {"_id": 0})
+    if not pend:
+        raise HTTPException(status_code=400, detail="Your sign-in request expired. Please sign in with Google again.")
+    exp = pend.get("expires_at")
+    if isinstance(exp, str):
+        exp = datetime.fromisoformat(exp)
+    if exp and exp.tzinfo is None:
+        exp = exp.replace(tzinfo=timezone.utc)
+    if exp and exp < datetime.now(timezone.utc):
+        await db.google_pending.delete_one({"token": payload.pending_token})
+        raise HTTPException(status_code=400, detail="Your sign-in request expired. Please sign in with Google again.")
+
+    email = pend["email"]
+    if await db.users.find_one({"email": email}):
+        await db.google_pending.delete_one({"token": payload.pending_token})
+        raise HTTPException(status_code=400, detail="An account with that email already exists. Please sign in.")
+
+    user_id = str(uuid.uuid4())
+    client_ip = (request.headers.get("x-forwarded-for") or (request.client.host if request.client else "")).split(",")[0].strip()
+    account_type = payload.account_type
+    await db.users.insert_one({
+        "id": user_id,
+        "name": pend["name"],
+        "email": email,
+        "password_hash": "",
+        "picture": pend.get("picture"),
+        "google_linked": True,
+        "auth_provider": "google",
+        "company": None,
+        "role_requested": None,
+        "message": None,
+        "role": "user",
+        "status": "pending",
+        "account_type": account_type,
+        "partner_id": None,
+        "workspace_role": "staff" if account_type == "partner" else "client",
+        "legal_acceptance": {
+            "version": LEGAL_VERSION,
+            "terms_doc_id": LEGAL_TERMS_DOC_ID,
+            "privacy_doc_id": LEGAL_PRIVACY_DOC_ID,
+            "accepted_at": datetime.now(timezone.utc).isoformat(),
+            "ip": client_ip,
+            "user_agent": request.headers.get("user-agent", "")[:400],
+            "method": "google_oauth",
+        },
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    })
+    await db.google_pending.delete_one({"token": payload.pending_token})
+    await _notify_new_signup(pend["name"], email, account_type, None, None, None)
+    return {"status": "pending", "id": user_id}
 
 
 # ---- Discovery call bookings --------------------------------------------
@@ -1837,6 +1989,316 @@ async def admin_assistant_usage(admin: dict = Depends(require_admin)):
         "per_day": [{"day": d, "count": c} for d, c in sorted(per_day.items(), reverse=True)],
         "recent": recent,
     }
+
+
+# ---------------------------------------------------------------------------
+# Hermes Admin MCP — Model Context Protocol server (admin-controlled)
+# Exposes the site's admin capabilities as callable MCP tools over JSON-RPC,
+# authenticated by a single rotatable admin API key surfaced in the Admin portal.
+# ---------------------------------------------------------------------------
+MCP_PROTOCOL_VERSION = "2024-11-05"
+
+
+def _mcp_hash(raw: str) -> str:
+    return hashlib.sha256(raw.encode()).hexdigest()
+
+
+async def _mcp_active_key() -> Optional[dict]:
+    return await db.mcp_keys.find_one({"active": True}, {"_id": 0, "hash": 0})
+
+
+async def _mcp_authenticate(request: Request) -> dict:
+    auth = request.headers.get("Authorization", "")
+    if not auth.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Missing bearer token")
+    key = await db.mcp_keys.find_one({"hash": _mcp_hash(auth[7:].strip()), "active": True})
+    if not key:
+        raise HTTPException(status_code=401, detail="Invalid or revoked MCP key")
+    await db.mcp_keys.update_one({"id": key["id"]}, {"$set": {"last_used": datetime.now(timezone.utc).isoformat()}})
+    return key
+
+
+# -- Tool handlers (each: async (args: dict) -> JSON-serializable) ----------
+async def _mcp_list_users(args: dict):
+    q: dict = {}
+    if args.get("status"):
+        q["status"] = args["status"]
+    if args.get("account_type"):
+        q["account_type"] = args["account_type"]
+    users = await db.users.find(q, {"_id": 0, "password_hash": 0}).sort("created_at", -1).to_list(500)
+    return [{"id": u["id"], "name": u.get("name"), "email": u.get("email"),
+             "status": u.get("status"), "account_type": u.get("account_type"),
+             "role": u.get("role"), "company": u.get("company"),
+             "workspace_role": u.get("workspace_role"), "created_at": u.get("created_at")} for u in users]
+
+
+async def _mcp_approve_user(args: dict):
+    user = await db.users.find_one({"id": args["user_id"]}, {"_id": 0, "password_hash": 0})
+    if not user:
+        raise ValueError("User not found")
+    await db.users.update_one({"id": user["id"]}, {"$set": {"status": "approved",
+                              "approved_at": datetime.now(timezone.utc).isoformat()}})
+    if user.get("account_type") in ("partner", "underwriter") and not user.get("referral_code"):
+        await db.users.update_one({"id": user["id"]}, {"$set": {"referral_code": f"DOX{secrets.token_hex(3).upper()}"}})
+    fresh = await db.users.find_one({"id": user["id"]}, {"_id": 0, "password_hash": 0})
+    if fresh:
+        await assign_business_email(fresh)
+    await sync_workspace_users()
+    await send_email(user["email"], "Your D.O.X Capital account is approved",
+                     email_shell("Account Approved",
+                                 f"<p>{escape_html(user.get('name'))}, your D.O.X Capital portal access has been approved.</p>"))
+    return {"ok": True, "user_id": user["id"], "status": "approved"}
+
+
+async def _mcp_reject_user(args: dict):
+    user = await db.users.find_one({"id": args["user_id"]}, {"_id": 0, "password_hash": 0})
+    if not user:
+        raise ValueError("User not found")
+    await db.users.update_one({"id": user["id"]}, {"$set": {"status": "rejected",
+                              "rejected_at": datetime.now(timezone.utc).isoformat()}})
+    return {"ok": True, "user_id": user["id"], "status": "rejected"}
+
+
+async def _mcp_set_workspace_role(args: dict):
+    role = args.get("workspace_role")
+    if role not in ("staff", "client"):
+        raise ValueError("workspace_role must be 'staff' or 'client'")
+    user = await db.users.find_one({"id": args["user_id"]}, {"_id": 0})
+    if not user:
+        raise ValueError("User not found")
+    await db.users.update_one({"id": user["id"]}, {"$set": {"workspace_role": role}})
+    await sync_workspace_users()
+    return {"ok": True, "user_id": user["id"], "workspace_role": role}
+
+
+async def _mcp_list_deals(args: dict):
+    clients = await db.users.find(
+        {"account_type": "client", "status": "approved"}, {"_id": 0, "password_hash": 0}
+    ).sort("created_at", -1).to_list(500)
+    out = []
+    for c in clients:
+        p = await _prescreen_payload(c)
+        out.append({"client_id": c["id"], "name": c.get("name"), "email": c.get("email"),
+                    "phase": p["phase"], "phase_label": p["phase_label"],
+                    "track": p.get("track_label"), "ready": p.get("ready"),
+                    "score": p.get("score")})
+    return out
+
+
+async def _mcp_set_deal_phase(args: dict):
+    phase = args.get("phase")
+    if phase not in ("in_underwriting", "approved", "declined"):
+        raise ValueError("phase must be in_underwriting, approved or declined")
+    client = await _get_client_user(args["client_id"])
+    patch = {"phase": phase, "phase_updated_at": datetime.now(timezone.utc).isoformat()}
+    if phase in ("approved", "declined"):
+        patch["decided_by"] = "hermes-mcp"
+        patch["decided_at"] = datetime.now(timezone.utc).isoformat()
+    await db.prescreen.update_one({"user_id": client["id"]}, {"$set": patch}, upsert=True)
+    label = PHASE_LABELS[phase]
+    note = args.get("note")
+    await _notify_deal(client, ADMIN_NOTIFY_EMAIL, f"[D.O.X] Your deal is now: {label}",
+                       f"<p>Your file has moved to <strong>{label}</strong>.</p>"
+                       f"{('<p>' + escape_html(note) + '</p>') if note else ''}")
+    return {"ok": True, "client_id": client["id"], "phase": phase}
+
+
+async def _mcp_list_bookings(args: dict):
+    return await db.bookings.find({}, {"_id": 0}).sort("created_at", -1).to_list(200)
+
+
+async def _mcp_list_uploads(args: dict):
+    return await db.uploads.find({"is_deleted": False},
+                                 {"_id": 0, "id": 1, "original_filename": 1, "user_name": 1,
+                                  "user_email": 1, "size": 1, "created_at": 1}).sort("created_at", -1).to_list(500)
+
+
+async def _mcp_list_deal_messages(args: dict):
+    return await db.deal_messages.find({"client_id": args["client_id"]}, {"_id": 0}).sort("created_at", 1).to_list(500)
+
+
+async def _mcp_post_deal_message(args: dict):
+    client = await _get_client_user(args["client_id"])
+    owner = await db.users.find_one({"role": "admin"}, {"_id": 0, "id": 1, "name": 1, "email": 1})
+    msg = {
+        "id": str(uuid.uuid4()),
+        "client_id": client["id"],
+        "sender_id": (owner or {}).get("id", "hermes-mcp"),
+        "sender_name": "D.O.X Capital",
+        "sender_role": "admin",
+        "body": (args.get("body") or "").strip(),
+        "read_by": [(owner or {}).get("id", "hermes-mcp")],
+        "via": "hermes-mcp",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    if not msg["body"]:
+        raise ValueError("body is required")
+    await db.deal_messages.insert_one(dict(msg))
+    await _notify_deal(client, (owner or {}).get("email", ADMIN_NOTIFY_EMAIL),
+                       "[D.O.X] New message on your deal",
+                       f"<blockquote style=\"border-left:2px solid #D4AF37;padding-left:12px;\">{escape_html(msg['body'][:400])}</blockquote>")
+    return {"ok": True, "id": msg["id"]}
+
+
+async def _mcp_get_site_status(args: dict):
+    return {"locked": await site_is_locked()}
+
+
+async def _mcp_set_site_lock(args: dict):
+    locked = bool(args.get("locked"))
+    await db.site_config.update_one({"key": SITE_CONFIG_KEY},
+                                    {"$set": {"locked": locked, "updated_at": datetime.now(timezone.utc).isoformat(),
+                                              "updated_by": "hermes-mcp"}}, upsert=True)
+    return {"ok": True, "locked": locked}
+
+
+async def _mcp_search_knowledge(args: dict):
+    q = (args.get("query") or "").strip()
+    filt: dict = {}
+    if q:
+        filt = {"$or": [{"title": {"$regex": q, "$options": "i"}},
+                        {"content": {"$regex": q, "$options": "i"}}]}
+    items = await db.knowledge_items.find(filt, {"_id": 0, "id": 1, "title": 1, "scope": 1,
+                                                 "tags": 1, "updated_at": 1}).limit(50).to_list(50)
+    return items
+
+
+async def _mcp_assistant_usage(args: dict):
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=30)).isoformat()
+    total = await db.ai_usage_logs.count_documents({"created_at": {"$gte": cutoff}})
+    blocked = await db.ai_usage_logs.count_documents({"created_at": {"$gte": cutoff}, "status": "blocked"})
+    return {"window_days": 30, "total": total, "blocked": blocked}
+
+
+MCP_TOOLS = [
+    {"name": "list_users", "description": "List site users (clients, partners, underwriters). Optional filters: status (pending|approved|rejected), account_type (client|partner|underwriter).",
+     "inputSchema": {"type": "object", "properties": {"status": {"type": "string"}, "account_type": {"type": "string"}}},
+     "handler": _mcp_list_users},
+    {"name": "approve_user", "description": "Approve a pending user account by user_id. Sends them the approval email and provisions referral/inbox.",
+     "inputSchema": {"type": "object", "properties": {"user_id": {"type": "string"}}, "required": ["user_id"]},
+     "handler": _mcp_approve_user},
+    {"name": "reject_user", "description": "Reject a user account by user_id.",
+     "inputSchema": {"type": "object", "properties": {"user_id": {"type": "string"}}, "required": ["user_id"]},
+     "handler": _mcp_reject_user},
+    {"name": "set_workspace_role", "description": "Set an approved user's workspace role to 'staff' or 'client'.",
+     "inputSchema": {"type": "object", "properties": {"user_id": {"type": "string"}, "workspace_role": {"type": "string", "enum": ["staff", "client"]}}, "required": ["user_id", "workspace_role"]},
+     "handler": _mcp_set_workspace_role},
+    {"name": "list_deals", "description": "List all approved client deals with their current phase, track and readiness score.",
+     "inputSchema": {"type": "object", "properties": {}},
+     "handler": _mcp_list_deals},
+    {"name": "set_deal_phase", "description": "Move a client's deal to a terminal phase (in_underwriting|approved|declined) and notify the deal parties. Optional note.",
+     "inputSchema": {"type": "object", "properties": {"client_id": {"type": "string"}, "phase": {"type": "string", "enum": ["in_underwriting", "approved", "declined"]}, "note": {"type": "string"}}, "required": ["client_id", "phase"]},
+     "handler": _mcp_set_deal_phase},
+    {"name": "list_bookings", "description": "List all discovery-call and underwriting bookings.",
+     "inputSchema": {"type": "object", "properties": {}}, "handler": _mcp_list_bookings},
+    {"name": "list_uploads", "description": "List all client document uploads (metadata only).",
+     "inputSchema": {"type": "object", "properties": {}}, "handler": _mcp_list_uploads},
+    {"name": "list_deal_messages", "description": "List the in-portal message thread for a client deal by client_id.",
+     "inputSchema": {"type": "object", "properties": {"client_id": {"type": "string"}}, "required": ["client_id"]},
+     "handler": _mcp_list_deal_messages},
+    {"name": "post_deal_message", "description": "Post a message into a client's deal thread as D.O.X Capital and notify the parties.",
+     "inputSchema": {"type": "object", "properties": {"client_id": {"type": "string"}, "body": {"type": "string"}}, "required": ["client_id", "body"]},
+     "handler": _mcp_post_deal_message},
+    {"name": "get_site_status", "description": "Get whether the public site is currently locked (maintenance / invite-only).",
+     "inputSchema": {"type": "object", "properties": {}}, "handler": _mcp_get_site_status},
+    {"name": "set_site_lock", "description": "Lock or unlock the public site. Pass locked=true to restrict to invite-only.",
+     "inputSchema": {"type": "object", "properties": {"locked": {"type": "boolean"}}, "required": ["locked"]},
+     "handler": _mcp_set_site_lock},
+    {"name": "search_knowledge", "description": "Search the knowledge vault / SOPs by text query.",
+     "inputSchema": {"type": "object", "properties": {"query": {"type": "string"}}}, "handler": _mcp_search_knowledge},
+    {"name": "assistant_usage", "description": "Summary of AI assistant usage over the last 30 days.",
+     "inputSchema": {"type": "object", "properties": {}}, "handler": _mcp_assistant_usage},
+]
+MCP_TOOL_MAP = {t["name"]: t for t in MCP_TOOLS}
+
+
+def _mcp_public_tools() -> list:
+    return [{"name": t["name"], "description": t["description"], "inputSchema": t["inputSchema"]} for t in MCP_TOOLS]
+
+
+async def _mcp_dispatch(message: dict):
+    """Handle a single JSON-RPC message. Returns a response dict, or None for notifications."""
+    method = message.get("method")
+    mid = message.get("id")
+    params = message.get("params") or {}
+    if method in ("notifications/initialized", "notifications/cancelled"):
+        return None
+    if method == "initialize":
+        result = {
+            "protocolVersion": MCP_PROTOCOL_VERSION,
+            "capabilities": {"tools": {"listChanged": False}},
+            "serverInfo": {"name": "dox-hermes-admin", "version": "1.0.0"},
+            "instructions": "D.O.X Capital admin control plane. Use tools/list to see available admin actions.",
+        }
+    elif method == "ping":
+        result = {}
+    elif method == "tools/list":
+        result = {"tools": _mcp_public_tools()}
+    elif method == "tools/call":
+        name = params.get("name")
+        tool = MCP_TOOL_MAP.get(name)
+        if not tool:
+            return {"jsonrpc": "2.0", "id": mid, "error": {"code": -32602, "detail": f"Unknown tool: {name}"}}
+        try:
+            data = await tool["handler"](params.get("arguments") or {})
+            result = {"content": [{"type": "text", "text": _json.dumps(data, default=str)}]}
+        except Exception as exc:
+            result = {"content": [{"type": "text", "text": f"Error: {exc}"}], "isError": True}
+    else:
+        return {"jsonrpc": "2.0", "id": mid, "error": {"code": -32601, "detail": f"Method not found: {method}"}}
+    return {"jsonrpc": "2.0", "id": mid, "result": result}
+
+
+@api.post("/mcp")
+async def mcp_endpoint(request: Request):
+    await _mcp_authenticate(request)
+    try:
+        body = await request.json()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid JSON")
+    if isinstance(body, list):
+        responses = [r for r in [await _mcp_dispatch(m) for m in body] if r is not None]
+        return responses
+    resp = await _mcp_dispatch(body)
+    if resp is None:
+        return Response(status_code=202)
+    return resp
+
+
+# -- Admin: manage the Hermes MCP connection -------------------------------
+@api.get("/admin/mcp")
+async def admin_mcp_info(request: Request, admin: dict = Depends(require_admin)):
+    key = await _mcp_active_key()
+    base = str(request.base_url).rstrip("/")
+    return {
+        "connected": bool(key),
+        "created_at": key.get("created_at") if key else None,
+        "created_by": key.get("created_by") if key else None,
+        "last_used": key.get("last_used") if key else None,
+        "endpoint": f"{base}/api/mcp",
+        "tools": _mcp_public_tools(),
+    }
+
+
+@api.post("/admin/mcp/key")
+async def admin_mcp_generate_key(admin: dict = Depends(require_admin)):
+    raw = "dox_mcp_" + secrets.token_urlsafe(40)
+    await db.mcp_keys.update_many({}, {"$set": {"active": False}})
+    await db.mcp_keys.insert_one({
+        "id": str(uuid.uuid4()),
+        "hash": _mcp_hash(raw),
+        "active": True,
+        "created_by": admin["email"],
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "last_used": None,
+    })
+    return {"key": raw}
+
+
+@api.delete("/admin/mcp/key")
+async def admin_mcp_revoke_key(admin: dict = Depends(require_admin)):
+    await db.mcp_keys.update_many({}, {"$set": {"active": False}})
+    return {"ok": True}
 
 
 # ---------------------------------------------------------------------------

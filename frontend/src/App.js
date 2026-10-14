@@ -17,6 +17,7 @@ import SiteGate from "@/components/SiteGate";
 import ScrollToTop from "@/components/ScrollToTop";
 import LegalPage from "@/pages/LegalPage";
 import LegalDocPage from "@/pages/LegalDocPage";
+import AuthCallback from "@/pages/AuthCallback";
 
 const TOAST_OPTIONS = {
   style: {
@@ -37,26 +38,36 @@ function App() {
           <ThemeController />
           <BackgroundFX />
           <div style={{ position: "relative", zIndex: 1 }}>
-          <SiteGate>
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/book" element={<BookPage />} />
-            <Route path="/auth" element={<AuthPage />} />
-            <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/admin" element={<AdminPage />} />
-            <Route path="/underwriter" element={<UnderwriterPage />} />
-            <Route path="/partner" element={<PartnerPage />} />
-            <Route path="/legal" element={<LegalPage />} />
-            <Route path="/legal/:slug" element={<LegalDocPage />} />
-            <Route path="/workspace/*" element={<WorkspaceApp />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-          </SiteGate>
+          <AppRoutes />
           </div>
         </BrowserRouter>
         <Toaster theme="dark" position="bottom-right" toastOptions={TOAST_OPTIONS} />
       </AuthProvider>
     </div>
+  );
+}
+
+// Process the Google OAuth return (#session_id=...) BEFORE any route/auth check.
+function AppRoutes() {
+  if (typeof window !== "undefined" && window.location.hash?.includes("session_id=")) {
+    return <AuthCallback />;
+  }
+  return (
+    <SiteGate>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/book" element={<BookPage />} />
+        <Route path="/auth" element={<AuthPage />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/admin" element={<AdminPage />} />
+        <Route path="/underwriter" element={<UnderwriterPage />} />
+        <Route path="/partner" element={<PartnerPage />} />
+        <Route path="/legal" element={<LegalPage />} />
+        <Route path="/legal/:slug" element={<LegalDocPage />} />
+        <Route path="/workspace/*" element={<WorkspaceApp />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </SiteGate>
   );
 }
 
