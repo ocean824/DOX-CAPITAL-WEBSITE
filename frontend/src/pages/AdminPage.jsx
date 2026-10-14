@@ -108,7 +108,18 @@ export default function AdminPage() {
             <div className="md:col-span-3 text-xs text-white/40">
               {new Date(u.created_at).toLocaleString()}
               {onAccess && u.status === "approved" && (u.assigned_ids?.length > 0) && (
-                <div className="text-[10px] text-[hsl(var(--gold))] mt-1">{u.assigned_ids.length} team member(s) with access</div>
+                <div className="flex flex-wrap gap-1 mt-1.5" data-testid={`assigned-badges-${u.id}`}>
+                  {u.assigned_ids.map((aid) => {
+                    const m = everyone.find((x) => x.id === aid);
+                    if (!m) return null;
+                    return (
+                      <span key={aid} data-testid={`assigned-badge-${u.id}-${aid}`}
+                        className="text-[9px] tracking-wide uppercase border border-[hsl(var(--gold))]/40 text-[hsl(var(--gold))] px-1.5 py-0.5">
+                        {m.name} · {m.account_type === "underwriter" ? "UW" : "Partner"}
+                      </span>
+                    );
+                  })}
+                </div>
               )}
             </div>
             <div className="md:col-span-2 flex flex-col items-end gap-2">

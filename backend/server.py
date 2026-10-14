@@ -1223,6 +1223,21 @@ async def post_deal_message(client_id: str, payload: DealMessageIn, user: dict =
     return msg
 
 
+@api.get("/deals/unread-counts")
+async def deal_unread_counts(client_ids: str = Query(default=""), user: dict = Depends(require_approved)):
+    ids = [c for c in client_ids.split(",") if c]
+    out: dict = {}
+    for cid in ids:
+        try:
+            await _require_deal_access(user, cid)
+        except HTTPException:
+            continue
+        out[cid] = await db.deal_messages.count_documents(
+            {"client_id": cid, "sender_id": {"$ne": user["id"]}, "read_by": {"$ne": user["id"]}}
+        )
+    return out
+
+
 # ---- Business email inboxes (Resend inbound → in-app Inbox) --------------
 import re as _re
 import json as _json

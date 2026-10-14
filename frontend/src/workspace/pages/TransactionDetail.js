@@ -25,17 +25,21 @@ export default function TransactionDetail(){
 
 function DealClientMessages({tx,directory,me}){
  const clientIds=tx.client_ids||[];
+ const idsKey=clientIds.join(',');
  const [active,setActive]=useState(clientIds[0]||'');
  const [msgs,setMsgs]=useState([]);
+ const [unread,setUnread]=useState({});
  const [body,setBody]=useState('');
  const [busy,setBusy]=useState(false);
  const name=id=>directory.find(u=>u.id===id)?.name||'Client';
- const load=useCallback(async()=>{if(!active){setMsgs([]);return;}try{const r=await site.get(`/deals/${active}/messages`);setMsgs(r.data);}catch(e){setMsgs([]);}},[active]);
+ const loadUnread=useCallback(async()=>{if(!idsKey){setUnread({});return;}try{const r=await site.get('/deals/unread-counts',{params:{client_ids:idsKey}});setUnread(r.data||{});}catch(e){}},[idsKey]);
+ const load=useCallback(async()=>{if(!active){setMsgs([]);return;}try{const r=await site.get(`/deals/${active}/messages`);setMsgs(r.data);setUnread(u=>({...u,[active]:0}));}catch(e){setMsgs([]);}},[active]);
+ useEffect(()=>{loadUnread();},[loadUnread]);
  useEffect(()=>{load();},[load]);
  const send=async e=>{e.preventDefault();if(!body.trim()||!active)return;setBusy(true);try{await site.post(`/deals/${active}/messages`,{body});setBody('');await load();toast.success('Message sent to client');}catch(e){toast.error(errorText(e));}finally{setBusy(false);}};
  if(!clientIds.length)return <Empty title="No client linked" text="Link a client to this deal under People & access to start a conversation."/>;
  return <><SectionTitle title="Client conversations"/>
-  <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:18}}>{clientIds.map(cid=><button key={cid} data-testid={`msg-client-${cid}`} onClick={()=>setActive(cid)} className="segmented-chip" style={{display:'flex',alignItems:'center',gap:8,padding:'8px 12px',borderRadius:4,border:`1px solid ${active===cid?'var(--gold)':'var(--line)'}`,background:active===cid?'#e5b8690f':'#11161e',color:active===cid?'var(--gold)':'#9aa4b2',fontSize:11}}><Avatar name={name(cid)} size="tiny"/>{name(cid)}</button>)}</div>
+  <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:18}}>{clientIds.map(cid=>{const n=unread[cid]||0;return <button key={cid} data-testid={`msg-client-${cid}`} onClick={()=>setActive(cid)} className="segmented-chip" style={{display:'flex',alignItems:'center',gap:8,padding:'8px 12px',borderRadius:4,border:`1px solid ${active===cid?'var(--gold)':'var(--line)'}`,background:active===cid?'#e5b8690f':'#11161e',color:active===cid?'var(--gold)':'#9aa4b2',fontSize:11}}><Avatar name={name(cid)} size="tiny"/>{name(cid)}{n>0&&<span data-testid={`msg-unread-${cid}`} style={{minWidth:16,height:16,padding:'0 5px',borderRadius:8,background:'var(--gold)',color:'#0b0b0b',fontSize:9,fontWeight:700,display:'inline-flex',alignItems:'center',justifyContent:'center'}}>{n}</span>}</button>;})}</div>
   <div className="message-list" data-testid="deal-message-list" style={{maxHeight:360,overflow:'auto',border:'1px solid var(--line)',borderRadius:5,padding:16,background:'#0d131c'}}>{msgs.length?msgs.map(m=><div key={m.id} data-testid={`deal-message-${m.id}`} className={`message ${m.sender_id===me.id?'mine':''}`}><Avatar name={m.sender_name} size="tiny"/><div><div className="message-name">{m.sender_name}</div><div className="message-bubble">{m.body}</div><div className="message-time">{new Date(m.created_at).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}</div></div></div>):<Empty title="No messages yet" text={`Start the conversation with ${name(active)}.`}/>}</div>
   <form className="message-compose" onSubmit={send} style={{marginTop:12,border:'1px solid var(--line)',borderRadius:5}}><textarea data-testid="deal-message-input" placeholder={`Message ${name(active)}…`} value={body} onChange={e=>setBody(e.target.value)} required maxLength={5000} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();if(!busy)send(e);}}}/><Btn id="deal-message-send" type="submit" loading={busy} disabled={!body.trim()}><Send/>Send</Btn></form></>;
 }
