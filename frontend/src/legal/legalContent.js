@@ -37,7 +37,7 @@ If a distinct membership program is enabled, membership begins only after the ap
 D.O.X Capital's description of a membership arrangement does not create a general exemption from consumer-protection, privacy, accessibility, licensing, tax, advertising, anti-discrimination, criminal, or other applicable law. No provision in this document waives a right or duty that applicable law does not permit the parties to waive.
 
 ## 5. Accounts and security
-You are responsible for safeguarding credentials and for activity reasonably attributable to your account. Do not share passwords or authentication codes, circumvent access controls, impersonate another person, or allow unauthorized use. Notify us promptly at deptofx@proton.me of suspected compromise. We may require authentication, pause activity, or reset credentials to protect the Services or users.
+You are responsible for safeguarding credentials and for activity reasonably attributable to your account. Do not share passwords or authentication codes, circumvent access controls, impersonate another person, or allow unauthorized use. Notify us promptly at admin@thedoxs.com of suspected compromise. We may require authentication, pause activity, or reset credentials to protect the Services or users.
 
 No security measure eliminates all risk. Account recovery, monitoring, and preservation of security records follow the Privacy Policy and Data Retention and Deletion Policy.
 
@@ -78,12 +78,12 @@ The Privacy Policy describes personal-information practices. The Cookie & Tracki
 Where AI or automated processing is enabled, the Automated Document Processing & AI-Assisted Review Disclosure applies. Automated output may be inaccurate and must not be used as the sole basis for a consequential decision unless the actual workflow and law permit it. Accessibility requests are handled under the Accessibility Statement.
 
 ## 14. Electronic communications and records
-You agree to receive transactional communications electronically at the address or account channel you provide, subject to any separate consumer E-SIGN disclosures that law requires. Marketing consent is separate and optional. Keep contact information current. You may request paper copies or withdraw a legally required electronic-record consent by contacting us at deptofx@proton.me.
+You agree to receive transactional communications electronically at the address or account channel you provide, subject to any separate consumer E-SIGN disclosures that law requires. Marketing consent is separate and optional. Keep contact information current. You may request paper copies or withdraw a legally required electronic-record consent by contacting us at admin@thedoxs.com.
 
 We will make accepted terms reasonably retrievable and will preserve acceptance evidence under the applicable retention schedule. E-SIGN does not apply to every record and excludes certain categories; specialized notices use a legally valid method.
 
 ## 15. Suspension and termination
-We may suspend or terminate access for material breach, fraud, nonpayment, security risk, unlawful activity, abuse, or a threat to the Services or others. Where practical and lawful, we will provide notice and an opportunity to cure a curable breach. You may stop using the Services and may close an account by contacting us at deptofx@proton.me.
+We may suspend or terminate access for material breach, fraud, nonpayment, security risk, unlawful activity, abuse, or a threat to the Services or others. Where practical and lawful, we will provide notice and an opportunity to cure a curable breach. You may stop using the Services and may close an account by contacting us at admin@thedoxs.com.
 
 Termination does not erase accrued payment obligations or provisions that by their nature survive, including ownership, confidentiality, restrictions on misuse, dispute terms, and lawful record retention. Refunds remain governed by the Refund Policy and applicable law.
 
@@ -111,7 +111,7 @@ Neither party waives a right by delaying enforcement. If a provision is unenforc
 Nothing in this document excludes, restricts, or modifies a warranty, remedy, right, duty, or liability that applicable law does not permit the parties to exclude, restrict, or modify.
 
 ## Contact
-For questions about these Terms, contact D.O.X Capital at deptofx@proton.me. Do not use a support channel for emergencies.`,
+For questions about these Terms, contact D.O.X Capital at admin@thedoxs.com. Do not use a support channel for emergencies.`,
   },
   {
     slug: "privacy",
@@ -204,19 +204,19 @@ We retain each category of personal information only for as long as reasonably n
 ## 11. Privacy rights and choices
 Privacy rights depend on your location, your relationship with us, the nature of the information, and statutory exceptions. Subject to applicable law, you may have the right to request access to or confirmation of processing; correction; deletion; portability; restriction; objection; withdrawal of consent; a list of certain third-party recipients; or an opt-out from sale, sharing, targeted advertising, certain profiling, or certain uses of sensitive information, and in some cases a right to appeal a denial or contact a regulator.
 
-To submit a request, contact us at deptofx@proton.me. We may need information reasonably necessary to verify your identity, authority, jurisdiction, and the records involved, and we will use that information only for verification, fraud prevention, security, and compliance. We may deny or limit a request where permitted and will explain a denial and any available appeal route when required.
+To submit a request, contact us at admin@thedoxs.com. We may need information reasonably necessary to verify your identity, authority, jurisdiction, and the records involved, and we will use that information only for verification, fraud prevention, security, and compliance. We may deny or limit a request where permitted and will explain a denial and any available appeal route when required.
 
 ## 12. Security
-We use administrative, technical, and physical safeguards designed to protect personal information, which may include access controls, authentication, encryption, secure configuration, monitoring, vendor review, workforce training, incident response, and data minimization. No method of transmission, storage, or security is completely secure, and we cannot guarantee that information will never be accessed, used, disclosed, altered, or destroyed without authorization. Use unique credentials, protect access to your devices, and notify us at deptofx@proton.me if you believe an interaction or account is insecure.
+We use administrative, technical, and physical safeguards designed to protect personal information, which may include access controls, authentication, encryption, secure configuration, monitoring, vendor review, workforce training, incident response, and data minimization. No method of transmission, storage, or security is completely secure, and we cannot guarantee that information will never be accessed, used, disclosed, altered, or destroyed without authorization. Use unique credentials, protect access to your devices, and notify us at admin@thedoxs.com if you believe an interaction or account is insecure.
 
 ## 13. Children and minors
-The Services are intended for adults at least 18 years of age and are not directed to children. We do not knowingly collect personal information from children, and if we learn that we have collected covered child data, we will take reasonable steps to address it. A parent or guardian may contact us at deptofx@proton.me.
+The Services are intended for adults at least 18 years of age and are not directed to children. We do not knowingly collect personal information from children, and if we learn that we have collected covered child data, we will take reasonable steps to address it. A parent or guardian may contact us at admin@thedoxs.com.
 
 ## 14. Third-party services and changes to this Policy
 Third-party links and integrations are governed by the third party's own terms and privacy notice when the third party independently determines its processing. We may revise this Policy to reflect changes in services, data practices, technology, or law. If a change is material, we will provide notice and obtain consent where required by applicable law.
 
 ## 15. Contact
-Questions about this Policy, our privacy practices, or a privacy request may be directed to D.O.X Capital at deptofx@proton.me.`,
+Questions about this Policy, our privacy practices, or a privacy request may be directed to D.O.X Capital at admin@thedoxs.com.`,
   },
   {
     slug: "refunds-cancellation-fulfillment",
@@ -233,7 +233,7 @@ This Policy governs paid transactions with D.O.X Capital. Your order confirmatio
 Submission of payment information is an offer to purchase, not confirmation of acceptance. We accept an order after payment authorization, required assents, scope validation, and an order confirmation. We may reject or cancel an unlawful, fraudulent, duplicative, technically infeasible, mispriced, or out-of-scope order. If we cancel before providing value, we will void or refund the affected charge as required by law.
 
 ## 3. Cancellation before work begins
-To request a cancellation, email deptofx@proton.me with your order identifier. A request is effective when received through that channel and assigned a timestamp. If we receive it before work begins or a committed third-party cost is incurred, you are eligible for a refund to your original payment method, subject to any processing fee that is lawful and was presented before purchase. No universal cooling-off period is promised unless required by law.
+To request a cancellation, email admin@thedoxs.com with your order identifier. A request is effective when received through that channel and assigned a timestamp. If we receive it before work begins or a committed third-party cost is incurred, you are eligible for a refund to your original payment method, subject to any processing fee that is lawful and was presented before purchase. No universal cooling-off period is promised unless required by law.
 
 ## 4. Cancellation after work begins
 For consulting or customized work, we may retain the portion of the fee reasonably attributable to completed milestones, time, nonrecoverable third-party costs, and deliverables already provided, but only where that allocation and any deposit treatment were clearly disclosed before purchase and are lawful. We will provide an itemized explanation on request. A label such as "nonrefundable" does not eliminate nonwaivable rights or excuse failure to provide the promised service.
@@ -245,7 +245,7 @@ Expected fulfillment timing is stated in your order and is subject to your depen
 A client delay, inaccurate information, unavailable decision-maker, or requested scope change may pause the schedule. We will identify the effect on timing, fees, and deliverables before continuing where material. A scope change after purchase requires a written change order or other bilateral acceptance; this Policy does not authorize a unilateral reduction in deliverables.
 
 ## 7. Failed or materially deficient fulfillment
-If we do not deliver the purchased service, or a deliverable materially fails the written acceptance criteria, notify deptofx@proton.me with the order identifier and the specific issue. We may first offer correction, re-performance, replacement, or completion within a reasonable period when appropriate. If that remedy fails or is not appropriate, we will provide the refund or other remedy required by the order and applicable law.
+If we do not deliver the purchased service, or a deliverable materially fails the written acceptance criteria, notify admin@thedoxs.com with the order identifier and the specific issue. We may first offer correction, re-performance, replacement, or completion within a reasonable period when appropriate. If that remedy fails or is not appropriate, we will provide the refund or other remedy required by the order and applicable law.
 
 ## 8. No-guarantee outcomes
 A third-party decision, lender denial, inability to obtain financing, or a result different from your goal is not by itself a failed fulfillment when the purchased service was a defined consulting effort or deliverable and we performed it. This does not permit us to misstate the service, hide material limitations, or retain payment for work not performed. Outcomes and fulfillment are assessed against the exact order description.
@@ -254,13 +254,13 @@ A third-party decision, lender denial, inability to obtain financing, or a resul
 Before purchase, we disclose whether a digital or customized deliverable becomes non-cancellable after download, access, customization, or performance begins, and we obtain any consent applicable law requires. The presence of a downloadable file does not automatically eliminate a refund right. Defective, corrupted, inaccessible, or materially incomplete files will be re-delivered or remedied.
 
 ## 10. Memberships and recurring charges
-Cancellation of a future membership or subscription renewal is distinct from a refund of a prior charge. Where recurring billing is enabled, the Subscription & Automatic Renewal Terms govern renewal and cancellation, and the cancellation route is simple and available by emailing deptofx@proton.me. A cancellation confirmation states its effective date, future-charge status, remaining access, and any refund.
+Cancellation of a future membership or subscription renewal is distinct from a refund of a prior charge. Where recurring billing is enabled, the Subscription & Automatic Renewal Terms govern renewal and cancellation, and the cancellation route is simple and available by emailing admin@thedoxs.com. A cancellation confirmation states its effective date, future-charge status, remaining access, and any refund.
 
 ## 11. Refund timing and method
 Approved refunds are sent to the original payment method unless law permits and you agree to another method. We process approved refunds within a commercially reasonable period — typically within ten (10) business days — plus your financial institution's posting time. We will not substitute store credit for a legally required cash or payment-method refund without valid consent.
 
 ## 12. Duplicate, unauthorized, and fraudulent charges
-Report a duplicate or suspected unauthorized charge promptly at deptofx@proton.me. We may request information reasonably necessary to locate and investigate it, but we will not ask for a password or full payment-card number. We may suspend affected services while preventing further loss. Nothing here limits your rights under payment-card or electronic-funds-transfer law.
+Report a duplicate or suspected unauthorized charge promptly at admin@thedoxs.com. We may request information reasonably necessary to locate and investigate it, but we will not ask for a password or full payment-card number. We may suspend affected services while preventing further loss. Nothing here limits your rights under payment-card or electronic-funds-transfer law.
 
 ## 13. Chargebacks and disputes
 Contacting support is encouraged because it may resolve an issue quickly, but it is not a waiver or a mandatory prerequisite to a nonwaivable dispute right. Do not submit a knowingly false chargeback. We may provide the processor with the order, delivery, communication, and acceptance evidence reasonably necessary to respond, consistent with the Privacy Policy.
@@ -269,7 +269,7 @@ Contacting support is encouraged because it may resolve an issue quickly, but it
 Before the final payment action, we display the total price, the one-time or recurring nature of the charge, the core deliverable, expected timing, cancellation method, material refund restrictions, and a conspicuous link to this Policy. A receipt repeats the material terms and provides a durable policy copy or link.
 
 ## Contact
-For order, cancellation, fulfillment, or refund questions, contact D.O.X Capital at deptofx@proton.me. Do not use a support channel for emergencies.`,
+For order, cancellation, fulfillment, or refund questions, contact D.O.X Capital at admin@thedoxs.com. Do not use a support channel for emergencies.`,
   },
   {
     slug: "membership",
@@ -297,7 +297,7 @@ Applicants must be at least 18 years of age, legally capable of contracting, and
 The membership term and any fees are as stated at enrollment. Benefits are limited to those described at enrollment — such as access to the member portal, advisory consultations, and eligible introductions — and may be subject to capacity, scheduling, separate service fees, or order terms disclosed before enrollment. No benefit includes a guaranteed financing result, government recognition, legal protection, confidential privilege, or licensed professional service.
 
 ## 6. Renewal and cancellation
-Membership renews only where recurring billing is enabled, the renewal terms are displayed before billing, and the member separately consents under the Subscription & Automatic Renewal Terms; otherwise it expires at the end of its stated term. To cancel, email deptofx@proton.me. Cancellation affects future renewal and does not automatically refund completed or already-provided benefits.
+Membership renews only where recurring billing is enabled, the renewal terms are displayed before billing, and the member separately consents under the Subscription & Automatic Renewal Terms; otherwise it expires at the end of its stated term. To cancel, email admin@thedoxs.com. Cancellation affects future renewal and does not automatically refund completed or already-provided benefits.
 
 ## 7. Member conduct
 Members must act lawfully, protect credentials, respect other persons' rights and privacy, submit only authorized materials, comply with reasonable security and community rules, and avoid harassment, fraud, impersonation, unlawful solicitation, misrepresentation of membership status, or use of program materials to mislead a lender, regulator, court, or consumer.
@@ -315,7 +315,7 @@ Any lender, referral source, professional, vendor, or other third party is indep
 Membership does not transfer ownership of the website, D.O.X Capital marks, original resources, third-party data, or other intellectual property. A member receives a limited right to use member resources for the lawful internal or personal purpose stated with the resource. Member-created material remains subject to the Terms and any separate contribution license.
 
 ## 12. Suspension, termination, and appeal
-D.O.X Capital may suspend or terminate membership for material breach, fraud, nonpayment, unlawful conduct, harassment, security risk, or a threat to others. Except where immediate action is reasonably necessary, it will give notice and an opportunity to cure a curable breach. A member may request review by emailing deptofx@proton.me. Records may be retained for lawful dispute, security, refund, or legal-hold purposes.
+D.O.X Capital may suspend or terminate membership for material breach, fraud, nonpayment, unlawful conduct, harassment, security risk, or a threat to others. Except where immediate action is reasonably necessary, it will give notice and an opportunity to cure a curable breach. A member may request review by emailing admin@thedoxs.com. Records may be retained for lawful dispute, security, refund, or legal-hold purposes.
 
 ## 13. Governance and changes
 Material changes to fees, renewal, core benefits, dispute terms, or member obligations apply prospectively with notice and fresh assent where required. A website posting alone will not be treated as assent when law requires more.
@@ -327,7 +327,7 @@ The Terms of Service, Privacy Policy, Refund Policy, any applicable Subscription
 At enrollment you confirm: "I apply for membership in the D.O.X Capital membership program, agree to this Membership Agreement, and understand that membership does not create legal immunity or guarantee any service or result." D.O.X Capital stores the exact text, version, timestamp, applicant, admission decision, fee, and confirmation.
 
 ## Contact
-For membership questions or notices, contact D.O.X Capital at deptofx@proton.me. Do not use a support channel for emergencies.`,
+For membership questions or notices, contact D.O.X Capital at admin@thedoxs.com. Do not use a support channel for emergencies.`,
   },
   {
     slug: "subscription-renewal",
@@ -356,10 +356,10 @@ Where a trial or promotion is offered, we disclose before enrollment the trial l
 Renewal reminders and confirmations follow the schedule required for your jurisdiction and identify the plan, renewal date, amount or calculation, cancellation deadline, and a direct cancellation route.
 
 ## 7. Simple cancellation
-You may cancel by emailing deptofx@proton.me, and where you enrolled online a practical online cancellation route is provided. Cancellation does not require creating an account for a guest and does not add retention offers, surveys, chat, or phone steps that make cancellation materially harder than enrollment. We record the request time and provide durable confirmation stating the effective date, final charge, remaining access, and any refund.
+You may cancel by emailing admin@thedoxs.com, and where you enrolled online a practical online cancellation route is provided. Cancellation does not require creating an account for a guest and does not add retention offers, surveys, chat, or phone steps that make cancellation materially harder than enrollment. We record the request time and provide durable confirmation stating the effective date, final charge, remaining access, and any refund.
 
 ## 8. Effect of cancellation
-Unless law or the checkout terms say otherwise, cancellation stops future renewals and access continues through the already-paid period. Cancellation does not by itself refund a valid prior charge. If received before the disclosed deadline, it prevents the next charge. A system outage will not erase a timely attempt; contact deptofx@proton.me and we will honor the timestamp.
+Unless law or the checkout terms say otherwise, cancellation stops future renewals and access continues through the already-paid period. Cancellation does not by itself refund a valid prior charge. If received before the disclosed deadline, it prevents the next charge. A system outage will not erase a timely attempt; contact admin@thedoxs.com and we will honor the timestamp.
 
 ## 9. Price or plan changes
 We give legally sufficient advance notice of a price, cadence, renewal-term, cancellation, or material benefit change. If law or the original agreement requires fresh consent, the change will not take effect without it. A refusal may result in expiration at the end of the paid term, with an export or transition path where applicable. We will not rely solely on silent website edits for a material change.
@@ -368,7 +368,7 @@ We give legally sufficient advance notice of a price, cadence, renewal-term, can
 If a charge fails, we may provide notice and a reasonable opportunity to update the payment method, and we may suspend future access after any disclosed grace period. We will not represent repeated retries as new consent or charge after effective cancellation. Any reinstatement that changes price or cadence requires clear disclosure and authorization.
 
 ## 11. Refunds and disputes
-Refunds are governed by the Refund, Cancellation & Fulfillment Policy and nonwaivable law. Report duplicate, unauthorized, or incorrectly timed charges to deptofx@proton.me. Contacting us is not a waiver of payment-card, electronic-transfer, regulator, or court remedies.
+Refunds are governed by the Refund, Cancellation & Fulfillment Policy and nonwaivable law. Report duplicate, unauthorized, or incorrectly timed charges to admin@thedoxs.com. Contacting us is not a waiver of payment-card, electronic-transfer, regulator, or court remedies.
 
 ## 12. Legal posture
 Covered online negative-option transactions satisfy the Restore Online Shoppers' Confidence Act: we disclose material terms before billing information, obtain express informed consent before charging, and provide a simple cancellation mechanism. State laws may impose stricter disclosures, acknowledgments, reminders, retention, and cancellation requirements, which we configure by customer jurisdiction.
@@ -380,7 +380,7 @@ We retain, under the lawful retention schedule, the versioned checkout, material
 Nothing in this document excludes, restricts, or modifies a right or remedy that applicable law does not permit the parties to modify. If a jurisdiction grants a cancellation, reminder, refund, renewal, or enforcement right more protective than these Terms, that rule controls.
 
 ## Contact
-For subscription, renewal, billing, or cancellation questions, contact D.O.X Capital at deptofx@proton.me. Do not use a support channel for emergencies.`,
+For subscription, renewal, billing, or cancellation questions, contact D.O.X Capital at admin@thedoxs.com. Do not use a support channel for emergencies.`,
   },
   {
     slug: "non-affiliation-data-sources",
@@ -440,7 +440,7 @@ Source credits, copyright notices, legends, timestamps, links, disclaimers, and 
 D.O.X Capital may revise this Disclosure when its Services, sources, relationships, or legal obligations change. Nothing in this Disclosure expands D.O.X Capital's rights in third-party information, limits a rights holder's ownership, authorizes an unlawful use, or waives rights or remedies that cannot lawfully be waived.
 
 ## Contact
-Questions about this Disclosure, a third-party reference, an attribution, or a suspected error may be directed to D.O.X Capital at deptofx@proton.me.`,
+Questions about this Disclosure, a third-party reference, an attribution, or a suspected error may be directed to D.O.X Capital at admin@thedoxs.com.`,
   },
   {
     slug: "no-legal-professional-advice",
@@ -481,7 +481,7 @@ No disclaimer can cure a misleading principal claim. Marketing, sales, checkout,
 D.O.X Capital's description of a membership arrangement does not create a general exemption from consumer-protection, privacy, accessibility, licensing, tax, advertising, anti-discrimination, criminal, or other applicable law. Calling a consultation "private" or limiting it to members does not transform regulated professional conduct into unregulated activity.
 
 ## Contact
-For questions about the scope of consulting information, contact D.O.X Capital at deptofx@proton.me. Do not use a support channel for emergencies.`,
+For questions about the scope of consulting information, contact D.O.X Capital at admin@thedoxs.com. Do not use a support channel for emergencies.`,
   },
   {
     slug: "financial-funding-disclaimer",
@@ -525,7 +525,7 @@ Unless an applicable signed and lawful engagement expressly provides otherwise, 
 D.O.X Capital's description of a membership arrangement does not create a general exemption from consumer-protection, privacy, accessibility, licensing, tax, advertising, anti-discrimination, criminal, or other applicable law. Nothing in this document excludes, restricts, or modifies a right or remedy that applicable law does not permit the parties to modify.
 
 ## Contact
-For financial, funding, securities, or tax scope questions, contact D.O.X Capital at deptofx@proton.me. Do not use a support channel for emergencies.`,
+For financial, funding, securities, or tax scope questions, contact D.O.X Capital at admin@thedoxs.com. Do not use a support channel for emergencies.`,
   },
   {
     slug: "document-upload",
@@ -550,7 +550,7 @@ You may upload a file only if you have the legal right and authority to provide 
 - the file is not knowingly false, altered to mislead, unlawfully obtained, or submitted for a fraudulent or abusive purpose; and
 - you have reviewed the file for information that is unnecessary for the stated purpose.
 
-If you no longer have authority to provide a file, notify deptofx@proton.me promptly.
+If you no longer have authority to provide a file, notify admin@thedoxs.com promptly.
 
 ## 4. Do not upload prohibited or unnecessary information
 Unless the upload request expressly identifies a category as required, do not submit highly sensitive, regulated, or unrelated information, including: full Social Security, tax-identification, passport, or driver's-license numbers; complete payment-card or bank-account credentials, passwords, authentication codes, or private keys; medical, genetic, biometric, or health-insurance information; precise geolocation or information about sexual life, religious or political beliefs, union membership, immigration status, or racial or ethnic origin; criminal-history, child-custody, or background-check records; information subject to a protective order, litigation hold, privilege, or nondisclosure duty; information about a minor; trade secrets or third-party files you are not authorized to disclose; or any data not relevant to the specific request shown at the upload point. Do not upload illegal content, malicious code, or material that infringes, defames, harasses, threatens, impersonates, or facilitates fraud.
@@ -571,7 +571,7 @@ We use administrative, technical, and physical safeguards appropriate to the upl
 Files may be opened, viewed, organized, transcribed, extracted, compared, or otherwise processed only as disclosed for the workflow, and human access is limited by role and purpose. Where AI-assisted review is used, uploaded content may be processed by an automated system as described in the Automated Document Processing & AI-Assisted Review Disclosure. AI or automated extraction may omit, misread, invent, misclassify, or misinterpret information, especially in low-quality, handwritten, complex, or multilingual files; it is not accurate, complete, or suitable for sole reliance, and no uploaded file is used for an undisclosed consequential decision.
 
 ## 10. Correcting, replacing, or withdrawing an upload
-If you submitted the wrong file or discover an error, contact deptofx@proton.me and identify the relevant request without sending additional sensitive information in the initial message. You may ask to withdraw an upload or revoke consent where applicable by contacting deptofx@proton.me. Withdrawal ordinarily applies prospectively and may not require us or another recipient to undo processing that was lawful before withdrawal, and may be limited by contractual necessity, recordkeeping duties, fraud prevention, security needs, legal claims, a valid legal hold, or another person's rights.
+If you submitted the wrong file or discover an error, contact admin@thedoxs.com and identify the relevant request without sending additional sensitive information in the initial message. You may ask to withdraw an upload or revoke consent where applicable by contacting admin@thedoxs.com. Withdrawal ordinarily applies prospectively and may not require us or another recipient to undo processing that was lawful before withdrawal, and may be limited by contractual necessity, recordkeeping duties, fraud prevention, security needs, legal claims, a valid legal hold, or another person's rights.
 
 ## 11. Retention, deletion, backups, and legal holds
 We keep upload information only for as long as reasonably necessary for the disclosed purpose and applicable obligations, as described in the Data Retention & Deletion Policy. A deletion request or account closure does not necessarily result in immediate or complete erasure from every system; residual copies may remain temporarily in backups, disaster-recovery systems, or security logs, or may be preserved when required by law, court order, dispute, investigation, or a valid legal hold.
@@ -580,7 +580,7 @@ We keep upload information only for as long as reasonably necessary for the disc
 Unless a service agreement expressly says otherwise, the upload feature is not a records repository, document vault, or backup service. Keep the original or another readable copy, along with any proof of submission the interface provides. A technical confirmation means only that the system recorded the event; it does not establish that the file is accurate, sufficient, accepted for a service, reviewed by a person, or delivered to a third party.
 
 ## 13. Third-party rights
-When a file contains another person's information, consider that person's rights before submitting it, and provide any legally required notice and obtain any legally required consent. A person whose information appears in an upload may contact deptofx@proton.me to ask about applicable rights. Nothing in this Notice limits lawful fair use, protected reporting, whistleblowing, or another nonwaivable right.
+When a file contains another person's information, consider that person's rights before submitting it, and provide any legally required notice and obtain any legally required consent. A person whose information appears in an upload may contact admin@thedoxs.com to ask about applicable rights. Nothing in this Notice limits lawful fair use, protected reporting, whistleblowing, or another nonwaivable right.
 
 ## 14. Point-of-upload acknowledgment
 Before submission, each covered feature displays a short, purpose-specific notice identifying the requested categories, the purpose, any sensitive-data or third-party-data implications, the AI status, and links to this Notice and the Privacy Policy, and requires an affirmative acknowledgment separate from acceptance of general terms and from marketing or other unrelated consents.
@@ -589,7 +589,7 @@ Before submission, each covered feature displays a short, purpose-specific notic
 We may revise this Notice to reflect changes in law, services, vendors, or processing. No revision retroactively authorizes processing that was unlawful when performed, and this Notice does not limit any right or remedy that cannot be waived under applicable law.
 
 ## Contact
-Questions about an upload, privacy of an upload, or a security concern may be directed to D.O.X Capital at deptofx@proton.me. Do not use a support channel for emergencies.`,
+Questions about an upload, privacy of an upload, or a security concern may be directed to D.O.X Capital at admin@thedoxs.com. Do not use a support channel for emergencies.`,
   },
   {
     slug: "cookies",
@@ -636,7 +636,7 @@ Providers are listed in the cookie preference center with links to relevant info
 We update this Policy when technologies or purposes materially change and request renewed consent where required. Automated tag scans, browser storage inspection, and network traces are reconciled against the inventory before each release.
 
 ## Contact
-For cookie, tracking, or preference questions, contact D.O.X Capital at deptofx@proton.me. Do not use a support channel for emergencies.`,
+For cookie, tracking, or preference questions, contact D.O.X Capital at admin@thedoxs.com. Do not use a support channel for emergencies.`,
   },
   {
     slug: "accessibility",
@@ -665,7 +665,7 @@ Some content may have known limitations. For each, we maintain an owner, user im
 Some third-party tools or legacy documents may be outside our direct control, but we evaluate them and seek accessible alternatives or remediation. HTML remains the primary accessible form for legal notices. PDFs should include tagged headings, lists, language, logical reading order, bookmarks, links, embedded fonts, and meaningful descriptions where applicable.
 
 ## 7. Requesting assistance
-If you encounter a barrier or need information, a service, or an accommodation in an alternative format, contact deptofx@proton.me. Describe the page or process, the barrier, the format or assistance requested, and the assistive technology if you choose. Do not send passwords or unnecessary sensitive information.
+If you encounter a barrier or need information, a service, or an accommodation in an alternative format, contact admin@thedoxs.com. Describe the page or process, the barrier, the format or assistance requested, and the assistive technology if you choose. Do not send passwords or unnecessary sensitive information.
 
 ## 8. Response and effective communication
 We aim to acknowledge requests within five (5) business days and will work to provide effective communication or a reasonable alternative. Timing depends on urgency and complexity. Available alternatives may include telephone assistance, accessible documents, captions, interpreter coordination, alternate scheduling or payment routes, or human assistance. This is a process commitment, not a guarantee that every request can be met exactly as proposed.
@@ -674,10 +674,10 @@ We aim to acknowledge requests within five (5) business days and will work to pr
 Accessibility-request information is used to evaluate and fulfill the request, improve accessibility, document compliance, and address disputes, under the Privacy Policy and retention schedule. D.O.X Capital will not retaliate or discriminate against a person for requesting an accommodation or reporting a barrier.
 
 ## 10. Feedback and escalation
-Unresolved accessibility concerns may be escalated by contacting deptofx@proton.me. We track the report, severity, reproduction steps, platform, owner, workaround, resolution date, and retest, and update this Statement when the scope, contacts, standards target, or significant limitations change.
+Unresolved accessibility concerns may be escalated by contacting admin@thedoxs.com. We track the report, severity, reproduction steps, platform, owner, workaround, resolution date, and retest, and update this Statement when the scope, contacts, standards target, or significant limitations change.
 
 ## Contact
-For accessibility feedback or accommodation requests, contact D.O.X Capital at deptofx@proton.me. Do not use a support channel for emergencies.`,
+For accessibility feedback or accommodation requests, contact D.O.X Capital at admin@thedoxs.com. Do not use a support channel for emergencies.`,
   },
   {
     slug: "contact-business-support",
@@ -691,22 +691,22 @@ For accessibility feedback or accommodation requests, contact D.O.X Capital at d
 D.O.X Capital is the public brand used to operate https://www.thedoxs.com. Our formal legal entity name, entity type, state of formation, and registered address are set out in your written engagement agreement and are available on request. We do not publish a virtual or registered-agent address as an operating location.
 
 ## 2. Website and brand control
-Our canonical website is https://www.thedoxs.com. A similar name, profile, message, or domain is not official unless we confirm it. Report suspected impersonation, spoofing, or fraud to deptofx@proton.me.
+Our canonical website is https://www.thedoxs.com. A similar name, profile, message, or domain is not official unless we confirm it. Report suspected impersonation, spoofing, or fraud to admin@thedoxs.com.
 
 ## 3. Registrations and licenses
 D.O.X Capital is an advisory and document-packaging firm and does not hold professional licenses reserved to law, accounting, securities, or insurance. The absence of a published license number does not imply exemption, and a business filing is not a professional license.
 
 ## 4. Customer support
-Our monitored support channel is deptofx@proton.me. Email is the fastest way to reach us; we do not currently publish a general support telephone line. Expected response times are service targets, not guarantees, unless a contract states otherwise.
+Our monitored support channel is admin@thedoxs.com. Email is the fastest way to reach us; we do not currently publish a general support telephone line. Expected response times are service targets, not guarantees, unless a contract states otherwise.
 
 ## 5. Billing identity
 Where a paid engagement is processed, the merchant of record, payment processor, and billing descriptor are shown at checkout, on your receipt, and on your statement in a manner designed to avoid confusion. You may report a billing issue through support without waiving any legal right.
 
 ## 6. Formal notices and service
-Contractual legal notices should be sent to deptofx@proton.me using the method required by the applicable agreement. This support channel does not authorize service of process by ordinary email unless governing law and a written agreement permit it.
+Contractual legal notices should be sent to admin@thedoxs.com using the method required by the applicable agreement. This support channel does not authorize service of process by ordinary email unless governing law and a written agreement permit it.
 
 ## 7. Privacy, accessibility, and security contacts
-Privacy requests, accessibility requests, and security reports may all be directed to deptofx@proton.me. These channels are monitored and assigned to responsible owners.
+Privacy requests, accessibility requests, and security reports may all be directed to admin@thedoxs.com. These channels are monitored and assigned to responsible owners.
 
 ## 8. Complaints and escalation
 Submit a complaint with the relevant order or account identifier, a concise description, dates, the resolution you are requesting, and non-sensitive supporting material. We may authenticate the requester and investigate. Internal review does not limit a nonwaivable regulator, payment, arbitration, or court right.
@@ -721,7 +721,7 @@ A referral source, lender, consultant, social platform, or messaging provider is
 Support is not an emergency, law-enforcement, medical, crisis, or time-critical legal service. Contact the appropriate public authority or licensed professional for urgent matters, and do not rely on a response target to protect a filing, payment, appeal, or limitations deadline.
 
 ## Contact
-For business identity, support, complaints, or formal notices, contact D.O.X Capital at deptofx@proton.me. Do not use a support channel for emergencies.`,
+For business identity, support, complaints, or formal notices, contact D.O.X Capital at admin@thedoxs.com. Do not use a support channel for emergencies.`,
   },
   {
     slug: "intellectual-property",
@@ -756,13 +756,13 @@ Third-party sources, datasets, marks, and materials remain subject to their owne
 Ordinary links to public pages are permitted if they are lawful and do not imply endorsement. Do not frame the site, obscure source identity, or use marks in a way likely to confuse. We may request removal of a misleading link, subject to applicable law.
 
 ## 9. Reporting infringement
-Send a good-faith notice to deptofx@proton.me identifying the copyrighted work, the allegedly infringing material and its location, your contact information, a good-faith statement, a statement of accuracy and authority, and your signature. We may request clarification and may forward the notice to the affected user. Knowingly material misrepresentations may create liability.
+Send a good-faith notice to admin@thedoxs.com identifying the copyrighted work, the allegedly infringing material and its location, your contact information, a good-faith statement, a statement of accuracy and authority, and your signature. We may request clarification and may forward the notice to the affected user. Knowingly material misrepresentations may create liability.
 
 ## 10. Enforcement and mistakes
 We may remove or restrict material, preserve evidence, contact the uploader, or seek relief where reasonably necessary. Removal is not an admission and may be reversed after a valid counter-notice or review. We will not use this policy to suppress lawful criticism or competition.
 
 ## Contact
-For intellectual-property questions or notices, contact D.O.X Capital at deptofx@proton.me. Do not use a support channel for emergencies.`,
+For intellectual-property questions or notices, contact D.O.X Capital at admin@thedoxs.com. Do not use a support channel for emergencies.`,
   },
   {
     slug: "age-minors",
@@ -797,13 +797,13 @@ We do not expose children or teens to an AI tool, profiling, emotional-dependenc
 We do not use manipulative prompts, urgency, rewards, or confusing defaults to obtain a minor's data or consent, and we do not condition a child's participation on collecting more information than reasonably necessary. Advertisements and endorsements are recognizable and age appropriate.
 
 ## 9. Parental and minor requests
-A parent, guardian, or eligible minor may contact deptofx@proton.me to ask about access, deletion, correction, withdrawal, or account closure. We authenticate identity and authority proportionately and apply the rights available under the applicable jurisdiction without collecting unnecessary additional data.
+A parent, guardian, or eligible minor may contact admin@thedoxs.com to ask about access, deletion, correction, withdrawal, or account closure. We authenticate identity and authority proportionately and apply the rights available under the applicable jurisdiction without collecting unnecessary additional data.
 
 ## 10. Discovery of ineligible use
-If we learn that we collected information from an ineligible minor without a lawful basis, we will restrict access, investigate, notify as required, and delete or otherwise remediate the information subject to legal holds and lawful exceptions. Report concerns to deptofx@proton.me.
+If we learn that we collected information from an ineligible minor without a lawful basis, we will restrict access, investigate, notify as required, and delete or otherwise remediate the information subject to legal holds and lawful exceptions. Report concerns to admin@thedoxs.com.
 
 ## Contact
-For age eligibility, parental requests, or minor-data concerns, contact D.O.X Capital at deptofx@proton.me. Do not use a support channel for emergencies.`,
+For age eligibility, parental requests, or minor-data concerns, contact D.O.X Capital at admin@thedoxs.com. Do not use a support channel for emergencies.`,
   },
   {
     slug: "ai-assisted-processing",
@@ -826,7 +826,7 @@ We instruct our AI provider to process your content only to perform the requeste
 Automated systems may fabricate, omit, misclassify, misunderstand, reproduce bias, or rely on incomplete or outdated information. Performance may vary by language, disability, document quality, or demographic. Output is not authenticated merely because it appears confident or cites a source.
 
 ## 5. Human review
-A member of the D.O.X Capital team reviews AI-assisted output before it is used to inform a decision about your engagement; we describe review as occurring only where a trained person actually reviews the relevant input and output. You may request correction or human assistance by contacting deptofx@proton.me.
+A member of the D.O.X Capital team reviews AI-assisted output before it is used to inform a decision about your engagement; we describe review as occurring only where a trained person actually reviews the relevant input and output. You may request correction or human assistance by contacting admin@thedoxs.com.
 
 ## 6. No professional advice or sole reliance
 AI output is not legal, tax, accounting, investment, lending, credit, medical, employment, or other professional advice and should not be the sole basis for a consequential decision. Verify material facts and consult qualified professionals. A disclaimer does not cure regulated or discriminatory automated conduct.
@@ -841,7 +841,7 @@ Where privacy law applies, you may have access, correction, deletion, opt-out, c
 We test and monitor AI-assisted workflows for validity, reliability, security, accessibility, and performance, document their limitations and intended use, and monitor for drift, complaints, overrides, and disparate outcomes. We do not claim the system is "unbiased," "objective," or error-free.
 
 ## 10. Manual alternative
-Where AI assistance is optional or where law requires, you may ask that a D.O.X Capital team member handle your matter without AI assistance by contacting deptofx@proton.me. Declining optional AI processing does not cause you to lose unrelated service access.
+Where AI assistance is optional or where law requires, you may ask that a D.O.X Capital team member handle your matter without AI assistance by contacting admin@thedoxs.com. Declining optional AI processing does not cause you to lose unrelated service access.
 
 ## 11. Children and teens
 We do not enable child- or teen-facing AI, and we do not design any tool to cultivate emotional dependence or to misrepresent it as a person.
@@ -853,7 +853,7 @@ We apply access control, encryption in transit, vendor review, logging, and inci
 Before sending files to an AI vendor where a notice or consent is appropriate, we provide a concise notice identifying the AI role, purpose, major limits, data treatment, and human-review status, obtain separate consent where law or optional processing requires it, and preserve the versioned notice, action, timestamp, and any withdrawal.
 
 ## Contact
-For AI, automated-processing, correction, or human-review requests, contact D.O.X Capital at deptofx@proton.me. Do not use a support channel for emergencies.`,
+For AI, automated-processing, correction, or human-review requests, contact D.O.X Capital at admin@thedoxs.com. Do not use a support channel for emergencies.`,
   },
   {
     slug: "privacy-choices",
@@ -864,7 +864,7 @@ For AI, automated-processing, correction, or human-review requests, contact D.O.
     body: `This Notice describes how to exercise privacy choices and consumer rights. Statutory rights depend on your residence, D.O.X Capital's role, applicable thresholds and exemptions, the data, the purpose, and the transaction.
 
 ## 1. How to submit a request
-Submit a request by emailing deptofx@proton.me. You do not need to create an account to submit a request where law requires open intake. Provide your name or contact information, the request type, your state or country of residence, your relationship to D.O.X Capital, and enough information to locate your records. Do not send passwords or unnecessary sensitive documents.
+Submit a request by emailing admin@thedoxs.com. You do not need to create an account to submit a request where law requires open intake. Provide your name or contact information, the request type, your state or country of residence, your relationship to D.O.X Capital, and enough information to locate your records. Do not send passwords or unnecessary sensitive documents.
 
 ## 2. Potential rights
 Depending on applicable law, your rights may include confirmation of processing; access or knowledge; correction; deletion; portability; withdrawal of consent; restriction; objection; opting out of sale, sharing, targeted advertising, or qualifying profiling or automated decision-making; limiting the use of sensitive data; and appeal. Our response will state whether a right is statutory, voluntarily extended, or unavailable and why.
@@ -891,7 +891,7 @@ Where consent is required for sensitive-data processing, we request it separatel
 Acknowledgment, response, and extension periods are calculated from the rules of your applicable jurisdiction, not from one universal deadline. We will confirm receipt, state any verification needs, provide the response securely, and explain any lawful extension. If we deny or limit a request, we will identify the reason and any available appeal.
 
 ## 10. Appeals
-If applicable law provides an appeal right, you may appeal a decision by replying to our response or emailing deptofx@proton.me. Where practicable, a person not involved in the initial decision will review it, and the appeal response will include any required route to the relevant attorney general or regulator.
+If applicable law provides an appeal right, you may appeal a decision by replying to our response or emailing admin@thedoxs.com. Where practicable, a person not involved in the initial decision will review it, and the appeal response will include any required route to the relevant attorney general or regulator.
 
 ## 11. Exceptions
 Rights may be limited by identity verification, legal privilege, security, fraud prevention, another person's rights, recordkeeping duties, a litigation hold, completion of a requested transaction, or another statutory exception. We apply exceptions narrowly and document the legal basis; we do not use them as a blanket refusal.
@@ -903,7 +903,7 @@ We will not unlawfully discriminate against you for exercising privacy rights, a
 We retain a case record sufficient to demonstrate receipt, verification, searches, system and vendor tasks, exceptions, response, appeal, and completion under the applicable schedule. Verification artifacts are retained for a shorter period where possible, and the request record is protected with logged access.
 
 ## Contact
-For privacy choices, requests, appeals, or authorized-agent submissions, contact D.O.X Capital at deptofx@proton.me. Do not use a support channel for emergencies.`,
+For privacy choices, requests, appeals, or authorized-agent submissions, contact D.O.X Capital at admin@thedoxs.com. Do not use a support channel for emergencies.`,
   },
   {
     slug: "data-retention",
@@ -956,13 +956,13 @@ At period end, data is deleted, overwritten, destroyed, or deidentified using a 
 Our contracts require processors to apply our instructions, retention limits, deletion or return, subprocessor controls, incident notice, and verification. Deletion requests are tracked across our vendors. Cross-border storage and transfers use appropriate safeguards that match our actual practice.
 
 ## 15. User requests and account closure
-You may request deletion or closure by emailing deptofx@proton.me. We authenticate proportionately, explain applicable exceptions, propagate approved requests, and confirm completion or the expected schedule. Closure does not guarantee immediate erasure from backups or records lawfully retained.
+You may request deletion or closure by emailing admin@thedoxs.com. We authenticate proportionately, explain applicable exceptions, propagate approved requests, and confirm completion or the expected schedule. Closure does not guarantee immediate erasure from backups or records lawfully retained.
 
 ## 16. Governance and changes
 Each category has a business owner and a legal owner. We review the schedule periodically and when services, vendors, law, incidents, or data uses change, and we test deletion and backup restoration. We do not make a public retention promise we cannot operationally enforce.
 
 ## Contact
-For retention, deletion, account closure, or legal-hold questions, contact D.O.X Capital at deptofx@proton.me. Do not use a support channel for emergencies.`,
+For retention, deletion, account closure, or legal-hold questions, contact D.O.X Capital at admin@thedoxs.com. Do not use a support channel for emergencies.`,
   },
   {
     slug: "services-deliverables",
@@ -1027,7 +1027,7 @@ Cancellation and refund are governed by your order and the Refund, Cancellation 
 Your signed order controls a direct conflict about a specific engagement. These service terms, the Terms of Service, the Privacy Policy, and applicable special notices then apply.
 
 ## Contact
-For service scope, deliverables, or change-order questions, contact D.O.X Capital at deptofx@proton.me. Do not use a support channel for emergencies.`,
+For service scope, deliverables, or change-order questions, contact D.O.X Capital at admin@thedoxs.com. Do not use a support channel for emergencies.`,
   },
 ];
 

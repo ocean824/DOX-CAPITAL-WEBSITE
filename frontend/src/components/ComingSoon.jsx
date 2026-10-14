@@ -85,7 +85,7 @@ export default function ComingSoon() {
 
       <footer className="relative z-10 px-6 sm:px-12 py-10 flex flex-wrap gap-x-10 gap-y-2 label-kicker text-[11px] text-white/30">
         <span>© {new Date().getFullYear()} D.O.X CAPITAL</span>
-        <a href="mailto:deptofx@proton.me" className="hover:text-[#D4AF37] transition-colors">DEPTOFX@PROTON.ME</a>
+        <a href="mailto:admin@thedoxs.com" className="hover:text-[#D4AF37] transition-colors">ADMIN@THEDOXS.COM</a>
       </footer>
     </div>
   );
