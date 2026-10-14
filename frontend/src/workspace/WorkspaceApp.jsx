@@ -13,6 +13,7 @@ import Inbox from './pages/Inbox';
 import Assistant from './pages/Assistant';
 import Settings from './pages/Settings';
 import Integrations from './pages/Integrations';
+import Hermes from './pages/Hermes';
 import Knowledge from './pages/Knowledge';
 import Calendar from './pages/Calendar';
 import './workspace.css';
@@ -67,6 +68,7 @@ export default function WorkspaceApp() {
           <Route path="calendar" element={<Calendar />} />
           <Route path="settings" element={<Settings />} />
           <Route path="integrations" element={<Owner><Integrations /></Owner>} />
+          <Route path="hermes" element={<Owner><Hermes /></Owner>} />
         </Route>
         <Route path="*" element={<Navigate to="/workspace" replace />} />
       </Routes>
