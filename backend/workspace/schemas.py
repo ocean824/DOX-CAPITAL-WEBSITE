@@ -298,6 +298,18 @@ class MeetingOut(MeetingIn):
     responses: dict[str,MeetingResponse] = {}
     created_at: str
 class RespondIn(Model): response: Literal['accepted','declined']
+class DayAvailability(Model):
+    on: bool = False
+    start: str = Field(default='09:00',pattern=r'^\d{2}:\d{2}$')
+    end: str = Field(default='17:00',pattern=r'^\d{2}:\d{2}$')
+class AvailabilityIn(Model):
+    weekly: dict[str,DayAvailability]
+    blocked_dates: list[str] = Field(default_factory=list,max_length=200)
+    slot_minutes: int = Field(default=30,ge=15,le=240)
+    timezone: str = Field(default='UTC',max_length=80)
+class AvailabilityOut(AvailabilityIn):
+    user_id: str
+    updated_at: str = ''
 class SettingsOut(SettingsIn): id: str
 class ServiceKeyIn(Model): service: Literal['hermes','dox']
 class ServiceKeyOut(Model):

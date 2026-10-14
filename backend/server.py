@@ -957,7 +957,8 @@ class PartnerAssignIn(BaseModel):
 
 
 class DealMeetingIn(BaseModel):
-    with_role: str = Field(pattern="^(underwriter|admin)$")
+    participant_ids: list[str] = Field(default_factory=list, max_length=10)
+    with_role: Optional[str] = Field(default=None, pattern="^(underwriter|admin)$")
     preferred_date: str
     preferred_time: str
     timezone: Optional[str] = Field(default="UTC", max_length=80)
@@ -1144,6 +1145,22 @@ async def create_deal_meeting(client_id: str, payload: DealMeetingIn, user: dict
     if is_client_self and not docs_approved:
         raise HTTPException(status_code=403,
                             detail="Scheduling unlocks once our team has approved all of your requested documents.")
+    participant_ids = [p for p in (payload.participant_ids or []) if p]
+    resolved_ids, participant_names = [], []
+    for pid in participant_ids:
+        pu = await db.users.find_one({"id": pid}, {"_id": 0, "name": 1})
+        if pu:
+            resolved_ids.append(pid)
+            participant_names.append(pu.get("name"))
+    participant_ids = resolved_ids
+    if participant_ids:
+        from workspace.availability import validate_slot
+        ok, bad = await validate_slot(participant_ids, payload.preferred_date, payload.preferred_time)
+        if not ok:
+            bu = await db.users.find_one({"id": bad}, {"_id": 0, "name": 1})
+            raise HTTPException(status_code=409,
+                detail=f"{(bu or {}).get('name', 'That team member')} is not available at that time. Please choose an open slot.")
+    with_label = ", ".join(participant_names) if participant_names else (payload.with_role or "the team").title()
     room = _jitsi_room(client.get("name") or "dox")
     meet_link = f"https://meet.jit.si/{room}"
     when = f"{payload.preferred_date} at {payload.preferred_time} ({payload.timezone or 'UTC'})"
@@ -1154,6 +1171,8 @@ async def create_deal_meeting(client_id: str, payload: DealMeetingIn, user: dict
         "client_name": client.get("name"),
         "client_email": client.get("email"),
         "with_role": payload.with_role,
+        "participant_ids": participant_ids,
+        "participant_names": participant_names,
         "requested_by": user["id"],
         "requested_by_name": user.get("name"),
         "requested_by_role": user.get("account_type") or user.get("role"),
@@ -1169,12 +1188,50 @@ async def create_deal_meeting(client_id: str, payload: DealMeetingIn, user: dict
     body = (f"<p>An underwriting call for <strong>{client.get('name')}</strong> is scheduled for "
             f"<strong>{when}</strong>.</p>"
             f"<p>Join here: <a href=\"{meet_link}\" style=\"color:#D4AF37;\">{meet_link}</a></p>"
-            f"<p>Requested with: {payload.with_role.title()}</p>")
+            f"<p>With: {with_label}</p>")
     # firm always gets a copy; participants get copies with the requester as Reply-To
     await send_email(ADMIN_NOTIFY_EMAIL, f"[D.O.X] Underwriting call — {client.get('name')} · {when}",
                      email_shell("Underwriting Call Scheduled", body), reply_to=user.get("email"))
     await _notify_deal(client, user.get("email"), f"[D.O.X] Underwriting call confirmed — {when}", body)
     return {"ok": True, "id": doc["id"], "meet_link": meet_link}
+
+
+@api.get("/deals/{client_id}/team")
+async def deal_team(client_id: str, user: dict = Depends(require_approved)):
+    """People the client may request on an underwriting call (assigned staff + admins)."""
+    client = await _require_deal_access(user, client_id)
+    ids: list[str] = []
+    rec = await db.prescreen.find_one({"user_id": client_id}, {"_id": 0, "underwriter_id": 1})
+    if (rec or {}).get("underwriter_id"):
+        ids.append(rec["underwriter_id"])
+    if client.get("partner_id"):
+        ids.append(client["partner_id"])
+    ids += (client.get("assigned_ids") or [])
+    for a in await db.users.find({"role": "admin"}, {"_id": 0, "id": 1}).to_list(20):
+        ids.append(a["id"])
+    seen, out = set(), []
+    for pid in ids:
+        if pid in seen:
+            continue
+        seen.add(pid)
+        u = await db.users.find_one({"id": pid}, {"_id": 0, "id": 1, "name": 1, "role": 1, "account_type": 1})
+        if not u:
+            continue
+        has = await db.availability.find_one({"user_id": pid}, {"_id": 0, "user_id": 1})
+        out.append({"id": u["id"], "name": u.get("name"),
+                    "role": "admin" if u.get("role") == "admin" else (u.get("account_type") or "staff"),
+                    "has_availability": bool(has)})
+    return out
+
+
+@api.get("/deals/{client_id}/slots")
+async def deal_slots(client_id: str, date: str = Query(...), person_ids: str = Query(default=""),
+                     user: dict = Depends(require_approved)):
+    await _require_deal_access(user, client_id)
+    from workspace.availability import common_slots, all_have_no_availability
+    ids = [p for p in person_ids.split(",") if p]
+    return {"date": date, "slots": await common_slots(ids, date),
+            "unconstrained": await all_have_no_availability(ids)}
 
 
 @api.get("/deals/{client_id}/meetings")

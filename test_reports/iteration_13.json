@@ -1,0 +1,50 @@
+{
+  "summary": "Availability + deal-scheduling feature tested end-to-end on web + shared backend. Backend: 12/12 pytest cases pass (1 skipped due to client doc-gating). Frontend web: admin availability modal fully functional (open, 7 weekday rows, slot select, blocked-date add/chip/remove, save, reload-persists). Client gets 403 on /api/workspace/availability (correct). Client /dashboard → Underwriting Call tab correctly shows gated screen (1/22 docs approved). Workspace calendar regression confirmed (grid renders, meeting chips, upcoming list, accept/decline testids wired, backend respond test green). DealScheduler person-picker UI could NOT be exercised in a real browser because every available test account is still doc-gated (see 'issues' below) — the person-picker is covered via backend tests only.",
+  "platforms_tested": ["web"],
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "web": {
+      "ui_bugs": [],
+      "integration_issues": [
+        {
+          "flow": "DealScheduler person-picker visibility",
+          "issue": "The person-picker + sched-slot buttons could not be rendered in-browser with any available test credential because: (1) client@thedoxs.com has only 1 of 22 required docs approved, so DealScheduler shows the gated screen; (2) staff viewing another client's Schedule tab are also gated (gate uses viewer's own /prescreen/me as noted by main agent). Backend endpoints (/api/deals/{cid}/team, /api/deals/{cid}/slots) and 409 enforcement verified via pytest, but the UI binding (sched-person-* click -> fetch slots -> sched-slot-HH:MM render -> POST meetings) was not exercised against a live DOM. Main agent should either approve all documents for client@thedoxs.com in seed OR expose a non-client preview path for QA.",
+          "affected_selectors": ["sched-person-<id>", "sched-slot-<HH:MM>", "sched-date", "sched-submit", "sched-no-slots", "sched-time"]
+        }
+      ],
+      "design_issues": [
+        {
+          "screen": "Availability modal",
+          "issues": ["Non-blocking: dev-overlay injects <span data-ve-dynamic> inside <option> elements of the slot select, triggering a React hydration warning in console ('<span> cannot be a child of <option>'). Appears to come from the frontend inspection toolkit, not AvailabilityEditor code itself."]
+        }
+      ]
+    },
+    "mobile": {"ui_bugs": [], "integration_issues": [], "design_issues": [], "react_native_issues": []}
+  },
+  "parity_issues": [],
+  "test_report_links": [
+    "/app/backend/tests/test_availability_scheduling.py",
+    "/app/test_reports/pytest/avail_scheduling.xml"
+  ],
+  "action_items": [
+    "Consider decoupling DealScheduler gating from /prescreen/me when the viewer is staff/admin so QA (and real underwriters/partners) can reach the person-picker on a client's Schedule tab without first approving every client doc.",
+    "Optional seed enhancement: pre-approve all 22 required docs for client@thedoxs.com so the client-self booking happy path is testable in UI without manual approval steps."
+  ],
+  "critical_code_review_comments": [
+    "backend/workspace/availability.py: common_slots returns [] when NO selected person has availability — but the API wraps this with unconstrained=True, so UI falls back to the free-time input. Behaviour is correct, just subtle; consider a doc comment on common_slots that '[]' can mean either 'nobody has availability' or 'intersection empty' and that callers must use all_have_no_availability to disambiguate.",
+    "server.py create_deal_meeting: participant lookup uses db.users.find_one({'id': pid}) — if a participant_id is bogus the slot still gets validated (returns ok=True because validate_slot skips users with no availability doc). Not a bug today, but worth adding an existence check to prevent silent accept of unknown ids.",
+    "frontend DealScheduler: when slots.unconstrained is true AND the picked persons DO have availability but intersection is empty, backend returns unconstrained=False+slots=[] so sched-no-slots renders correctly. Good. No change needed."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_availability_scheduling.py"
+  ],
+  "success_rate": {"backend": "100% (12/12 executed, 1 skipped by design)", "frontend": "~85% (admin availability + calendar regression fully verified; DealScheduler UI not reachable with current seed data)"},
+  "seed_data_creation": "Admin availability saved via UI with blocked_dates=['2026-07-04'] and Mon-Fri 09:00-17:00 slot=30. Underwriter availability also saved via API (same schedule). These persist and are needed for the /api/deals/{cid}/slots assertions.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Backend regression file is /app/backend/tests/test_availability_scheduling.py (pytest, hits REACT_APP_BACKEND_URL/api). Admin modal selectors confirmed: [data-testid=availability-button], [data-testid=availability-modal], [data-testid=avail-on-0..6], [data-testid=avail-start-0..6]/avail-end-0..6, [data-testid=avail-slot], [data-testid=avail-block-date], [data-testid=avail-block-add], [data-testid=avail-blocked-<YYYY-MM-DD>], [data-testid=avail-save]. Note: workspace Btn component renders id prop as data-testid (NOT html id), so always target with [data-testid=...]. DealScheduler UI needs client's docs fully approved OR gating relaxed for staff before person-picker is browser-testable.",
+  "rca of the issue": "N/A — no bugs filed. Only an environment/testability note: the shared gating logic in DealScheduler (uses viewer's /prescreen/me regardless of role) blocks UI-level exercise of the new person-picker. Backend contract fully verified via pytest."
+}
