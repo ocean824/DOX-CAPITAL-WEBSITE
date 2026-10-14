@@ -1472,6 +1472,21 @@ async def link_inbox_message(message_id: str, payload: InboxLinkIn,
     return {"ok": True}
 
 
+class InboxComposeIn(BaseModel):
+    to: EmailStr
+    subject: str = Field(min_length=1, max_length=300)
+    body: str = Field(min_length=1, max_length=20000)
+
+
+@api.post("/inbox/compose")
+async def compose_inbox_message(payload: InboxComposeIn, user: dict = Depends(_require_inbox_user)):
+    body_html = f"<p>{escape_html(payload.body).replace(chr(10), '<br>')}</p>"
+    await send_email(str(payload.to), payload.subject,
+                     email_shell(payload.subject, body_html),
+                     reply_to=user.get("business_email"))
+    return {"ok": True}
+
+
 # ---- Assistant (lightweight AI chat, mobile) -----------------------------
 ASSISTANT_MODEL = "gpt-6-luna"
 ASSISTANT_SYSTEM = (

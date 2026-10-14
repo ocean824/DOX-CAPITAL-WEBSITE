@@ -22,10 +22,10 @@ def clean(doc): return {k:v for k,v in doc.items() if k != '_id'} if doc else No
 
 UW_STAGES = ['underwriting', 'package_submitted', 'closed_funded']
 PERMS = {
-    'OWNER': {'read','write','delete','manage','review','ai','message','internal'},
-    'UNDERWRITER': {'read','write','review','ai','message','internal'},
+    'OWNER': {'read','write','delete','manage','review','ai','message','internal','draft'},
+    'UNDERWRITER': {'read','write','review','ai','message','internal','draft'},
     'TEAM_MEMBER': {'read','write','message','internal'},
-    'PARTNER': {'read','write','message','internal'},
+    'PARTNER': {'read','write','message','internal','draft'},
     'CLIENT': {'read'},
 }
 async def authorize(user, action, resource=None):

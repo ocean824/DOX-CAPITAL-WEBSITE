@@ -1,11 +1,11 @@
 import {useState,useEffect,useCallback} from 'react';
 import axios from 'axios';
-import {Send,ArrowLeft,Paperclip,Mail,Reply,Link2,RefreshCw} from 'lucide-react';
+import {Send,ArrowLeft,Paperclip,Mail,Reply,Link2,RefreshCw,Plus} from 'lucide-react';
 import {toast} from 'sonner';
 import {useAuth} from '../lib/auth';
 import {useData} from '../lib/useData';
 import {BASE,api,dateLabel,errorText} from '../lib/api';
-import {PageHeader,Btn,Avatar,Badge,Empty,Loading} from '../components/Common';
+import {PageHeader,Btn,Avatar,Badge,Empty,Loading,Modal,Field} from '../components/Common';
 
 // Inbox endpoints live on the main site API (/api), not /api/workspace.
 const mail=axios.create({baseURL:`${BASE}/api`,withCredentials:true});
@@ -20,6 +20,9 @@ export default function Inbox(){
  const [body,setBody]=useState('');
  const [busy,setBusy]=useState(false);
  const [linkTo,setLinkTo]=useState('');
+ const [compose,setCompose]=useState(false);
+ const [cf,setCf]=useState({to:'',subject:'',body:''});
+ const [csending,setCsending]=useState(false);
  const {data:txs=[]}=useData('/transactions',[]);
 
  const load=useCallback(async()=>{
@@ -44,9 +47,15 @@ export default function Inbox(){
   try{await mail.post(`/inbox/${selected.id}/link`,{deal_id:deal_id||null});toast.success(deal_id?'Linked to deal':'Unlinked');}
   catch(e){toast.error(errorText(e));}
  };
+ const sendNew=async e=>{e.preventDefault();setCsending(true);
+  try{await mail.post('/inbox/compose',{to:cf.to,subject:cf.subject,body:cf.body});toast.success(`Email sent to ${cf.to}`);
+   setCompose(false);setCf({to:'',subject:'',body:''});}
+  catch(e){toast.error(errorText(e));}finally{setCsending(false);}
+ };
 
  return <><PageHeader eyebrow="EMAIL, INSIDE THE WORKSPACE" title="Inbox" subtitle={data.business_email?`Mail to ${data.business_email}`:'Your business inbox'}>
    {canSeeAll&&<Btn id="inbox-scope-toggle" secondary onClick={()=>setScope(s=>s==='mine'?'all':'mine')}>{scope==='mine'?'All firm mail':'My inbox'}</Btn>}
+   <Btn id="inbox-compose-open" onClick={()=>setCompose(true)}><Plus size={15}/>Compose</Btn>
    <Btn id="inbox-refresh" secondary onClick={load}><RefreshCw size={15}/>Refresh</Btn>
  </PageHeader>
  {loading?<Loading/>:<div className={`messages-layout ${selected?'has-selection':''}`}>
@@ -68,7 +77,7 @@ export default function Inbox(){
       {selected.html?<div dangerouslySetInnerHTML={{__html:selected.html}}/>:<pre style={{whiteSpace:'pre-wrap',fontFamily:'inherit',margin:0}}>{selected.text||'(empty message)'}</pre>}
      </div>
     </div>
-    <form className="message-compose" onSubmit={reply}>
+    <form className="message-compose inbox-compose" onSubmit={reply}>
      <div style={{display:'flex',alignItems:'center',gap:8,width:'100%',marginBottom:6}}>
       <Link2 size={14}/>
       <select data-testid="inbox-link-deal" aria-label="Link to deal" value={linkTo} onChange={e=>linkDeal(e.target.value)} style={{flex:1}}>
@@ -81,5 +90,13 @@ export default function Inbox(){
     </form>
    </>:<Empty title="Select a message" text="Pick an email on the left to read and reply."><Mail size={0}/></Empty>}
   </section>
- </div>}</>;
+ </div>}
+ <Modal open={compose} onClose={()=>setCompose(false)} title="Compose email" description={data.business_email?`Sent from ${data.business_email}`:'New outbound email'} id="inbox-compose-modal">
+  <form onSubmit={sendNew}>
+   <Field label="To"><input data-testid="compose-to" type="email" required value={cf.to} onChange={e=>setCf(s=>({...s,to:e.target.value}))} placeholder="name@company.com"/></Field>
+   <Field label="Subject"><input data-testid="compose-subject" required maxLength={300} value={cf.subject} onChange={e=>setCf(s=>({...s,subject:e.target.value}))} placeholder="Subject line"/></Field>
+   <Field label="Message"><textarea data-testid="compose-body" required maxLength={20000} style={{minHeight:170}} value={cf.body} onChange={e=>setCf(s=>({...s,body:e.target.value}))} placeholder="Write your email…"/></Field>
+   <div className="form-footer"><Btn secondary id="compose-cancel" type="button" onClick={()=>setCompose(false)}>Cancel</Btn><Btn id="compose-send" type="submit" loading={csending} disabled={!cf.to.trim()||!cf.subject.trim()||!cf.body.trim()}><Send size={14}/>Send email</Btn></div>
+  </form>
+ </Modal></>;
 }

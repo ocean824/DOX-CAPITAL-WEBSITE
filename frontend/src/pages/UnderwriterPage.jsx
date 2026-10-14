@@ -42,6 +42,8 @@ export default function UnderwriterPage() {
   const [menu, setMenu] = useState("");
   const [panel, setPanel] = useState("review");
   const [adminView, setAdminView] = useState("underwriting");
+  const [dealFilter, setDealFilter] = useState("all");
+  const [sortReady, setSortReady] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
@@ -94,6 +96,11 @@ export default function UnderwriterPage() {
     } catch (e) { toast.error(formatApiError(e.response?.data?.detail) || e.message); }
   };
 
+  const visibleRows = rows
+    .filter((r) => (dealFilter === "all" ? true : dealFilter === "gates" ? r.open_flag_count > 0 : r.phase === dealFilter))
+    .slice()
+    .sort((a, b) => (sortReady ? b.score.pct - a.score.pct : 0));
+
   return (
     <div className="text-white min-h-screen grain">
       <NavBar />
@@ -136,8 +143,11 @@ export default function UnderwriterPage() {
           {loading ? <p className="text-sm text-white/50">Loading deals…</p>
             : rows.length === 0 ? <Empty text="No deals are ready for underwriting yet." />
             : (
+              <>
+              <DealFilters rows={rows} active={dealFilter} setActive={setDealFilter} sortReady={sortReady} setSortReady={setSortReady} />
+              {visibleRows.length === 0 ? <Empty text="No deals match this filter." /> : (
               <div data-testid="underwriter-deals" className="divide-y divide-white/10 border-y border-white/10">
-                {rows.map((r) => {
+                {visibleRows.map((r) => {
                   const isOpen = open === r.user.id;
                   return (
                     <div key={r.user.id} className="py-6">
@@ -162,6 +172,8 @@ export default function UnderwriterPage() {
                   );
                 })}
               </div>
+              )}
+              </>
             )}
         </div>
       </section>
@@ -287,6 +299,25 @@ function DealPanel({ r, panel, setPanel, menu, setMenu, setPhase, setItemStatus 
       )}
       {panel === "schedule" && <DealScheduler clientId={r.user.id} phase={r.phase} />}
       {panel === "messages" && <DealThread clientId={r.user.id} />}
+    </div>
+  );
+}
+function DealFilters({ rows, active, setActive, sortReady, setSortReady }) {
+  const present = ["ready_to_underwrite", "in_underwriting", "approved", "declined"].filter((p) => rows.some((r) => r.phase === p));
+  const chips = [["all", `All (${rows.length})`], ...present.map((p) => [p, PHASE_LABELS[p]]), ["gates", `Gates open (${rows.filter((r) => r.open_flag_count > 0).length})`]];
+  return (
+    <div data-testid="deal-filters" className="flex flex-wrap items-center gap-2 mb-5">
+      {chips.map(([key, label]) => (
+        <button key={key} data-testid={`deal-filter-${key}`} onClick={() => setActive(key)}
+          className={`text-[11px] tracking-wide uppercase border px-3 py-1.5 transition-colors ${active === key ? "border-[hsl(var(--gold))] text-[hsl(var(--gold))] bg-[hsl(var(--gold))]/5" : "border-white/15 text-white/50 hover:text-white"}`}>
+          {label}
+        </button>
+      ))}
+      <div className="flex-1" />
+      <button data-testid="deal-sort-ready" onClick={() => setSortReady((v) => !v)}
+        className={`text-[11px] tracking-wide uppercase border px-3 py-1.5 ${sortReady ? "border-[hsl(var(--gold))] text-[hsl(var(--gold))]" : "border-white/15 text-white/50 hover:text-white"}`}>
+        Sort: % ready {sortReady ? "↓" : ""}
+      </button>
     </div>
   );
 }
