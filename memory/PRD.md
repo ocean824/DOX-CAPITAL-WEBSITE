@@ -112,3 +112,8 @@ Admins flip Client/Staff per user in the admin console (`POST /api/admin/users/{
   - **Dates:** calendar-picker icon removed (type-to-enter); Key milestones (engagement/diligence/close) editable for staff via `PATCH /workspace/transactions/{id}` with order validation on any milestone key.
   - **Misc:** uploads cap raised to 200MB (`/uploads` + workspace docs); footer "PART OF LOSSLESS HOLDINGS" → "POWERED BY ZAVREX OS" (workspace) and "Powered by ZAVREX OS" added to site/portal footer; Book Discovery Call hidden when logged in; workspace identity card illuminated → Overview.
   - **Regression:** iteration_11 — 36/36 backend pytest pass; testing agent fixed a Rule-of-Hooks bug in `AdminPage.jsx` (hooks hoisted above early returns). Added `test_review_regression.py`.
+
+- **2026-06 (later, same session):** Operations/Underwriter console (`UnderwriterPage.jsx`) parity fix (web only, no backend change):
+  - Extracted the full underwriting function panel into a shared `DealPanel` component (phase actions + Review/Schedule/Messages tabs, gates, document sections, status cycling, inline preview).
+  - The **"Your referred clients"** dropdown now renders `DealPanel` (full functions) instead of a messages-only `DealThread`, so Admin — whose referred-clients list is ALL clients via `/partner/clients` — gets identical underwriting capabilities on every client, matching the Underwriter.
+  - Reordered: **"Deals ready for underwriting"** moved to the top (work surface first, `pb-10`), **"Your referred clients"** moved below (`pb-32`) with a helper subtitle. Verified via screenshot as admin: expanding a referred client shows phase actions + Review/Schedule/Messages.
