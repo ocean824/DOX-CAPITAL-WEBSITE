@@ -7,7 +7,7 @@ function AnimatedLetter({ char, to, testid, label, tilt = -6, onClick }) {
   return (
     <Link to={to} data-testid={testid} onClick={onClick} className="inline-block" aria-label={label}>
       <motion.span
-        className="font-display text-3xl leading-none inline-block"
+        className="font-display text-sm leading-none inline-block"
         style={{ color: "hsl(var(--gold))" }}
         animate={{
           y: [0, -3, 0],
