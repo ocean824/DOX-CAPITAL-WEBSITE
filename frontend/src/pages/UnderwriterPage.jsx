@@ -8,6 +8,7 @@ import { Button } from "../components/ui/button";
 import { DealScheduler } from "../components/DealScheduler";
 import { DealThread } from "../components/DealThread";
 import { PhasePill, PHASE_LABELS } from "../lib/deal";
+import { AdminConsole } from "./AdminPage";
 import { toast } from "sonner";
 import {
   ChevronDown, ChevronRight, CheckCircle2, AlertTriangle, Download, MessageSquare, CalendarClock, Copy, Users, Eye,
@@ -40,6 +41,7 @@ export default function UnderwriterPage() {
   const [open, setOpen] = useState("");
   const [menu, setMenu] = useState("");
   const [panel, setPanel] = useState("review");
+  const [adminView, setAdminView] = useState("underwriting");
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
@@ -95,14 +97,25 @@ export default function UnderwriterPage() {
   return (
     <div className="text-white min-h-screen grain">
       <NavBar />
+      {(() => { const isAdmin = user?.role === "admin"; const view = isAdmin ? adminView : "underwriting"; return (<>
       <section className="pt-32 pb-10 hero-glow">
         <div className="mx-auto max-w-7xl px-6 lg:px-12">
-          <div className="label-kicker">Underwriter Console</div>
-          <h1 className="font-display text-4xl lg:text-5xl font-light mt-3">Deals prepared for underwriting.</h1>
-          <p className="text-white/55 mt-3 text-sm max-w-2xl">
-            Every file below has reached the Ready-to-Underwrite phase. Review documents, clear gates,
-            move the deal through underwriting and schedule calls.
-          </p>
+          <div className="label-kicker">{isAdmin ? "Operations Console" : "Underwriter Console"}</div>
+          <h1 className="font-display text-4xl lg:text-5xl font-light mt-3">{view === "admin" ? "D.O.X operations." : "Deals prepared for underwriting."}</h1>
+          {view === "underwriting" && (
+            <p className="text-white/55 mt-3 text-sm max-w-2xl">
+              Every file below has reached the Ready-to-Underwrite phase. Review documents, clear gates,
+              move the deal through underwriting and schedule calls.
+            </p>
+          )}
+          {isAdmin && (
+            <div className="flex gap-2 mt-6" data-testid="ops-console-tabs">
+              <button data-testid="ops-tab-underwriting" onClick={() => setAdminView("underwriting")}
+                className={`text-xs tracking-widest uppercase border px-4 py-2 ${view === "underwriting" ? "border-[hsl(var(--gold))] text-[hsl(var(--gold))]" : "border-white/15 text-white/50 hover:text-white"}`}>Underwriting</button>
+              <button data-testid="ops-tab-admin" onClick={() => setAdminView("admin")}
+                className={`text-xs tracking-widest uppercase border px-4 py-2 ${view === "admin" ? "border-[hsl(var(--gold))] text-[hsl(var(--gold))]" : "border-white/15 text-white/50 hover:text-white"}`}>Admin Console</button>
+            </div>
+          )}
 
           {me?.referral_code && (
             <div data-testid="underwriter-referral" className="mt-8 inline-flex items-center gap-4 border border-[hsl(var(--gold))]/40 px-6 py-4">
@@ -117,7 +130,7 @@ export default function UnderwriterPage() {
         </div>
       </section>
 
-      {myClients.length > 0 && (
+      {view === "underwriting" && myClients.length > 0 && (
         <section className="pb-6">
           <div className="mx-auto max-w-7xl px-6 lg:px-12">
             <div className="label-kicker flex items-center gap-2"><Users className="h-4 w-4" /> Your referred clients</div>
@@ -155,6 +168,7 @@ export default function UnderwriterPage() {
         </section>
       )}
 
+      {view === "underwriting" && (
       <section className="pb-32">
         <div className="mx-auto max-w-7xl px-6 lg:px-12">
           {loading ? <p className="text-sm text-white/50">Loading deals…</p>
@@ -270,6 +284,9 @@ export default function UnderwriterPage() {
             )}
         </div>
       </section>
+      )}
+      {view === "admin" && <AdminConsole embedded />}
+      </>); })()}
       <Footer />
     </div>
   );

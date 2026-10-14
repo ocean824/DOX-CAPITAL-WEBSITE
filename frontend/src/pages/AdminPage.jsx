@@ -13,7 +13,7 @@ import { Check, X, Download, Calendar as CalIcon, User as UserIcon, FileText, Vi
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "../components/ui/dialog";
 import { Checkbox } from "../components/ui/checkbox";
 
-export default function AdminPage() {
+export function AdminConsole({ embedded = false }) {
   const { user } = useAuth();
   const [users, setUsers] = useState([]);
   const [uploads, setUploads] = useState([]);
@@ -146,14 +146,15 @@ export default function AdminPage() {
   );
 
   return (
-    <div className="text-white min-h-screen grain">
-      <NavBar />
-      <section className="pt-32 pb-12 hero-glow">
+    <>
+      <section className={embedded ? "pb-12" : "pt-32 pb-12 hero-glow"}>
         <div className="mx-auto max-w-7xl px-6 lg:px-12">
-          <div className="label-kicker">Admin Console</div>
-          <h1 className="font-display text-4xl lg:text-5xl font-light mt-3 leading-tight">
-            D.O.X operations.
-          </h1>
+          {!embedded && <div className="label-kicker">Admin Console</div>}
+          {!embedded && (
+            <h1 className="font-display text-4xl lg:text-5xl font-light mt-3 leading-tight">
+              D.O.X operations.
+            </h1>
+          )}
           <div className="grid sm:grid-cols-4 gap-px bg-white/10 mt-10 max-w-3xl">
             <Stat n={pending.length} label="Pending users" />
             <Stat n={everyone.length} label="Total partners" />
@@ -353,7 +354,15 @@ export default function AdminPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+    </>
+  );
+}
 
+export default function AdminPage() {
+  return (
+    <div className="text-white min-h-screen grain">
+      <NavBar />
+      <AdminConsole />
       <Footer />
     </div>
   );

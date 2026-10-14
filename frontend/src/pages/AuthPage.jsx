@@ -120,7 +120,7 @@ export default function AuthPage() {
       await refresh();
       toast.success("Welcome back");
       const u = data.user;
-      if (u.role === "admin") nav("/admin");
+      if (u.role === "admin") nav("/workspace");
       else if ((u.account_type === "underwriter" || u.account_type === "partner") && u.status === "approved") nav("/workspace");
       else nav("/dashboard");
     } catch (e2) {
