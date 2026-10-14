@@ -16,12 +16,16 @@ export function DealScheduler({ clientId, phase }) {
   const docsApproved = !!docs && docs.required_total > 0 && docs.verified >= docs.required_total;
   const gated = !isStaff && !docsApproved;
   const [meetings, setMeetings] = useState([]);
-  const [form, setForm] = useState({ preferred_date: "", preferred_time: "", notes: "" });
   const [team, setTeam] = useState([]);
   const [picked, setPicked] = useState([]);
-  const [slots, setSlots] = useState({ slots: [], unconstrained: true });
+  const [searchDate, setSearchDate] = useState("");
+  const [slotIso, setSlotIso] = useState("");
+  const [freeTime, setFreeTime] = useState("");
+  const [notes, setNotes] = useState("");
+  const [slots, setSlots] = useState({ slots: [], unconstrained: true, host_timezone: "UTC" });
   const [slotsLoading, setSlotsLoading] = useState(false);
   const [busy, setBusy] = useState(false);
+  const clientTz = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
 
   const load = useCallback(async () => {
     try {
@@ -42,27 +46,38 @@ export function DealScheduler({ clientId, phase }) {
   useEffect(() => { load(); }, [load]);
 
   useEffect(() => {
-    if (!form.preferred_date || picked.length === 0) { setSlots({ slots: [], unconstrained: true }); return; }
+    if (!searchDate || picked.length === 0) { setSlots({ slots: [], unconstrained: true, host_timezone: "UTC" }); return; }
     let active = true;
     setSlotsLoading(true);
-    api.get(`/deals/${clientId}/slots`, { params: { date: form.preferred_date, person_ids: picked.join(",") } })
+    setSlotIso("");
+    api.get(`/deals/${clientId}/slots`, { params: { date: searchDate, person_ids: picked.join(",") } })
       .then((r) => { if (active) setSlots(r.data); })
-      .catch(() => { if (active) setSlots({ slots: [], unconstrained: true }); })
+      .catch(() => { if (active) setSlots({ slots: [], unconstrained: true, host_timezone: "UTC" }); })
       .finally(() => { if (active) setSlotsLoading(false); });
     return () => { active = false; };
-  }, [clientId, form.preferred_date, picked]);
+  }, [clientId, searchDate, picked]);
+
+  const pad = (n) => String(n).padStart(2, "0");
+  const fmt = (iso, tz) => new Date(iso).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", timeZone: tz });
 
   const book = async (e) => {
     e.preventDefault();
     if (!picked.length) { toast.error("Select who you want on the call"); return; }
-    if (!form.preferred_time) { toast.error("Pick a time"); return; }
+    let preferred_date, preferred_time;
+    if (slots.unconstrained) {
+      if (!searchDate || !freeTime) { toast.error("Pick a date and time"); return; }
+      preferred_date = searchDate; preferred_time = freeTime;
+    } else {
+      if (!slotIso) { toast.error("Pick an available time"); return; }
+      const d = new Date(slotIso);
+      preferred_date = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+      preferred_time = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
     setBusy(true);
     try {
-      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
-      await api.post(`/deals/${clientId}/meetings`, { ...form, participant_ids: picked, timezone: tz });
+      await api.post(`/deals/${clientId}/meetings`, { participant_ids: picked, preferred_date, preferred_time, timezone: clientTz, notes });
       toast.success("Underwriting call scheduled — calendar invite emailed");
-      setForm({ preferred_date: "", preferred_time: "", notes: "" });
-      setPicked([]);
+      setSearchDate(""); setSlotIso(""); setFreeTime(""); setNotes(""); setPicked([]);
       await load();
     } catch (e2) {
       toast.error(formatApiError(e2.response?.data?.detail) || e2.message);
@@ -115,8 +130,8 @@ export function DealScheduler({ clientId, phase }) {
         </div>
         <div>
           <label className="label-kicker text-xs">Date</label>
-          <Input data-testid="sched-date" type="date" required value={form.preferred_date}
-            onChange={(e) => setForm((s) => ({ ...s, preferred_date: e.target.value, preferred_time: "" }))}
+          <Input data-testid="sched-date" type="date" required value={searchDate}
+            onChange={(e) => { setSearchDate(e.target.value); setSlotIso(""); }}
             className="rounded-none bg-black/40 border-white/15 mt-2" />
         </div>
         <div>
@@ -126,27 +141,33 @@ export function DealScheduler({ clientId, phase }) {
           ) : slotsLoading ? (
             <p className="text-xs text-white/40 mt-2">Checking availability…</p>
           ) : slots.unconstrained ? (
-            <Input data-testid="sched-time" type="time" required value={form.preferred_time}
-              onChange={(e) => setForm((s) => ({ ...s, preferred_time: e.target.value }))}
+            <Input data-testid="sched-time" type="time" required value={freeTime}
+              onChange={(e) => setFreeTime(e.target.value)}
               className="rounded-none bg-black/40 border-white/15 mt-2" />
           ) : slots.slots.length === 0 ? (
             <p className="text-xs text-amber-300/80 mt-2" data-testid="sched-no-slots">No open times for everyone selected on this day. Try another date.</p>
           ) : (
+            <>
+            <p className="text-[11px] text-white/40 mt-2" data-testid="sched-tz-note">Times in your timezone (<span className="text-white/60">{clientTz}</span>){slots.host_timezone && slots.host_timezone !== clientTz ? <> · host in {slots.host_timezone}</> : null}</p>
             <div className="flex flex-wrap gap-2 mt-2" data-testid="sched-slots">
-              {slots.slots.map((t) => (
-                <button type="button" key={t} data-testid={`sched-slot-${t}`}
-                  onClick={() => setForm((s) => ({ ...s, preferred_time: t }))}
-                  className={`px-3 py-2 text-xs border ${form.preferred_time === t ? "bg-white text-black border-white" : "border-white/15 text-white/60 hover:text-white"}`}>
-                  {t}
+              {slots.slots.map((iso) => (
+                <button type="button" key={iso} data-testid={`sched-slot-${iso}`}
+                  onClick={() => setSlotIso(iso)}
+                  className={`px-3 py-2 text-xs border text-center leading-tight ${slotIso === iso ? "bg-white text-black border-white" : "border-white/15 text-white/60 hover:text-white"}`}>
+                  {fmt(iso, clientTz)}
+                  {slots.host_timezone && slots.host_timezone !== clientTz && (
+                    <span className={`block text-[9px] ${slotIso === iso ? "text-black/50" : "text-white/35"}`}>host {fmt(iso, slots.host_timezone)}</span>
+                  )}
                 </button>
               ))}
             </div>
+            </>
           )}
         </div>
-        <Textarea data-testid="sched-notes" rows={2} value={form.notes}
-          onChange={(e) => setForm((s) => ({ ...s, notes: e.target.value }))}
+        <Textarea data-testid="sched-notes" rows={2} value={notes}
+          onChange={(e) => setNotes(e.target.value)}
           placeholder="Agenda (optional)" className="rounded-none bg-black/40 border-white/15" />
-        <Button data-testid="sched-submit" disabled={busy || !picked.length || !form.preferred_time || !form.preferred_date}
+        <Button data-testid="sched-submit" disabled={busy || !picked.length || (slots.unconstrained ? (!freeTime || !searchDate) : !slotIso)}
           className="rounded-none bg-white text-black hover:bg-white/90 h-11 px-6 btn-shimmer">
           {busy ? "Scheduling…" : "Confirm call"}
         </Button>

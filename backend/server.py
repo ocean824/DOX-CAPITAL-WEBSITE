@@ -1155,7 +1155,7 @@ async def create_deal_meeting(client_id: str, payload: DealMeetingIn, user: dict
     participant_ids = resolved_ids
     if participant_ids:
         from workspace.availability import validate_slot
-        ok, bad = await validate_slot(participant_ids, payload.preferred_date, payload.preferred_time)
+        ok, bad = await validate_slot(participant_ids, payload.preferred_date, payload.preferred_time, payload.timezone)
         if not ok:
             bu = await db.users.find_one({"id": bad}, {"_id": 0, "name": 1})
             raise HTTPException(status_code=409,
@@ -1228,10 +1228,11 @@ async def deal_team(client_id: str, user: dict = Depends(require_approved)):
 async def deal_slots(client_id: str, date: str = Query(...), person_ids: str = Query(default=""),
                      user: dict = Depends(require_approved)):
     await _require_deal_access(user, client_id)
-    from workspace.availability import common_slots, all_have_no_availability
+    from workspace.availability import common_slots, all_have_no_availability, host_timezone
     ids = [p for p in person_ids.split(",") if p]
     return {"date": date, "slots": await common_slots(ids, date),
-            "unconstrained": await all_have_no_availability(ids)}
+            "unconstrained": await all_have_no_availability(ids),
+            "host_timezone": await host_timezone(ids)}
 
 
 @api.get("/deals/{client_id}/meetings")

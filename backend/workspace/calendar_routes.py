@@ -12,7 +12,7 @@ async def my_availability(user=Depends(require('read'))):
 @router.put('/availability',response_model=AvailabilityOut)
 async def set_my_availability(data:AvailabilityIn,user=Depends(require('read'))):
     if user['role']=='CLIENT':raise HTTPException(403,'Availability is for staff only')
-    return await save_availability(user['id'],{'weekly':{k:v.model_dump() for k,v in data.weekly.items()},'blocked_dates':data.blocked_dates,'slot_minutes':data.slot_minutes,'timezone':data.timezone})
+    return await save_availability(user['id'],{'weekly':{k:v.model_dump() for k,v in data.weekly.items()},'blocked_dates':data.blocked_dates,'slot_minutes':data.slot_minutes,'buffer_minutes':data.buffer_minutes,'timezone':data.timezone})
 
 async def notify(ids,title,link,exclude):
     for member in set(ids):

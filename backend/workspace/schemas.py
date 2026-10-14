@@ -306,6 +306,7 @@ class AvailabilityIn(Model):
     weekly: dict[str,DayAvailability]
     blocked_dates: list[str] = Field(default_factory=list,max_length=200)
     slot_minutes: int = Field(default=30,ge=15,le=240)
+    buffer_minutes: int = Field(default=0,ge=0,le=120)
     timezone: str = Field(default='UTC',max_length=80)
 class AvailabilityOut(AvailabilityIn):
     user_id: str

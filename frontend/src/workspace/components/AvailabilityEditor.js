@@ -10,6 +10,7 @@ const blank=()=>DAYS.reduce((a,[k])=>({...a,[k]:{on:['1','2','3','4','5'].includ
 export default function AvailabilityEditor({open,onClose}){
  const [weekly,setWeekly]=useState(blank());
  const [slot,setSlot]=useState(30);
+ const [buffer,setBuffer]=useState(0);
  const [blocked,setBlocked]=useState([]);
  const [newDate,setNewDate]=useState('');
  const [busy,setBusy]=useState(false);
@@ -17,7 +18,7 @@ export default function AvailabilityEditor({open,onClose}){
 
  const load=useCallback(async()=>{setLoading(true);
   try{const {data}=await api.get('/availability');
-   setWeekly({...blank(),...(data.weekly||{})});setSlot(data.slot_minutes||30);setBlocked(data.blocked_dates||[]);}
+   setWeekly({...blank(),...(data.weekly||{})});setSlot(data.slot_minutes||30);setBuffer(data.buffer_minutes||0);setBlocked(data.blocked_dates||[]);}
   catch(e){toast.error(errorText(e));}finally{setLoading(false);}
  },[]);
  useEffect(()=>{if(open)load();},[open,load]);
@@ -25,7 +26,7 @@ export default function AvailabilityEditor({open,onClose}){
  const setDay=(k,patch)=>setWeekly(w=>({...w,[k]:{...w[k],...patch}}));
  const addBlocked=()=>{if(newDate&&!blocked.includes(newDate)){setBlocked(b=>[...b,newDate].sort());setNewDate('');}};
  const save=async()=>{setBusy(true);
-  try{await api.put('/availability',{weekly,slot_minutes:Number(slot),blocked_dates:blocked,timezone:Intl.DateTimeFormat().resolvedOptions().timeZone||'UTC'});
+  try{await api.put('/availability',{weekly,slot_minutes:Number(slot),buffer_minutes:Number(buffer),blocked_dates:blocked,timezone:Intl.DateTimeFormat().resolvedOptions().timeZone||'UTC'});
    toast.success('Availability saved');onClose();}
   catch(e){toast.error(errorText(e));}finally{setBusy(false);}
  };
@@ -43,6 +44,7 @@ export default function AvailabilityEditor({open,onClose}){
   </div>
   <div className="form-grid" style={{marginTop:16}}>
    <Field label="Slot length"><select data-testid="avail-slot" value={slot} onChange={e=>setSlot(e.target.value)}>{[15,30,45,60].map(m=><option key={m} value={m}>{m} minutes</option>)}</select></Field>
+   <Field label="Buffer between calls"><select data-testid="avail-buffer" value={buffer} onChange={e=>setBuffer(e.target.value)}>{[0,5,10,15,30].map(m=><option key={m} value={m}>{m===0?'No buffer':m+' minutes'}</option>)}</select></Field>
   </div>
   <div style={{marginTop:14}}>
    <span style={{fontSize:10,color:'#b2bbc8'}}>Blocked dates (time off)</span>

@@ -132,11 +132,11 @@ class TestDealScheduling:
                          headers=_h(tok), timeout=30)
         assert r.status_code == 200, r.text
         data = r.json()
-        # 09:00-17:00 slot 30 => 16 slots (09:00..16:30)
+        # 09:00-17:00 slot 30 (UTC availability) => 16 ISO-UTC slots (09:00..16:30)
         assert data["unconstrained"] is False
         assert len(data["slots"]) == 16, data
-        assert "09:00" in data["slots"]
-        assert "16:30" in data["slots"]
+        assert any(s.endswith("T09:00:00Z") for s in data["slots"]), data["slots"]
+        assert any(s.endswith("T16:30:00Z") for s in data["slots"]), data["slots"]
 
     def test_slots_unconstrained_when_no_availability(self, admin_s, client_id):
         """If selected person has no availability -> unconstrained true, slots []."""
