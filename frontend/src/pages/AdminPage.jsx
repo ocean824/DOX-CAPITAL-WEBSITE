@@ -19,20 +19,17 @@ export function AdminConsole({ embedded = false }) {
   const [uploads, setUploads] = useState([]);
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [siteLocked, setSiteLocked] = useState(null);
   const [accessClient, setAccessClient] = useState(null);
   const [accessIds, setAccessIds] = useState([]);
 
   const loadAll = useCallback(async () => {
     try {
-      const [u, up, b, s] = await Promise.all([
+      const [u, up, b] = await Promise.all([
         api.get("/admin/users"),
         api.get("/admin/uploads"),
         api.get("/admin/bookings"),
-        api.get("/site/status"),
       ]);
       setUsers(u.data); setUploads(up.data); setBookings(b.data);
-      setSiteLocked(Boolean(s.data?.locked));
     } catch (e) {
       toast.error(formatApiError(e.response?.data?.detail) || e.message);
     } finally { setLoading(false); }
@@ -61,15 +58,6 @@ export function AdminConsole({ embedded = false }) {
       await api.post(`/admin/users/${id}/workspace-role`, { workspace_role });
       toast.success(workspace_role === "staff" ? "Promoted to workspace staff" : "Set to workspace client");
       loadAll();
-    } catch (e) { toast.error(formatApiError(e.response?.data?.detail) || e.message); }
-  };
-
-  const toggleSiteLock = async () => {
-    const next = !siteLocked;
-    try {
-      await api.post("/admin/site-lock", { locked: next });
-      setSiteLocked(next);
-      toast.success(next ? "Site locked — coming soon page is live" : "Site is now public");
     } catch (e) { toast.error(formatApiError(e.response?.data?.detail) || e.message); }
   };
 
@@ -160,22 +148,6 @@ export function AdminConsole({ embedded = false }) {
             <Stat n={everyone.length} label="Total partners" />
             <Stat n={uploads.length} label="Uploads" />
             <Stat n={bookings.length} label="Bookings" />
-          </div>
-
-          <div data-testid="site-lock-panel"
-            className="mt-8 max-w-3xl border border-white/10 bg-white/[0.02] p-6 flex flex-wrap items-center justify-between gap-5">
-            <div>
-              <div className="label-kicker text-xs text-[#D4AF37]">Site visibility</div>
-              <p className="mt-2 text-sm text-white/60 max-w-md">
-                {siteLocked
-                  ? "Coming soon page is live. Only the admin email & password can enter the site."
-                  : "The public site is live — anyone can browse, register and book calls."}
-              </p>
-            </div>
-            <Button data-testid="toggle-site-lock" onClick={toggleSiteLock} disabled={siteLocked === null}
-              className="rounded-none bg-white text-black hover:bg-white/90 h-11 px-6 btn-shimmer">
-              {siteLocked ? "Go public" : "Lock site"}
-            </Button>
           </div>
         </div>
       </section>
