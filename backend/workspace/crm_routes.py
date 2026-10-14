@@ -108,7 +108,7 @@ async def update_transaction(id:str,data:TransactionPatch,user=Depends(require('
             missing=[d for d in tx.get('required_documents',[]) if d not in present]
             if missing:
                 raise HTTPException(422,'Upload required documents before qualifying: '+', '.join(missing[:5])+(f' +{len(missing)-5} more' if len(missing)>5 else ''))
-    if 'close_date' in values: await validate_dates({**tx,**values})
+    if any(k in values for k in ('engagement_date','diligence_date','close_date')): await validate_dates({**tx,**values})
     record=await repo.update('transactions',id,values)
     await activity(user,f'updated {record["title"]}',record,'transaction')
     return record

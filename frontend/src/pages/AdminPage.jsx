@@ -20,6 +20,8 @@ export default function AdminPage() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [siteLocked, setSiteLocked] = useState(null);
+  const [accessClient, setAccessClient] = useState(null);
+  const [accessIds, setAccessIds] = useState([]);
 
   const loadAll = useCallback(async () => {
     try {
@@ -76,8 +78,6 @@ export default function AdminPage() {
   const partners = everyone.filter((u) => u.account_type === "partner");
   const staffMembers = everyone.filter((u) => (u.account_type === "partner" || u.account_type === "underwriter") && u.status === "approved");
 
-  const [accessClient, setAccessClient] = useState(null);
-  const [accessIds, setAccessIds] = useState([]);
   const openAccess = (u) => { setAccessClient(u); setAccessIds(u.assigned_ids || []); };
   const toggleAccessId = (id) => setAccessIds((ids) => (ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]));
   const saveAccess = async () => {
